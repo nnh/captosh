@@ -24,6 +24,7 @@ window.addEventListener('load', () => {
   webview.addEventListener('did-start-loading', () => {
     url_bar.value = webview.src;
   })
+  webview.openDevTools();
   url_bar.addEventListener('keypress', (event) => {
     if (event.keyCode === 13) submit_button.click();
   });
