@@ -24,6 +24,9 @@ window.addEventListener('load', () => {
   webview.addEventListener('did-start-loading', () => {
     url_bar.value = webview.src;
   })
+  url_bar.addEventListener('keypress', (event) => {
+    if (event.keyCode === 13) submit_button.click();
+  });
 
   back_button.addEventListener('click', () => {
     if (webview.canGoBack()) webview.goBack();
