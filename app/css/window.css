@@ -1,0 +1,32 @@
+html {
+ width: 100%;
+ height: 100%;
+}
+
+body {
+ margin: 0;
+ padding: 0;
+ height: 100%;
+}
+
+#webview-container {
+  height: 100%;
+}
+
+#webview {
+  height: 100%;
+}
+
+#url-bar {
+  width: 50%;
+}
+
+/* ----- bootstrap override ----- */
+
+.navbar.navbar-default {
+  margin-bottom: 0px;
+}
+
+.form-inline {
+  padding-top: 8px;
+}
