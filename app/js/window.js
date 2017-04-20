@@ -68,7 +68,7 @@ function savePDF() {
 
   webview.printToPDF(
     {
-      printBackground: false
+      printBackground: true
     },
     (error, data) => {
       if (error !== null) {

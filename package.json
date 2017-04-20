@@ -1,18 +1,20 @@
 {
   "name": "browser",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "app/main.js",
   "scripts": {
     "start": "electron .",
     "package-osx": "electron-packager . PtoshTestApp --platform=darwin --arch=x64 --electron-version=1.4.13 --overwrite",
     "package": "electron-packager . PtoshTestApp --platform=darwin,win32 --arch=x64 --electron-version=1.4.13 --overwrite",
+    "pac": "./node_modules/.bin/build --mac --x64",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^1.6.2"
+    "electron": "^1.6.2",
+    "electron-builder": "^17.0.1"
   },
   "dependencies": {
     "fs": "0.0.1-security",
