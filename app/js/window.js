@@ -21,19 +21,25 @@ window.addEventListener('load', () => {
   submit_button = document.getElementById('submit-button');
   photo_button = document.getElementById('photo-button');
 
-  webview.addEventListener('did-start-loading', () => {
+  // webview.openDevTools();
+  webview.addEventListener('did-stop-loading', () => {
     url_bar.value = webview.src;
-  })
-  webview.openDevTools();
+  });
   url_bar.addEventListener('keypress', (event) => {
-    if (event.keyCode === 13) submit_button.click();
+    if (event.keyCode === 13) {
+      submit_button.click();
+    }
   });
 
   back_button.addEventListener('click', () => {
-    if (webview.canGoBack()) webview.goBack();
+    if (webview.canGoBack()) {
+      webview.goBack();
+    }
   });
   next_button.addEventListener('click', () => {
-    if (webview.canGoForward()) webview.goForward();
+    if (webview.canGoForward()) {
+      webview.goForward();
+    }
   });
   reload_button.addEventListener('click', () => {
     webview.reload();

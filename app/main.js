@@ -13,33 +13,31 @@ function createWindow() {
     height: 768
   });
   mainWindow.loadURL(`file://${__dirname}/window.html`);
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', () => {
     mainWindow = null;
   });;
 
   let template = [{
-    label: "Application",
+    label: 'Application',
     submenu: [
-      { label: "About Application", selector: "orderFrontStandardAboutPanel:" },
-      { type: "separator" },
-      { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
-    ]}, {
-    label: "Edit",
+      { label: '終了', accelerator: 'Command+Q', click: () => { app.quit(); } }
+    ]
+  }, {
+    label: '編集',
     submenu: [
-      { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-      { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
-      { type: "separator" },
-      { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-      { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
-      { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-      { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
-    ]}
-  ];
+      { label: '取り消す', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
+      { label: 'やり直す', accelerator: 'Shift+CmdOrCtrl+Z', selector: 'redo:' },
+      { type: 'separator' },
+      { label: '切り取り', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
+      { label: 'コピー', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
+      { label: '貼り付け', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
+      { label: 'すべてを選択', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' }
+    ]
+  }];
   let menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-  mainWindow.setMenuBarVisibility(true);
 }
 
 app.on('ready', createWindow);

@@ -12,11 +12,12 @@ const dialog = require('electron').remote.dialog;
 ipc.on('take-screenshot', (event, arg) => {
   html2canvas(document.body, {
     onrendered: function(canvas) {
-      let date = new Date();
-      let datetime = `${date.getFullYear()}${("0"+(date.getMonth()+1)).slice(-2)}${date.getDate()}_${date.getHours()}${date.getMinutes()}${date.getSeconds()}`;
+      let today = new Date();
+      let date = `${today.getFullYear()}${zeroPadding(today.getMonth()+1)}${zeroPadding(today.getDate())}`;
+      let time = `${zeroPadding(today.getHours())}${zeroPadding(today.getMinutes())}${zeroPadding(today.getSeconds())}`
       let trialName = document.location.href.split('/')[4];
       let userHome = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
-      let path = `${userHome}/ptosh_crf_image/${trialName}/initial/${datetime}.png`;
+      let path = `${userHome}/ptosh_crf_image/${trialName}/initial/${date}_${time}.png`;
 
       let data = canvas.toDataURL("image/png").replace(/^data:image\/\w+;base64,/, "");
       let buffer = new Buffer(data, 'base64');
@@ -24,9 +25,10 @@ ipc.on('take-screenshot', (event, arg) => {
         if (error !== null) {
           showDialog(error.toString, 'error');
         }
+
         fs.writeFile(path, buffer, (error) => {
           if (error === null) {
-            showDialog(`保存しました。${path}`, 'info');
+            showDialog(`保存しました。\n${path}`, 'info');
           } else {
             showDialog(error.toString, 'error');
           }
@@ -40,10 +42,14 @@ ipc.on('take-screenshot', (event, arg) => {
     let options = {
       type: type,
       buttons: ['OK'],
-      title: 'Error',
+      title: type,
       message: type,
       detail: message
     };
     dialog.showMessageBox(win, options);
+  }
+
+  function zeroPadding(num) {
+    return ("0" + num).slice(-2);
   }
 })

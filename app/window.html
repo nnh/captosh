@@ -3,6 +3,7 @@
 
 <head>
   <title>Browser</title>
+  <meta charset="utf-8">
   <link rel="stylesheet" type="text/css" href="css/window.css">
   <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
@@ -16,12 +17,12 @@
         <span class="navbar-brand">Ptosh App</span>
       </div>
       <div class="form-inline">
-        <button id="back-button" class="btn btn-default btn-circle"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
-        <button id="next-button" class="btn btn-default"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
-        <button id="reload-button" class="btn btn-default"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+        <button id="back-button" class="btn btn-default btn-circle" title="前に戻る"><i class="fa fa-arrow-left"></i></button>
+        <button id="next-button" class="btn btn-default" title="次に進む"><i class="fa fa-arrow-right"></i></button>
+        <button id="reload-button" class="btn btn-default" title="再読み込み"><i class="fa fa-refresh"></i></button>
         <input id="url-bar" type="text" class="form-control" placeholder="url" value="">
-        <button id="submit-button" class="btn btn-default">Go</button>
-        <button id="photo-button" class="btn btn-default"><i class="fa fa-camera" aria-hidden="true"></i></button>
+        <button id="submit-button" class="btn btn-default" title="移動"><i class="fa fa-sign-in"></i></button>
+        <button id="photo-button" class="btn btn-default" title="スクリーンショット撮影"><i class="fa fa-camera"></i></button>
       </div>
     </div>
   </nav>
