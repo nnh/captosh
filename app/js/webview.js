@@ -36,20 +36,20 @@ ipc.on('take-screenshot', (event, arg) => {
       });
     }
   });
+});
 
-  function showDialog(message, type) {
-    let win = BrowserWindow.getFocusedWindow();
-    let options = {
-      type: type,
-      buttons: ['OK'],
-      title: type,
-      message: type,
-      detail: message
-    };
-    dialog.showMessageBox(win, options);
-  }
+function showDialog(message, type) {
+  let win = BrowserWindow.getFocusedWindow();
+  let options = {
+    type: type,
+    buttons: ['OK'],
+    title: type,
+    message: type,
+    detail: message
+  };
+  dialog.showMessageBox(win, options);
+}
 
-  function zeroPadding(num) {
-    return ("0" + num).slice(-2);
-  }
-})
+function zeroPadding(num) {
+  return ("0" + num).slice(-2);
+}
