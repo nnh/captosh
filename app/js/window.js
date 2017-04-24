@@ -63,8 +63,9 @@ function savePDF() {
   let date = `${today.getFullYear()}${zeroPadding(today.getMonth()+1)}${zeroPadding(today.getDate())}`;
   let time = `${zeroPadding(today.getHours())}${zeroPadding(today.getMinutes())}${zeroPadding(today.getSeconds())}`
   let trialName = webview.src.split('/')[4];
+  let sheetName = webview.src.split('/')[8];
   let userHome = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
-  let path = `${userHome}/ptosh_crf_image/${trialName}/initial/${date}_${time}.pdf`;
+  let path = `${userHome}/ptosh_crf_image/${trialName}/${sheetName}/${date}_${time}.pdf`;
 
   webview.printToPDF(
     {
