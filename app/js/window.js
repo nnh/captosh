@@ -73,6 +73,9 @@ function createTab(url = 'https://test-ptosh.herokuapp.com') {
     tab.setTitle(tab.webview.getTitle());
     // webview.openDevTools();
   });
+  tab.webview.addEventListener('new-window', (e) => {
+    createTab(e.url);
+  });
 }
 
 function savePDF() {
