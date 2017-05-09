@@ -9,24 +9,60 @@ body {
  height: 100%;
 }
 
-#webview-container {
-  height: 100%;
-}
-
-#webview {
-  height: 100%;
-}
-
 #url-bar {
   width: 50%;
+  display: inline-block;
+}
+
+.tab-container {
+  display: inline-flex;
+  width: 100%;
+  background-color: #f8f8f8;
+}
+
+.add-tab-button-container {
+  height: auto;
+}
+
+.add-tab-button {
+  height: 100%;
 }
 
 /* ----- bootstrap override ----- */
 
 .navbar.navbar-default {
+  min-height: 30px;
   margin-bottom: 0px;
 }
 
+.navbar-header .navbar-brand {
+  height: 30px;
+  padding: 5px 15px;
+}
+
 .form-inline {
-  padding-top: 8px;
+  padding: 8px;
+}
+
+/* ----- electron-tabs override ----- */
+
+.tab-container .etabs-tabgroup {
+  height: auto;
+  background-color: #f8f8f8;
+}
+
+.etabs-tabgroup .etabs-tabs {
+  height: 100%;
+}
+
+.etabs-tabgroup .etabs-tabs .etabs-tab {
+  height: auto;
+}
+
+.etabs-tab-title {
+  width: 80px;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

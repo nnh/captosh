@@ -7,58 +7,77 @@ const dirname = require('path').dirname;
 const BrowserWindow = require('electron').remote.BrowserWindow;
 const dialog = require('electron').remote.dialog;
 
-let webview = null;
-let url_bar = null;
+const TabGroup = require('electron-tabs');
 
-let back_button = null;
-let next_button = null;
-let reload_button = null;
-let submit_button = null;
-let photo_button = null;
+let tabGroup = null;
+let addTabbutton = null;
+let urlBar = null;
+let backButton = null;
+let nextButton = null;
+let reloadButton = null;
+let submitButton = null;
+let photoButton = null;
 
 window.addEventListener('load', () => {
-  webview = document.getElementById('webview');
-  url_bar = document.getElementById('url-bar');
+  tabGroup = new TabGroup();
+  createTab();
 
-  back_button = document.getElementById('back-button');
-  next_button = document.getElementById('next-button');
-  reload_button = document.getElementById('reload-button');
-  submit_button = document.getElementById('submit-button');
-  photo_button = document.getElementById('photo-button');
+  addTabbutton = document.getElementById('add-tab-button');
+  urlBar = document.getElementById('url-bar');
+  backButton = document.getElementById('back-button');
+  nextButton = document.getElementById('next-button');
+  reloadButton = document.getElementById('reload-button');
+  submitButton = document.getElementById('submit-button');
+  photoButton = document.getElementById('photo-button');
 
-  webview.addEventListener('did-stop-loading', () => {
-    url_bar.value = webview.src;
-    // webview.openDevTools();
+  addTabbutton.addEventListener('click', () => {
+    createTab();
   });
-  url_bar.addEventListener('keypress', (event) => {
+  urlBar.addEventListener('keypress', (event) => {
     if (event.keyCode === 13) {
-      submit_button.click();
+      submitButton.click();
     }
   });
-
-  back_button.addEventListener('click', () => {
+  backButton.addEventListener('click', () => {
+    let webview = tabGroup.getActiveTab().webview;
     if (webview.canGoBack()) {
       webview.goBack();
     }
   });
-  next_button.addEventListener('click', () => {
+  nextButton.addEventListener('click', () => {
+    let webview = tabGroup.getActiveTab().webview;
     if (webview.canGoForward()) {
       webview.goForward();
     }
   });
-  reload_button.addEventListener('click', () => {
-    webview.reload();
+  reloadButton.addEventListener('click', () => {
+    tabGroup.getActiveTab().webview.reload();
   });
-  submit_button.addEventListener('click', () => {
-    webview.setAttribute('src', url_bar.value);
+  submitButton.addEventListener('click', () => {
+    tabGroup.getActiveTab().webview.setAttribute('src', urlBar.value);
   });
-  photo_button.addEventListener('click', () => {
+  photoButton.addEventListener('click', () => {
     savePDF();
-    // webview.send('take-screenshot');
   });
 });
 
+function createTab(url = 'https://test-ptosh.herokuapp.com') {
+  let tab = tabGroup.addTab({
+    title: 'blank',
+    src: url,
+    visible: true,
+    active: true
+  });
+  tab.webview.addEventListener('did-stop-loading', () => {
+    urlBar.value = tab.webview.src;
+    tab.setTitle(tab.webview.getTitle());
+    // webview.openDevTools();
+  });
+}
+
 function savePDF() {
+  let webview = tabGroup.getActiveTab().webview;
+
   let today = new Date();
   let date = `${today.getFullYear()}${zeroPadding(today.getMonth()+1)}${zeroPadding(today.getDate())}`;
   let time = `${zeroPadding(today.getHours())}${zeroPadding(today.getMinutes())}${zeroPadding(today.getSeconds())}`
