@@ -1,8 +1,6 @@
 'use strict';
 
-const fs = require('fs');
-const mkdirp = require('mkdirp');
-const dirname = require('path').dirname;
+const fs = require('fs-extra');
 
 const BrowserWindow = require('electron').remote.BrowserWindow;
 const dialog = require('electron').remote.dialog;
@@ -17,10 +15,15 @@ let nextButton = null;
 let reloadButton = null;
 let submitButton = null;
 let photoButton = null;
+let folderButton = null;
+let folderText = null;
+let saveDirectory = null;
 
 window.addEventListener('load', () => {
   tabGroup = new TabGroup();
   createTab();
+
+  saveDirectory = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
 
   addTabbutton = document.getElementById('add-tab-button');
   urlBar = document.getElementById('url-bar');
@@ -29,6 +32,9 @@ window.addEventListener('load', () => {
   reloadButton = document.getElementById('reload-button');
   submitButton = document.getElementById('submit-button');
   photoButton = document.getElementById('photo-button');
+  folderButton = document.getElementById('folder-button');
+  folderText = document.getElementById('folder-text');
+  folderText.innerText = saveDirectory;
 
   addTabbutton.addEventListener('click', () => {
     createTab();
@@ -59,6 +65,9 @@ window.addEventListener('load', () => {
   photoButton.addEventListener('click', () => {
     savePDF();
   });
+  folderButton.addEventListener('click', () => {
+    selectFolder();
+  })
 });
 
 function createTab(url = 'https://test-ptosh.herokuapp.com') {
@@ -86,8 +95,7 @@ function savePDF() {
   let time = `${zeroPadding(today.getHours())}${zeroPadding(today.getMinutes())}${zeroPadding(today.getSeconds())}`
   let trialName = webview.src.split('/')[4];
   let sheetName = webview.src.split('/')[8];
-  let userHome = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
-  let path = `${userHome}/ptosh_crf_image/${trialName}/${sheetName}/${date}_${time}.pdf`;
+  let path = `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${date}_${time}.pdf`;
 
   webview.printToPDF(
     {
@@ -98,18 +106,13 @@ function savePDF() {
         showDialog(error.toString, 'error');
       }
 
-      mkdirp(dirname(path), (error) => {
-        if (error !== null) {
+      fs.ensureFileSync(path);
+      fs.writeFile(path, data, (error) => {
+        if (error === null) {
+          showDialog(`保存しました。\n${path}`, 'info');
+        } else {
           showDialog(error.toString, 'error');
         }
-
-        fs.writeFile(path, data, (error) => {
-          if (error === null) {
-            showDialog(`保存しました。\n${path}`, 'info');
-          } else {
-            showDialog(error.toString, 'error');
-          }
-        });
       });
     }
   );
@@ -129,4 +132,14 @@ function showDialog(message, type) {
 
 function zeroPadding(num) {
   return ("0" + num).slice(-2);
+}
+
+function selectFolder() {
+  let win = BrowserWindow.getFocusedWindow();
+  dialog.showOpenDialog(win, {
+    properties: ['openDirectory']
+  }, (directories) => {
+    saveDirectory = directories[0];
+    folderText.innerText = saveDirectory;
+  });
 }

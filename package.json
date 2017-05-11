@@ -18,8 +18,6 @@
   },
   "dependencies": {
     "electron-tabs": "^0.6.0",
-    "fs": "0.0.1-security",
-    "mkdirp": "^0.5.1",
-    "path": "^0.12.7"
+    "fs-extra": "^3.0.1"
   }
 }
