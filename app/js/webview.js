@@ -5,7 +5,7 @@ const ipc = require('electron').ipcRenderer;
 ipc.on('insert-datetime', (event, arg) => {
   let div = document.createElement('div');
   div.id = 'screenshot-datetime';
-  div.style.cssText = 'text-align:right; width:100%; background:white'
+  div.style.cssText = 'text-align:right; width:100%; background:white; font-size:15px'
   div.innerText = arg;
   document.getElementById('cover').insertBefore(div, document.getElementById('cover').firstChild);
 });

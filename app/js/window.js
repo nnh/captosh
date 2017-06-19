@@ -92,8 +92,12 @@ function savePDF() {
   let webview = tabGroup.getActiveTab().webview;
 
   let today = new Date();
-  let isoDate = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString();
-  webview.send('insert-datetime', isoDate);
+
+  let offset = today.getTimezoneOffset() / -60;
+  let offsetStr = `${(0 <= offset) ? '+' : '-'}${zeroPadding(Math.abs(offset))}:00`;
+  let isoDate = `${today.getFullYear()}-${zeroPadding(today.getMonth()+1)}-${zeroPadding(today.getDate())}`;
+  let isoDatetime = `${isoDate}T${today.toLocaleTimeString()}${offsetStr}`;
+  webview.send('insert-datetime', isoDatetime);
 
   let date = `${today.getFullYear()}${zeroPadding(today.getMonth()+1)}${zeroPadding(today.getDate())}`;
   let time = `${zeroPadding(today.getHours())}${zeroPadding(today.getMinutes())}${zeroPadding(today.getSeconds())}`
@@ -136,7 +140,7 @@ function showDialog(message, type) {
 }
 
 function zeroPadding(num) {
-  return ("0" + num).slice(-2);
+  return ('0' + num).slice(-2);
 }
 
 function selectFolder() {
