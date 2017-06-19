@@ -77,10 +77,11 @@ function createTab(url = 'https://test-ptosh.herokuapp.com') {
     visible: true,
     active: true
   });
+  tab.webview.preload = './js/webview.js';
   tab.webview.addEventListener('did-stop-loading', () => {
     urlBar.value = tab.webview.src;
     tab.setTitle(tab.webview.getTitle());
-    // webview.openDevTools();
+    // tab.webview.openDevTools();
   });
   tab.webview.addEventListener('new-window', (e) => {
     createTab(e.url);
@@ -91,6 +92,9 @@ function savePDF() {
   let webview = tabGroup.getActiveTab().webview;
 
   let today = new Date();
+  let isoDate = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString();
+  webview.send('insert-datetime', isoDate);
+
   let date = `${today.getFullYear()}${zeroPadding(today.getMonth()+1)}${zeroPadding(today.getDate())}`;
   let time = `${zeroPadding(today.getHours())}${zeroPadding(today.getMinutes())}${zeroPadding(today.getSeconds())}`
   let trialName = webview.src.split('/')[4];
@@ -108,6 +112,7 @@ function savePDF() {
 
       fs.ensureFileSync(path);
       fs.writeFile(path, data, (error) => {
+        webview.send('remove-datetime');
         if (error === null) {
           showDialog(`保存しました。\n${path}`, 'info');
         } else {
