@@ -105,6 +105,10 @@ function savePDF() {
   let sheetName = webview.src.split('/')[8];
   let path = `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${date}_${time}.pdf`;
 
+  if (document.getElementById('show-url').checked) {
+    webview.send('insert-url', document.getElementById('url-bar').value);
+  }
+
   webview.printToPDF(
     {
       printBackground: true
@@ -116,7 +120,7 @@ function savePDF() {
 
       fs.ensureFileSync(path);
       fs.writeFile(path, data, (error) => {
-        webview.send('remove-datetime');
+        webview.send('remove-inserted-element');
         if (error === null) {
           showDialog(`保存しました。\n${path}`, 'info');
         } else {
