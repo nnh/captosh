@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "electron-tabs": "^0.6.0",
-    "fs-extra": "^3.0.1"
+    "fs-extra": "^3.0.1",
+    "moment-timezone": "^0.5.14"
   }
 }

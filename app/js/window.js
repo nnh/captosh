@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs-extra');
+const moment = require('moment-timezone');
 
 const BrowserWindow = require('electron').remote.BrowserWindow;
 const dialog = require('electron').remote.dialog;
@@ -113,21 +114,15 @@ function createTab(url = 'https://test-ptosh.herokuapp.com') {
 function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true, callback = null) {
   let today = new Date();
 
-  let offset = today.getTimezoneOffset() / -60;
-  let offsetStr = `${(0 <= offset) ? '+' : '-'}${zeroPadding(Math.abs(offset))}:00`;
-  let isoDate = `${today.getFullYear()}-${zeroPadding(today.getMonth()+1)}-${zeroPadding(today.getDate())}`;
-  let isoDatetime = `${isoDate}T${today.toLocaleTimeString()}${offsetStr}`;
-  webview.send('insert-datetime', isoDatetime);
-
-  let date = `${today.getFullYear()}${zeroPadding(today.getMonth()+1)}${zeroPadding(today.getDate())}`;
-  let time = `${zeroPadding(today.getHours())}${zeroPadding(today.getMinutes())}${zeroPadding(today.getSeconds())}`;
-  let trialName = webview.src.split('/')[4];
-  let sheetName = webview.src.split('/')[8];
-  let path = `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${date}_${time}.pdf`;
-
+  webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
   if (document.getElementById('show-url').checked) {
     webview.send('insert-url', document.getElementById('url-bar').value);
   }
+
+  let trialName = webview.src.split('/')[4];
+  let sheetName = webview.src.split('/')[8];
+  let datetime = moment(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmss');
+  let path = `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
 
   webview.printToPDF(
     {
