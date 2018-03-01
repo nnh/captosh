@@ -32,6 +32,16 @@ body {
   width: 150px;
 }
 
+table#capture-result-table {
+  margin-top: 10px;
+  width: 100%;
+}
+
+table#capture-result-table tbody tr td {
+  border: 1px solid black;
+  padding: 10px;
+}
+
 /* ----- bootstrap override ----- */
 
 .navbar.navbar-default {

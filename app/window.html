@@ -42,6 +42,13 @@
         <input id="show-url" type="checkbox" class="form-check-input">
         URLを印字する
       </label>
+      <button id="prepare-button" class="btn btn-default" title="まとめてキャプチャー"><i class="fa fa-copy"></i></button>
+    </div>
+    <div id="capture-container" style="display:none">
+      <p>キャプチャーしたいページのURLを入力してください。（改行で複数ページ行います）</p>
+      <textarea id="capture-text" class="form-control" rows="10"></textarea>
+      <button id="capture-button" class="btn btn-default">開始</button>
+      <div id="capture-result"></div>
     </div>
   </div>
 </body>
