@@ -151,7 +151,7 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
     },
     (error, data) => {
       if (error !== null) {
-        if (isShowDialog) showDialog(error.toString(), 'error');
+        if (isShowDialog) showDialog(error.toString());
         if (typeof callback === 'function') callback(error.toString());
         return;
       }
@@ -160,10 +160,9 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
       fs.writeFile(path, data, (error) => {
         webview.send('remove-inserted-element');
         if (error === null) {
-          if (isShowDialog) showDialog(`保存しました。\n${path}`, 'info');
           if (typeof callback === 'function') callback(path);
         } else {
-          if (isShowDialog) showDialog(error.toString(), 'error');
+          if (isShowDialog) showDialog(error.toString());
           if (typeof callback === 'function') callback(error.toString());
         }
       });
@@ -171,13 +170,13 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
   );
 }
 
-function showDialog(message, type) {
+function showDialog(message) {
   let win = BrowserWindow.getFocusedWindow();
   let options = {
-    type: type,
-    buttons: ['OK'],
-    title: type,
-    message: type,
+    type: 'error',
+    buttons: ['閉じる'],
+    title: 'error',
+    message: 'error',
     detail: message
   };
   dialog.showMessageBox(win, options);
