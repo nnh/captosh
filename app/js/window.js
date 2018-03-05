@@ -23,7 +23,9 @@ let tabGroup = null,
     captureContainer = null,
     captureText = null,
     captureButton = null,
-    captureResult = null;
+    captureResult = null,
+    shiftKey = false,
+    cmdOrCtrlKey = false;
 
 window.addEventListener('load', () => {
   tabGroup = new TabGroup();
@@ -94,21 +96,37 @@ window.addEventListener('load', () => {
   });
 });
 
-function createTab(url = 'https://test-ptosh.herokuapp.com') {
+window.addEventListener('keydown', (e) => {
+  shiftKey = e.shiftKey;
+  cmdOrCtrlKey = e.ctrlKey || e.metaKey;
+});
+window.addEventListener('keyup', (e) => {
+  shiftKey = e.shiftKey;
+  cmdOrCtrlKey = e.ctrlKey || e.metaKey;
+});
+
+function createTab(url = 'https://test-ptosh.herokuapp.com', active = true) {
   let tab = tabGroup.addTab({
     title: 'blank',
     src: url,
     visible: true,
-    active: true
+    active: active
+  });
+  tab.on('active', (tab) => {
+    urlBar.value = tab.webview.src;
   });
   tab.webview.preload = './js/webview.js';
   tab.webview.addEventListener('did-stop-loading', () => {
-    urlBar.value = tab.webview.src;
+    if (active) urlBar.value = tab.webview.src;
     tab.setTitle(tab.webview.getTitle());
     // tab.webview.openDevTools();
   });
   tab.webview.addEventListener('new-window', (e) => {
-    createTab(e.url);
+    if (shiftKey && cmdOrCtrlKey) {
+      createTab(e.url, false);
+    } else {
+      createTab(e.url);
+    }
   });
 }
 
@@ -119,7 +137,7 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
     webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
   }
   if (document.getElementById('show-url').checked) {
-    webview.send('insert-url', document.getElementById('url-bar').value);
+    webview.send('insert-url', webview.src);
   }
 
   let trialName = webview.src.split('/')[4];
