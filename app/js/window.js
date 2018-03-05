@@ -8,22 +8,22 @@ const dialog = require('electron').remote.dialog;
 
 const TabGroup = require('electron-tabs');
 
-let tabGroup = null;
-let addTabbutton = null;
-let urlBar = null;
-let backButton = null;
-let nextButton = null;
-let reloadButton = null;
-let submitButton = null;
-let photoButton = null;
-let folderButton = null;
-let folderText = null;
-let saveDirectory = null;
-let prepareButton = null;
-let captureContainer = null;
-let captureText = null;
-let captureButton = null;
-let captureResult = null;
+let tabGroup = null,
+    addTabbutton = null,
+    urlBar = null,
+    backButton = null,
+    nextButton = null,
+    reloadButton = null,
+    submitButton = null,
+    photoButton = null,
+    folderButton = null,
+    folderText = null,
+    saveDirectory = null,
+    prepareButton = null,
+    captureContainer = null,
+    captureText = null,
+    captureButton = null,
+    captureResult = null;
 
 window.addEventListener('load', () => {
   tabGroup = new TabGroup();
@@ -89,6 +89,7 @@ window.addEventListener('load', () => {
      }
   });
   captureButton.addEventListener('click', () => {
+    captureResult.innerHTML = '';
     if (captureText.value.length > 0) captureFromUrls(captureText.value.split('\n'));
   });
 });
@@ -178,7 +179,7 @@ function selectFolder() {
 
 function captureFromUrls(urls) {
   let result = [];
-  let promices = (urls) => {
+  let promises = (urls) => {
     return Promise.all(urls.map((url) => {
       return doPromise(url);
     }));
@@ -190,6 +191,7 @@ function captureFromUrls(urls) {
         src: url,
         visible: true
       });
+      tab.webview.preload = './js/webview.js';
       tab.webview.addEventListener('did-stop-loading', () => {
         savePDF(tab.webview, false, (res) => {
           result.push({
@@ -202,7 +204,7 @@ function captureFromUrls(urls) {
       });
     });
   }
-  promices(urls).then(() => {
+  promises(urls).then(() => {
     let table = document.createElement('table');
     table.id = 'capture-result-table'
     let tbody = document.createElement('tbody');
