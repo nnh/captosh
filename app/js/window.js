@@ -115,7 +115,9 @@ function createTab(url = 'https://test-ptosh.herokuapp.com') {
 function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true, callback = null) {
   let today = new Date();
 
-  webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
+  if (document.getElementById('show-datetime').checked) {
+    webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
+  }
   if (document.getElementById('show-url').checked) {
     webview.send('insert-url', document.getElementById('url-bar').value);
   }

@@ -36,7 +36,6 @@ function createWindow() {
       { label: 'すべてを選択', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' }
     ]
   }];
-  let menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 

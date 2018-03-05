@@ -19,7 +19,7 @@ ipc.on('remove-inserted-element', (event, arg) => {
   document.getElementById('screenshot-url').remove();
 
   // 付与したimportantを元に戻す
-  $('*[style*="display: none"]').css('display','none')
+  $('*[style*="display: none"]').css('display', 'none');
 })
 
 function insertElement(id, arg, target) {
