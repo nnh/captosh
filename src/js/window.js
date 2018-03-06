@@ -182,10 +182,6 @@ function showDialog(message) {
   dialog.showMessageBox(win, options);
 }
 
-function zeroPadding(num) {
-  return ('0' + num).slice(-2);
-}
-
 function selectFolder() {
   let win = BrowserWindow.getFocusedWindow();
   dialog.showOpenDialog(win, {

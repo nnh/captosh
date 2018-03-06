@@ -1,8 +1,8 @@
 {
   "name": "captosh",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "",
-  "main": "build/main.js",
+  "main": "app/main.js",
   "scripts": {
     "start": "electron .",
     "pack": "npm run pack:mac && npm run pack:win",
@@ -16,8 +16,10 @@
     "babel-core": "^6.26.0",
     "electron": "^1.6.2",
     "electron-builder": "^17.0.1",
+    "electron-connect": "^0.6.3",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.1",
+    "gulp-exec": "^3.0.1",
     "gulp-pug": "^3.3.0",
     "gulp-sass": "^3.1.0",
     "gulp-watch": "^5.0.0",

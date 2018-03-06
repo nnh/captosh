@@ -1,24 +1,27 @@
+const electron = require('electron-connect').server.create();
 const gulp = require('gulp');
 const babel = require('gulp-babel');
-const sass = require('gulp-sass');
+const exec = require('gulp-exec');
 const pug = require('gulp-pug');
+const sass = require('gulp-sass');
 const watch = require('gulp-watch');
 const runSequence = require('run-sequence');
 
-const srcJs = 'app/**/*.js';
-const srcCss = 'app/**/*.scss';
-const srcHtml = 'app/**/*.pug';
+const srcJs = 'src/**/*.js';
+const srcCss = 'src/**/*.scss';
+const srcHtml = 'src/**/*.pug';
+const dest = 'app';
 
 gulp.task('compile-js', () => {
   return gulp.src(srcJs)
     .pipe(babel())
-    .pipe(gulp.dest('build'));
+    .pipe(gulp.dest(dest));
 });
 
 gulp.task('compile-css', () => {
   return gulp.src(srcCss)
     .pipe(sass())
-    .pipe(gulp.dest('build'));
+    .pipe(gulp.dest(dest));
 });
 
 gulp.task('compile-html', () => {
@@ -26,12 +29,12 @@ gulp.task('compile-html', () => {
     .pipe(pug({
       pretty: true
     }))
-    .pipe(gulp.dest('build'));
+    .pipe(gulp.dest(dest));
 });
 
 gulp.task('copy-font', () => {
   return gulp.src('node_modules/font-awesome/fonts/**.*')
-    .pipe(gulp.dest('build/fonts'))
+    .pipe(gulp.dest(`${dest}/fonts`));
 });
 
 gulp.task('watch', () => {
@@ -40,16 +43,34 @@ gulp.task('watch', () => {
   gulp.watch(srcHtml, ['compile-html']);
 });
 
+gulp.task('serve', () => {
+  electron.start();
+  gulp.watch(`${dest}/**/*.js`, electron.restart);
+  gulp.watch([`${dest}/**/*.css`, `${dest}/**/*.html`], electron.reload);
+});
+
+gulp.task('package:mac', (callback) => {
+  return gulp.src('')
+    .pipe(exec('./node_modules/.bin/build --mac --x64'))
+    .pipe(exec.reporter());
+});
+
+gulp.task('package:win', (callback) => {
+  return gulp.src('')
+    .pipe(exec('./node_modules/.bin/build --win --x64'))
+    .pipe(exec.reporter());
+});
+
 // ------------------------------
 
-gulp.task('default', (cb) => {
-  runSequence('compile', 'copy-font', cb);
+gulp.task('default', ['compile', 'copy-font']);
+
+gulp.task('compile', ['compile-js', 'compile-css', 'compile-html']);
+
+gulp.task('dev', () => {
+  runSequence('default', ['watch', 'serve']);
 });
 
-gulp.task('compile', (cb) => {
-  runSequence('compile-js', 'compile-css', 'compile-html', cb);
-});
-
-gulp.task('dev', (cb) => {
-  runSequence('compile', 'watch', cb);
+gulp.task('package', () => {
+  runSequence('default', 'package:mac', 'package:win');
 });
