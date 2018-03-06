@@ -2,7 +2,7 @@
   "name": "captosh",
   "version": "0.6.0",
   "description": "",
-  "main": "app/main.js",
+  "main": "build/main.js",
   "scripts": {
     "start": "electron .",
     "pack": "npm run pack:mac && npm run pack:win",
@@ -13,11 +13,20 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "babel-core": "^6.26.0",
     "electron": "^1.6.2",
-    "electron-builder": "^17.0.1"
+    "electron-builder": "^17.0.1",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^7.0.1",
+    "gulp-pug": "^3.3.0",
+    "gulp-sass": "^3.1.0",
+    "gulp-watch": "^5.0.0",
+    "run-sequence": "^2.2.1"
   },
   "dependencies": {
+    "bootstrap-sass": "^3.3.7",
     "electron-tabs": "^0.6.0",
+    "font-awesome": "^4.7.0",
     "fs-extra": "^3.0.1",
     "moment-timezone": "^0.5.14"
   }
