@@ -133,11 +133,11 @@ function createTab(url = 'https://test-ptosh.herokuapp.com', active = true) {
 function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true, callback = null) {
   let today = new Date();
 
-  if (document.getElementById('show-datetime').checked) {
-    webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
-  }
   if (document.getElementById('show-url').checked) {
     webview.send('insert-url', webview.src);
+  }
+  if (document.getElementById('show-datetime').checked) {
+    webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
   }
 
   let trialName = webview.src.split('/')[4];
