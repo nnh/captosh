@@ -192,48 +192,46 @@ function selectFolder() {
   });
 }
 
-function captureFromUrls(urls) {
-  let result = [];
-  let promises = (urls) => {
-    return Promise.all(urls.map((url) => {
-      return doPromise(url);
-    }));
-  };
-  let doPromise = (url) => {
+async function captureFromUrls(urls) {
+  urls = urls.filter(v => v);
+
+  const table = document.createElement('table');
+  table.id = 'capture-result-table';
+  const tbody = document.createElement('tbody');
+  tbody.id = 'capture-result-tbody';
+  table.appendChild(tbody);
+  captureResult.appendChild(table);
+
+  const sleep = (msec) => {
+    return new Promise((resolve, reject) => { setTimeout(resolve, msec); });
+  }
+
+  const doPromise = (url) => {
     return new Promise((resolve, reject) => {
-      let tab = tabGroup.addTab({
-        title: 'blank',
-        src: url,
-        visible: true
-      });
+      const tab = tabGroup.addTab({ title: 'blank', src: url, visible: true });
       tab.webview.preload = './js/webview.js';
       tab.webview.addEventListener('did-stop-loading', () => {
         savePDF(tab.webview, false, (res) => {
-          result.push({
-            url: url,
-            result: res
-          });
           tab.close();
-          resolve();
+          resolve({ url: url, result: res });
         });
       });
     });
   }
-  promises(urls).then(() => {
-    let table = document.createElement('table');
-    table.id = 'capture-result-table'
-    let tbody = document.createElement('tbody');
-    for (let i = 0; i < result.length; i++) {
-      let res = result[i];
-      let row = document.createElement('tr');
-      for (let key in res) {
-        let cell = document.createElement('td');
-        cell.innerText = res[key];
-        row.appendChild(cell);
-      }
-      tbody.appendChild(row);
+
+  for (let i = 0; i < urls.length; i++) {
+    await sleep(1000)
+    const result = await doPromise(urls[i]);
+    const row = document.createElement('tr');
+    for (let key in result) {
+      const cell = document.createElement('td');
+      cell.innerText = result[key];
+      row.appendChild(cell);
     }
-    table.appendChild(tbody);
-    captureResult.appendChild(table);
-  });
+    document.getElementById('capture-result-tbody').appendChild(row);
+  }
+
+  const div = document.createElement('div');
+  div.innerText = '終了しました。'
+  captureResult.insertBefore(div, captureResult.firstChild);
 }
