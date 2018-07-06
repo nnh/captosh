@@ -1,7 +1,7 @@
 captosh
 =====
 
-This application takes a screenshot and saves it in a local folder.
+This application capture contents of a browser and saves them as pdf files in a local folder.
 
 [![MIT licensed][shield-license]](#)
 
