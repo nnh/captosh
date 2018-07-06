@@ -2,6 +2,7 @@ captosh
 =====
 
 This application capture contents of a browser and saves them as pdf files in a local folder.
+[[Download captosh]](https://github.com/nnh/captosh/releases)
 
 [![MIT licensed][shield-license]](#)
 
