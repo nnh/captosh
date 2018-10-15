@@ -5,7 +5,30 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
 
-var mainWindow = null;
+const customScheme = 'captosh://';
+const customSslScheme = 'captoshs://';
+const customSchemeRegExp = new RegExp(customScheme);
+const customSslSchemeRegExp = new RegExp(customSslScheme);
+
+let mainWindow = null;
+
+const lock = app.requestSingleInstanceLock();
+if (lock) {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+
+      // for Windows
+      commandLine.forEach(arg => {
+        checkCustomScheme(arg);
+      });
+    }
+  })
+  app.on('ready', createWindow);
+} else {
+  app.quit();
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -17,9 +40,9 @@ function createWindow() {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
-  });;
+  });
 
-  let template = [
+  const template = [
   {
     label: 'Application',
     submenu: [
@@ -73,8 +96,6 @@ function createWindow() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-app.on('ready', createWindow);
-
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -86,3 +107,34 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+app.on('will-finish-launching', () => {
+  // for OSX
+  app.on('open-url', (e, url) => {
+    checkCustomScheme(url);
+  });
+
+  // for Windows
+  process.argv.forEach(arg => {
+    checkCustomScheme(arg);
+  });
+});
+
+function checkCustomScheme(url) {
+  if (customSchemeRegExp.test(url) || customSslSchemeRegExp.test(url)) {
+    const apiUrl = replaceUrl(url);
+    if (mainWindow && mainWindow.webContents) {
+      mainWindow.webContents.send('exec-api', apiUrl);
+    }
+  }
+}
+
+function replaceUrl(url) {
+  if (customSchemeRegExp.test(url)) {
+    return url.replace(customScheme, 'http://');
+  }
+  if (customSslSchemeRegExp.test(url)) {
+    return url.replace(customSslScheme, 'https://');
+  }
+  return url;
+}

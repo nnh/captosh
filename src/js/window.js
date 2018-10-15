@@ -3,6 +3,7 @@
 const fs = require('fs-extra');
 const moment = require('moment-timezone');
 
+const ipcRenderer = require('electron').ipcRenderer;
 const BrowserWindow = require('electron').remote.BrowserWindow;
 const dialog = require('electron').remote.dialog;
 
@@ -58,13 +59,13 @@ window.addEventListener('load', () => {
     }
   });
   backButton.addEventListener('click', () => {
-    let webview = tabGroup.getActiveTab().webview;
+    const webview = tabGroup.getActiveTab().webview;
     if (webview.canGoBack()) {
       webview.goBack();
     }
   });
   nextButton.addEventListener('click', () => {
-    let webview = tabGroup.getActiveTab().webview;
+    const webview = tabGroup.getActiveTab().webview;
     if (webview.canGoForward()) {
       webview.goForward();
     }
@@ -106,7 +107,7 @@ window.addEventListener('keyup', (e) => {
 });
 
 function createTab(url = 'https://test-ptosh.herokuapp.com', active = true) {
-  let tab = tabGroup.addTab({
+  const tab = tabGroup.addTab({
     title: 'blank',
     src: url,
     visible: true,
@@ -131,7 +132,7 @@ function createTab(url = 'https://test-ptosh.herokuapp.com', active = true) {
 }
 
 function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true, callback = null) {
-  let today = new Date();
+  const today = new Date();
 
   if (document.getElementById('show-url').checked) {
     webview.send('insert-url', webview.src);
@@ -140,10 +141,10 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
     webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
   }
 
-  let trialName = webview.src.split('/')[4];
-  let sheetName = webview.src.split('/')[8];
-  let datetime = moment(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmss');
-  let path = `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
+  const trialName = webview.src.split('/')[4];
+  const sheetName = webview.src.split('/')[8];
+  const datetime = moment(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmss');
+  const path = `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
 
   webview.printToPDF(
     {
@@ -171,8 +172,8 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
 }
 
 function showDialog(message) {
-  let win = BrowserWindow.getFocusedWindow();
-  let options = {
+  const win = BrowserWindow.getFocusedWindow();
+  const options = {
     type: 'error',
     buttons: ['閉じる'],
     title: 'error',
@@ -183,7 +184,7 @@ function showDialog(message) {
 }
 
 function selectFolder() {
-  let win = BrowserWindow.getFocusedWindow();
+  const win = BrowserWindow.getFocusedWindow();
   dialog.showOpenDialog(win, {
     properties: ['openDirectory']
   }, (directories) => {
@@ -234,4 +235,18 @@ async function captureFromUrls(urls) {
   const div = document.createElement('div');
   div.innerText = '終了しました。'
   captureResult.insertBefore(div, captureResult.firstChild);
+}
+
+ipcRenderer.on('exec-api', (e, arg) => {
+  request(arg);
+});
+
+async function request(url) {
+  if (captureContainer.style['display'] == 'none') {
+    captureContainer.style['display'] = 'block';
+  }
+
+  const response = await fetch(url);
+  const json = await response.json();
+  captureFromUrls(json);
 }

@@ -19,12 +19,12 @@ ipc.on('remove-inserted-element', (event, arg) => {
 })
 
 function insertElement(id, arg) {
-  let div = document.createElement('div');
+  const div = document.createElement('div');
   div.id = id;
   div.style.cssText = 'text-align:right; width:100%; background:white; font-size:15px';
   div.innerText = arg;
 
-  let parent = document.getElementById('cover') ? document.getElementById('cover') : document.body;
+  const parent = document.getElementById('cover') ? document.getElementById('cover') : document.body;
   parent.insertBefore(div, parent.firstChild);
 
   // display:noneが別のcssに上書きされて無視されることがあるのでimportantを付与

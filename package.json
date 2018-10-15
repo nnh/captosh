@@ -5,16 +5,17 @@
   "main": "app/main.js",
   "scripts": {
     "start": "electron .",
-    "pack": "npm run pack:mac && npm run pack:win",
+    "pack": "yarn gulp && npm run pack:mac && npm run pack:win",
     "pack:mac": "./node_modules/.bin/build --mac --x64",
     "pack:win": "./node_modules/.bin/build --win --x64",
+    "pack:test": "yarn gulp && build --dir",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "babel-core": "^6.26.0",
-    "electron": "^1.6.2",
+    "electron": "^3.0.4",
     "electron-builder": "^20.8.1",
     "electron-connect": "^0.6.3",
     "gulp": "^3.9.1",
@@ -31,5 +32,22 @@
     "font-awesome": "^4.7.0",
     "fs-extra": "^5.0.0",
     "moment-timezone": "^0.5.14"
+  },
+  "build": {
+    "protocols": [
+      {
+        "name": "captosh",
+        "schemes": [
+          "captosh",
+          "captoshs"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "perMachine": true
+    }
   }
 }
