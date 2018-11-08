@@ -1,11 +1,13 @@
-const electron = require('electron-connect').server.create();
-const gulp = require('gulp');
-const babel = require('gulp-babel');
-const exec = require('gulp-exec');
-const pug = require('gulp-pug');
-const sass = require('gulp-sass');
-const watch = require('gulp-watch');
-const runSequence = require('run-sequence');
+import gulp from 'gulp';
+import babel from 'gulp-babel';
+import exec from 'gulp-exec';
+import pug from 'gulp-pug';
+import sass from 'gulp-sass';
+import watch from 'gulp-watch';
+import runSequence from 'run-sequence';
+
+import { server } from 'electron-connect';
+const electron = server.create();
 
 const srcJs = 'src/**/*.js';
 const srcCss = 'src/**/*.scss';
@@ -58,6 +60,12 @@ gulp.task('package:mac', (callback) => {
 gulp.task('package:win', (callback) => {
   return gulp.src('')
     .pipe(exec('./node_modules/.bin/build --win --x64'))
+    .pipe(exec.reporter());
+});
+
+gulp.task('package:test', (callback) => {
+  return gulp.src('')
+    .pipe(exec('build --dir'))
     .pipe(exec.reporter());
 });
 

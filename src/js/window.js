@@ -1,13 +1,10 @@
 'use strict';
 
-const fs = require('fs-extra');
-const moment = require('moment-timezone');
+import fs from 'fs-extra';
+import moment from 'moment-timezone';
 
-const ipcRenderer = require('electron').ipcRenderer;
-const BrowserWindow = require('electron').remote.BrowserWindow;
-const dialog = require('electron').remote.dialog;
-
-const TabGroup = require('electron-tabs');
+import { ipcRenderer, BrowserWindow, dialog } from 'electron';
+import TabGroup from 'electron-tabs';
 
 let tabGroup = null,
     addTabbutton = null,
@@ -236,7 +233,8 @@ async function captureFromUrls(urls) {
   }
 
   for (let i = 0; i < urls.length; i++) {
-    await sleep(1000)
+    // ファイル名に秒を使っているので、上書きしないために最低１秒空けている。
+    await sleep(1000);
     const result = await doPromise(urls[i]);
     const row = document.createElement('tr');
     for (let key in result) {

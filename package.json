@@ -5,24 +5,22 @@
   "main": "app/main.js",
   "scripts": {
     "start": "electron .",
-    "pack:all": "yarn gulp && yarn pack:mac && yarn pack:win",
-    "pack:mac": "./node_modules/.bin/build --mac --x64",
-    "pack:win": "./node_modules/.bin/build --win --x64",
-    "pack:test": "yarn gulp && build --dir",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "babel-core": "^6.26.0",
+    "@babel/core": "^7.1.5",
+    "@babel/preset-env": "^7.1.5",
+    "@babel/register": "^7.0.0",
     "electron": "^3.0.4",
     "electron-builder": "^20.8.1",
     "electron-connect": "^0.6.3",
     "gulp": "^3.9.1",
-    "gulp-babel": "^7.0.1",
+    "gulp-babel": "^8.0.0",
     "gulp-exec": "^3.0.1",
-    "gulp-pug": "^3.3.0",
-    "gulp-sass": "^3.1.0",
+    "gulp-pug": "^4.0.1",
+    "gulp-sass": "^4.0.2",
     "gulp-watch": "^5.0.0",
     "run-sequence": "^2.2.1"
   },
@@ -30,7 +28,7 @@
     "bootstrap-sass": "^3.3.7",
     "electron-tabs": "^0.9.1",
     "font-awesome": "^4.7.0",
-    "fs-extra": "^5.0.0",
+    "fs-extra": "^7.0.1",
     "moment-timezone": "^0.5.14"
   },
   "build": {
@@ -49,5 +47,10 @@
     "nsis": {
       "perMachine": true
     }
+  },
+  "babel": {
+    "presets": [
+      "@babel/env"
+    ]
   }
 }

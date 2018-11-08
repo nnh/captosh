@@ -1,16 +1,16 @@
 'use strict';
 
-const ipc = require('electron').ipcRenderer;
+import { ipcRenderer } from 'electron';
 
-ipc.on('insert-datetime', (event, arg) => {
+ipcRenderer.on('insert-datetime', (event, arg) => {
   insertElement('screenshot-datetime', arg);
 });
 
-ipc.on('insert-url', (event, arg) => {
+ipcRenderer.on('insert-url', (event, arg) => {
   insertElement('screenshot-url', arg);
 });
 
-ipc.on('remove-inserted-element', (event, arg) => {
+ipcRenderer.on('remove-inserted-element', (event, arg) => {
   if (document.getElementById('screenshot-datetime')) {
     document.getElementById('screenshot-datetime').remove();
   }
