@@ -11,8 +11,12 @@ ipc.on('insert-url', (event, arg) => {
 });
 
 ipc.on('remove-inserted-element', (event, arg) => {
-  if (document.getElementById('screenshot-datetime')) document.getElementById('screenshot-datetime').remove();
-  if (document.getElementById('screenshot-url')) document.getElementById('screenshot-url').remove();
+  if (document.getElementById('screenshot-datetime')) {
+    document.getElementById('screenshot-datetime').remove();
+  }
+  if (document.getElementById('screenshot-url')) {
+    document.getElementById('screenshot-url').remove();
+  }
 
   // 付与したimportantを元に戻す
   $('*[style*="display: none"]').css('display', 'none');

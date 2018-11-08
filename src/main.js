@@ -6,9 +6,7 @@ const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
 
 const customScheme = 'captosh://';
-const customSslScheme = 'captoshs://';
 const customSchemeRegExp = new RegExp(customScheme);
-const customSslSchemeRegExp = new RegExp(customSslScheme);
 
 let mainWindow = null;
 
@@ -16,7 +14,9 @@ const lock = app.requestSingleInstanceLock();
 if (lock) {
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
+      if (mainWindow.isMinimized()) { 
+        mainWindow.restore();
+      }
       mainWindow.focus();
 
       // for Windows
@@ -33,7 +33,8 @@ if (lock) {
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1024,
-    height: 768
+    height: 768,
+    webPreferences: { partition: 'persist:ptosh' }
   });
   mainWindow.loadURL(`file://${__dirname}/window.html`);
   // mainWindow.webContents.openDevTools();
@@ -121,20 +122,7 @@ app.on('will-finish-launching', () => {
 });
 
 function checkCustomScheme(url) {
-  if (customSchemeRegExp.test(url) || customSslSchemeRegExp.test(url)) {
-    const apiUrl = replaceUrl(url);
-    if (mainWindow && mainWindow.webContents) {
-      mainWindow.webContents.send('exec-api', apiUrl);
-    }
+  if (customSchemeRegExp.test(url) && mainWindow && mainWindow.webContents) {
+    mainWindow.webContents.send('exec-api', url.replace(customScheme, 'http://'));
   }
-}
-
-function replaceUrl(url) {
-  if (customSchemeRegExp.test(url)) {
-    return url.replace(customScheme, 'http://');
-  }
-  if (customSslSchemeRegExp.test(url)) {
-    return url.replace(customSslScheme, 'https://');
-  }
-  return url;
 }

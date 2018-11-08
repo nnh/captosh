@@ -83,17 +83,19 @@ window.addEventListener('load', () => {
     selectFolder();
   });
   prepareButton.addEventListener('click', () => {
-     if (captureContainer.style['display'] == 'none') {
-       captureContainer.style['display'] = 'block';
-     } else {
-       captureContainer.style['display'] = 'none';
-       captureText.value = '';
-       captureResult.innerHTML = '';
-     }
+    if (captureContainer.style['display'] == 'none') {
+      captureContainer.style['display'] = 'block';
+    } else {
+      captureContainer.style['display'] = 'none';
+      captureText.value = '';
+      captureResult.innerHTML = '';
+    }
   });
   captureButton.addEventListener('click', () => {
     captureResult.innerHTML = '';
-    if (captureText.value.length > 0) captureFromUrls(captureText.value.split('\n'));
+    if (captureText.value.length > 0) {
+      captureFromUrls(captureText.value.split('\n'));
+    }
   });
 });
 
@@ -111,14 +113,17 @@ function createTab(url = 'https://test-ptosh.herokuapp.com', active = true) {
     title: 'blank',
     src: url,
     visible: true,
-    active: active
+    active: active,
+    webviewAttributes: { partition: 'persist:ptosh' }
   });
   tab.on('active', (tab) => {
     urlBar.value = tab.webview.src;
   });
   tab.webview.preload = './js/webview.js';
   tab.webview.addEventListener('did-stop-loading', () => {
-    if (active) urlBar.value = tab.webview.src;
+    if (active) {
+      urlBar.value = tab.webview.src;
+    }
     tab.setTitle(tab.webview.getTitle());
     // tab.webview.openDevTools();
   });
@@ -152,8 +157,12 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
     },
     (error, data) => {
       if (error !== null) {
-        if (isShowDialog) showDialog(error.toString());
-        if (typeof callback === 'function') callback(error.toString());
+        if (isShowDialog) {
+          showDialog(error.toString());
+        }
+        if (typeof callback === 'function') {
+          callback(error.toString());
+        }
         return;
       }
 
@@ -161,10 +170,16 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
       fs.writeFile(path, data, (error) => {
         webview.send('remove-inserted-element');
         if (error === null) {
-          if (typeof callback === 'function') callback(path);
+          if (typeof callback === 'function') { 
+            callback(path);
+          }
         } else {
-          if (isShowDialog) showDialog(error.toString());
-          if (typeof callback === 'function') callback(error.toString());
+          if (isShowDialog) {
+            showDialog(error.toString());
+          }
+          if (typeof callback === 'function') {
+            callback(error.toString());
+          }
         }
       });
     }
@@ -246,7 +261,19 @@ async function request(url) {
     captureContainer.style['display'] = 'block';
   }
 
-  const response = await fetch(url);
-  const json = await response.json();
-  captureFromUrls(json);
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    const json = await response.json();
+    captureFromUrls(json);
+  } catch(error) {
+    showDialog(error);
+  }
 }
