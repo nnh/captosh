@@ -3,7 +3,10 @@
 import fs from 'fs-extra';
 import moment from 'moment-timezone';
 
-import { ipcRenderer, BrowserWindow, dialog } from 'electron';
+import { ipcRenderer, remote } from 'electron';
+const BrowserWindow = remote.BrowserWindow;
+const dialog = remote.dialog;
+
 import TabGroup from 'electron-tabs';
 
 let tabGroup = null,
@@ -167,7 +170,7 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
       fs.writeFile(path, data, (error) => {
         webview.send('remove-inserted-element');
         if (error === null) {
-          if (typeof callback === 'function') { 
+          if (typeof callback === 'function') {
             callback(path);
           }
         } else {
@@ -200,8 +203,10 @@ function selectFolder() {
   dialog.showOpenDialog(win, {
     properties: ['openDirectory']
   }, (directories) => {
-    saveDirectory = directories[0];
-    folderText.innerText = saveDirectory;
+    if (directories) {
+      saveDirectory = directories[0];
+      folderText.innerText = saveDirectory;
+    }
   });
 }
 
@@ -221,7 +226,12 @@ async function captureFromUrls(urls) {
 
   const doPromise = (url) => {
     return new Promise((resolve, reject) => {
-      const tab = tabGroup.addTab({ title: 'blank', src: url, visible: true });
+      const tab = tabGroup.addTab({
+        title: 'blank',
+        src: url,
+        visible: true,
+        webviewAttributes: { partition: 'persist:ptosh' }
+      });
       tab.webview.preload = './js/webview.js';
       tab.webview.addEventListener('did-stop-loading', () => {
         savePDF(tab.webview, false, (res) => {
@@ -255,7 +265,7 @@ ipcRenderer.on('exec-api', (e, arg) => {
 });
 
 async function request(url) {
-  if (captureContainer.style['display'] == 'none') {
+  if (captureContainer.style['display'] === 'none') {
     captureContainer.style['display'] = 'block';
   }
 
@@ -266,11 +276,15 @@ async function request(url) {
       cache: 'no-cache',
       credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain',
       }
     });
-    const json = await response.json();
-    captureFromUrls(json);
+    const text = await response.text();
+    const urls = text.split(/\n/).map((value) => {
+      const array = url.split('/');
+      return `${array[0]}//${array[2]}${value}`;
+    })
+    captureFromUrls(urls);
   } catch(error) {
     showDialog(error);
   }

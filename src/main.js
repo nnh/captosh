@@ -11,15 +11,13 @@ const lock = app.requestSingleInstanceLock();
 if (lock) {
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     if (mainWindow) {
-      if (mainWindow.isMinimized()) { 
+      if (mainWindow.isMinimized()) {
         mainWindow.restore();
       }
       mainWindow.focus();
 
       // for Windows
-      commandLine.forEach(arg => {
-        checkCustomScheme(arg);
-      });
+      commandLine.forEach(checkCustomScheme);
     }
   })
 
@@ -115,9 +113,7 @@ app.on('will-finish-launching', () => {
   });
 
   // for Windows
-  process.argv.forEach(arg => {
-    checkCustomScheme(arg);
-  });
+  process.argv.forEach(checkCustomScheme);
 });
 
 function checkCustomScheme(url) {
