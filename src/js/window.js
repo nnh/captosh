@@ -3,6 +3,8 @@
 import fs from 'fs-extra';
 import moment from 'moment-timezone';
 
+import Url from 'url';
+
 import { ipcRenderer, remote } from 'electron';
 const BrowserWindow = remote.BrowserWindow;
 const dialog = remote.dialog;
@@ -280,10 +282,12 @@ async function request(url) {
       }
     });
     const text = await response.text();
+
+    const targetUrl = new Url.URL(url);
     const urls = text.split(/\n/).map((value) => {
-      const array = url.split('/');
-      return `${array[0]}//${array[2]}${value}`;
-    })
+      return new Url.URL(value, `${targetUrl.protocol}//${targetUrl.host}`).href;
+    });
+
     captureFromUrls(urls);
   } catch(error) {
     showDialog(error);
