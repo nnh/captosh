@@ -24,6 +24,17 @@ body {
   background-color: #f8f8f8;
 }
 
+.bookmark-bar {
+  border-top: lightgray solid 1px;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+#bookmark-select {
+  display: inline-block;;
+  width: 50%;
+}
+
 .add-tab-button-container {
   height: auto;
 }

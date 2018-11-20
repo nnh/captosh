@@ -18,6 +18,15 @@ html
           .etabs-tabgroup
             .etabs-tabs
             .etabs-buttons
+      .bookmark-bar
+        | ブックマーク
+        select#bookmark-select.form-control
+        button#bookmark-move-button.btn.btn-default(title="選択中のブックマークに移動")
+          i.fa.fa-sign-in
+        button#bookmark-delete-button.btn.btn-default(title="選択中のブックマークを削除")
+          i.fa.fa-trash
+        button#bookmark-add-button.btn.btn-default(title="表示中のページをブックマークに追加")
+          i.fa.fa-plus
 
     .etabs-views
       .form-inline

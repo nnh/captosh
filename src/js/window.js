@@ -30,7 +30,11 @@ let tabGroup = null,
     captureButton = null,
     captureResult = null,
     shiftKey = false,
-    cmdOrCtrlKey = false;
+    cmdOrCtrlKey = false,
+    bookmarkSelect = null,
+    bookmarkMoveButton = null,
+    bookmarkDeleteButton = null,
+    bookmarkAddButton = null;
 
 window.addEventListener('load', () => {
   tabGroup = new TabGroup();
@@ -53,6 +57,11 @@ window.addEventListener('load', () => {
   captureText = document.getElementById('capture-text');
   captureButton = document.getElementById('capture-button');
   captureResult = document.getElementById('capture-result');
+
+  bookmarkSelect = document.getElementById('bookmark-select');
+  bookmarkMoveButton = document.getElementById('bookmark-move-button');
+  bookmarkDeleteButton = document.getElementById('bookmark-delete-button');
+  bookmarkAddButton = document.getElementById('bookmark-add-button');
 
   addTabbutton.addEventListener('click', () => {
     createTab();
@@ -105,6 +114,22 @@ window.addEventListener('load', () => {
       captureFromUrls(captureText.value.split('\n'));
     }
   });
+
+  bookmarkMoveButton.addEventListener('click', () => {
+    const selected = bookmarkSelect.options[bookmarkSelect.selectedIndex];
+    if (selected) {
+      tabGroup.getActiveTab().webview.setAttribute('src', selected.value);
+    }
+  });
+  bookmarkDeleteButton.addEventListener('click', () => {
+    const selected = bookmarkSelect.options[bookmarkSelect.selectedIndex];
+    if (selected) {
+      deleteBookmark(selected.value);
+    }
+  });
+  bookmarkAddButton.addEventListener('click', () => {
+    addBookmark(tabGroup.getActiveTab().webview.src, tabGroup.getActiveTab().webview.getTitle());
+  })
 
   prepareBookmarks();
 });
@@ -316,14 +341,39 @@ async function request(url) {
 }
 
 async function prepareBookmarks() {
+  for (let i = bookmarkSelect.options.length - 1; i >= 0; i--) {
+    bookmarkSelect.remove(i);
+  }
+
   try {
     // await Bookmark.clearAll();
     const bookmarks = await Bookmark.getBookmarks();
-    console.log(bookmarks);
-    // await Bookmark.setBookmark('aaa', 'test.com');
-    // const bookmarks2 = await Bookmark.getBookmarks();
-    // console.log(bookmarks2);
+    const keys = Object.keys(bookmarks);
+    for (const key of keys) {
+      const option = document.createElement('option');
+      option.value = key;
+      option.text = `${bookmarks[key]}: ${key}`;
+      bookmarkSelect.add(option);
+    }
   } catch(error) {
-    console.log(error);
+    showDialog(error.toString());
+  }
+}
+
+async function deleteBookmark(url) {
+  try {
+    await Bookmark.deleteBookmark(url);
+    bookmarkSelect.remove(bookmarkSelect.selectedIndex);
+  } catch(error) {
+    showDialog(error.toString());
+  }
+}
+
+async function addBookmark(url, title) {
+  try {
+    await Bookmark.addBookmark(url, title);
+    prepareBookmarks();
+  } catch(error) {
+    showDialog(error.toString());
   }
 }

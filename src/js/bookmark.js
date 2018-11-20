@@ -29,7 +29,7 @@ async function getBookmarks() {
     if (Object.keys(bookmarks).length) {
       return bookmarks;
     } else {
-      const defaultBookmark = { 'builder.ptosh.com': 'builder' };
+      const defaultBookmark = { 'https://builder.ptosh.com': 'builder' };
       await setData(defaultBookmark);
       return defaultBookmark;
     }
@@ -38,10 +38,10 @@ async function getBookmarks() {
   }
 }
 
-async function setBookmark(name, url) {
+async function addBookmark(url, title) {
   try {
     const bookmarks = await getData();
-    bookmarks[url] = name;
+    bookmarks[url] = title;
     await setData(bookmarks);
   } catch(error) {
     throw new Error(error);
@@ -51,7 +51,7 @@ async function setBookmark(name, url) {
 async function deleteBookmark(url) {
   try {
     const bookmarks = await getData();
-    delete bookmarks.url;
+    delete bookmarks[url];
     await setData(bookmarks);
     return bookmarks;
   } catch(error) {
@@ -72,7 +72,7 @@ function clearAll() {
 
 export default {
   getBookmarks: getBookmarks,
-  setBookmark: setBookmark,
+  addBookmark: addBookmark,
   deleteBookmark: deleteBookmark,
   clearAll: clearAll
 }
