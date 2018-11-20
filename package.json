@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "bootstrap-sass": "^3.3.7",
+    "electron-json-storage": "^4.1.4",
     "electron-tabs": "^0.9.1",
     "font-awesome": "^4.7.0",
     "fs-extra": "^7.0.1",

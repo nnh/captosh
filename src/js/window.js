@@ -11,6 +11,8 @@ const dialog = remote.dialog;
 
 import TabGroup from 'electron-tabs';
 
+import Bookmark from './js/bookmark';
+
 let tabGroup = null,
     addTabbutton = null,
     urlBar = null,
@@ -103,6 +105,8 @@ window.addEventListener('load', () => {
       captureFromUrls(captureText.value.split('\n'));
     }
   });
+
+  prepareBookmarks();
 });
 
 window.addEventListener('keydown', (e) => {
@@ -308,5 +312,18 @@ async function request(url) {
     captureFromUrls(urls);
   } catch(error) {
     showDialog(error);
+  }
+}
+
+async function prepareBookmarks() {
+  try {
+    // await Bookmark.clearAll();
+    const bookmarks = await Bookmark.getBookmarks();
+    console.log(bookmarks);
+    // await Bookmark.setBookmark('aaa', 'test.com');
+    // const bookmarks2 = await Bookmark.getBookmarks();
+    // console.log(bookmarks2);
+  } catch(error) {
+    console.log(error);
   }
 }

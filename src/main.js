@@ -33,7 +33,7 @@ function createWindow() {
     webPreferences: { partition: 'persist:ptosh' }
   });
   mainWindow.loadURL(`file://${__dirname}/window.html`);
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', () => {
     mainWindow = null;

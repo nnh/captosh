@@ -79,6 +79,10 @@ gulp.task('dev', () => {
   runSequence('default', ['watch', 'serve']);
 });
 
+gulp.task('dev-vs', () => {
+  runSequence('default', 'watch');
+});
+
 gulp.task('package', () => {
   runSequence('default', 'package:mac', 'package:win');
 });
