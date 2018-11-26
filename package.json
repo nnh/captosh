@@ -5,14 +5,16 @@
   "main": "app/main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ava -v"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@ava/babel-preset-stage-4": "^2.0.0",
     "@babel/core": "^7.1.5",
     "@babel/preset-env": "^7.1.5",
     "@babel/register": "^7.0.0",
+    "ava": "^1.0.0-rc.2",
     "electron": "^3.0.4",
     "electron-builder": "^20.8.1",
     "electron-connect": "^0.6.3",
@@ -22,7 +24,8 @@
     "gulp-pug": "^4.0.1",
     "gulp-sass": "^4.0.2",
     "gulp-watch": "^5.0.0",
-    "run-sequence": "^2.2.1"
+    "run-sequence": "^2.2.1",
+    "spectron": "^5.0.0"
   },
   "dependencies": {
     "bootstrap-sass": "^3.3.7",
@@ -50,11 +53,30 @@
   },
   "babel": {
     "presets": [
-      ["@babel/env", {
-        "targets": {
-          "node": "current"
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
         }
-      }]
+      ]
     ]
+  },
+  "ava": {
+    "babel": {
+      "testOptions": {
+        "presets": [
+          [
+            "@babel/preset-env",
+            {
+              "targets": {
+                "node": "current"
+              }
+            }
+          ]
+        ]
+      }
+    }
   }
 }
