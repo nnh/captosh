@@ -1,12 +1,15 @@
 'use strict';
 
-const fs = require('fs-extra');
-const moment = require('moment-timezone');
+import fs from 'fs-extra';
+import moment from 'moment-timezone';
 
-const BrowserWindow = require('electron').remote.BrowserWindow;
-const dialog = require('electron').remote.dialog;
+import Url from 'url';
 
-const TabGroup = require('electron-tabs');
+import { ipcRenderer, remote } from 'electron';
+const BrowserWindow = remote.BrowserWindow;
+const dialog = remote.dialog;
+
+import TabGroup from 'electron-tabs';
 
 let tabGroup = null,
     addTabbutton = null,
@@ -31,7 +34,7 @@ window.addEventListener('load', () => {
   tabGroup = new TabGroup();
   createTab();
 
-  saveDirectory = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
+  saveDirectory = process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
 
   addTabbutton = document.getElementById('add-tab-button');
   urlBar = document.getElementById('url-bar');
@@ -58,13 +61,13 @@ window.addEventListener('load', () => {
     }
   });
   backButton.addEventListener('click', () => {
-    let webview = tabGroup.getActiveTab().webview;
+    const webview = tabGroup.getActiveTab().webview;
     if (webview.canGoBack()) {
       webview.goBack();
     }
   });
   nextButton.addEventListener('click', () => {
-    let webview = tabGroup.getActiveTab().webview;
+    const webview = tabGroup.getActiveTab().webview;
     if (webview.canGoForward()) {
       webview.goForward();
     }
@@ -82,17 +85,19 @@ window.addEventListener('load', () => {
     selectFolder();
   });
   prepareButton.addEventListener('click', () => {
-     if (captureContainer.style['display'] == 'none') {
-       captureContainer.style['display'] = 'block';
-     } else {
-       captureContainer.style['display'] = 'none';
-       captureText.value = '';
-       captureResult.innerHTML = '';
-     }
+    if (captureContainer.style['display'] === 'none') {
+      captureContainer.style['display'] = 'block';
+    } else {
+      captureContainer.style['display'] = 'none';
+      captureText.value = '';
+      captureResult.innerHTML = '';
+    }
   });
   captureButton.addEventListener('click', () => {
     captureResult.innerHTML = '';
-    if (captureText.value.length > 0) captureFromUrls(captureText.value.split('\n'));
+    if (captureText.value.length > 0) {
+      captureFromUrls(captureText.value.split('\n'));
+    }
   });
 });
 
@@ -106,18 +111,21 @@ window.addEventListener('keyup', (e) => {
 });
 
 function createTab(url = 'https://test-ptosh.herokuapp.com', active = true) {
-  let tab = tabGroup.addTab({
+  const tab = tabGroup.addTab({
     title: 'blank',
     src: url,
     visible: true,
-    active: active
+    active: active,
+    webviewAttributes: { partition: 'persist:ptosh' }
   });
   tab.on('active', (tab) => {
     urlBar.value = tab.webview.src;
   });
   tab.webview.preload = './js/webview.js';
   tab.webview.addEventListener('did-stop-loading', () => {
-    if (active) urlBar.value = tab.webview.src;
+    if (active) {
+      urlBar.value = tab.webview.src;
+    }
     tab.setTitle(tab.webview.getTitle());
     // tab.webview.openDevTools();
   });
@@ -131,7 +139,7 @@ function createTab(url = 'https://test-ptosh.herokuapp.com', active = true) {
 }
 
 function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true, callback = null) {
-  let today = new Date();
+  const today = new Date();
 
   if (document.getElementById('show-url').checked) {
     webview.send('insert-url', webview.src);
@@ -140,10 +148,10 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
     webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
   }
 
-  let trialName = webview.src.split('/')[4];
-  let sheetName = webview.src.split('/')[8];
-  let datetime = moment(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmss');
-  let path = `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
+  const trialName = webview.src.split('/')[4];
+  const sheetName = webview.src.split('/')[8];
+  const datetime = moment(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmss');
+  const path = `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
 
   webview.printToPDF(
     {
@@ -151,8 +159,12 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
     },
     (error, data) => {
       if (error !== null) {
-        if (isShowDialog) showDialog(error.toString());
-        if (typeof callback === 'function') callback(error.toString());
+        if (isShowDialog) {
+          showDialog(error.toString());
+        }
+        if (typeof callback === 'function') {
+          callback(error.toString());
+        }
         return;
       }
 
@@ -160,10 +172,16 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
       fs.writeFile(path, data, (error) => {
         webview.send('remove-inserted-element');
         if (error === null) {
-          if (typeof callback === 'function') callback(path);
+          if (typeof callback === 'function') {
+            callback(path);
+          }
         } else {
-          if (isShowDialog) showDialog(error.toString());
-          if (typeof callback === 'function') callback(error.toString());
+          if (isShowDialog) {
+            showDialog(error.toString());
+          }
+          if (typeof callback === 'function') {
+            callback(error.toString());
+          }
         }
       });
     }
@@ -171,8 +189,8 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
 }
 
 function showDialog(message) {
-  let win = BrowserWindow.getFocusedWindow();
-  let options = {
+  const win = BrowserWindow.getFocusedWindow();
+  const options = {
     type: 'error',
     buttons: ['閉じる'],
     title: 'error',
@@ -183,12 +201,14 @@ function showDialog(message) {
 }
 
 function selectFolder() {
-  let win = BrowserWindow.getFocusedWindow();
+  const win = BrowserWindow.getFocusedWindow();
   dialog.showOpenDialog(win, {
     properties: ['openDirectory']
   }, (directories) => {
-    saveDirectory = directories[0];
-    folderText.innerText = saveDirectory;
+    if (directories) {
+      saveDirectory = directories[0];
+      folderText.innerText = saveDirectory;
+    }
   });
 }
 
@@ -208,7 +228,12 @@ async function captureFromUrls(urls) {
 
   const doPromise = (url) => {
     return new Promise((resolve, reject) => {
-      const tab = tabGroup.addTab({ title: 'blank', src: url, visible: true });
+      const tab = tabGroup.addTab({
+        title: 'blank',
+        src: url,
+        visible: true,
+        webviewAttributes: { partition: 'persist:ptosh' }
+      });
       tab.webview.preload = './js/webview.js';
       tab.webview.addEventListener('did-stop-loading', () => {
         savePDF(tab.webview, false, (res) => {
@@ -220,7 +245,8 @@ async function captureFromUrls(urls) {
   }
 
   for (let i = 0; i < urls.length; i++) {
-    await sleep(1000)
+    // ファイル名に秒を使っているので、上書きしないために最低１秒空けている。
+    await sleep(1000);
     const result = await doPromise(urls[i]);
     const row = document.createElement('tr');
     for (let key in result) {
@@ -234,4 +260,36 @@ async function captureFromUrls(urls) {
   const div = document.createElement('div');
   div.innerText = '終了しました。'
   captureResult.insertBefore(div, captureResult.firstChild);
+}
+
+ipcRenderer.on('exec-api', (e, arg) => {
+  request(arg);
+});
+
+async function request(url) {
+  if (captureContainer.style['display'] === 'none') {
+    captureContainer.style['display'] = 'block';
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'text/plain',
+      }
+    });
+    const text = await response.text();
+
+    const targetUrl = new Url.URL(url);
+    const urls = text.split(/\n/).map((value) => {
+      return new Url.URL(value, `${targetUrl.protocol}//${targetUrl.host}`).href;
+    });
+
+    captureFromUrls(urls);
+  } catch(error) {
+    showDialog(error);
+  }
 }
