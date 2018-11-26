@@ -34,7 +34,7 @@ window.addEventListener('load', () => {
   tabGroup = new TabGroup();
   createTab();
 
-  saveDirectory = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
+  saveDirectory = process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
 
   addTabbutton = document.getElementById('add-tab-button');
   urlBar = document.getElementById('url-bar');
@@ -85,7 +85,7 @@ window.addEventListener('load', () => {
     selectFolder();
   });
   prepareButton.addEventListener('click', () => {
-    if (captureContainer.style['display'] == 'none') {
+    if (captureContainer.style['display'] === 'none') {
       captureContainer.style['display'] = 'block';
     } else {
       captureContainer.style['display'] = 'none';
