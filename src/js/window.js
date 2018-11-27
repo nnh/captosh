@@ -138,7 +138,7 @@ function createTab(url = 'https://test-ptosh.herokuapp.com', active = true) {
   });
 }
 
-function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true, callback = null) {
+function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true, fileName, callback) {
   const today = new Date();
 
   if (document.getElementById('show-url').checked) {
@@ -151,7 +151,7 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
   const trialName = webview.src.split('/')[4];
   const sheetName = webview.src.split('/')[8];
   const datetime = moment(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmss');
-  const path = `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
+  const path = fileName ? `${saveDirectory}/${fileName}` : `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
 
   webview.printToPDF(
     {
@@ -227,18 +227,24 @@ async function captureFromUrls(urls) {
   }
 
   const doPromise = (url) => {
+    let targetUrl = url;
+    let targetFileName = null;
+    if (url.includes(',')) {
+      targetUrl = url.split(',')[0];
+      targetFileName = url.split(',')[1].replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_');
+    }
     return new Promise((resolve, reject) => {
       const tab = tabGroup.addTab({
         title: 'blank',
-        src: url,
+        src: targetUrl,
         visible: true,
         webviewAttributes: { partition: 'persist:ptosh' }
       });
       tab.webview.preload = './js/webview.js';
       tab.webview.addEventListener('did-stop-loading', () => {
-        savePDF(tab.webview, false, (res) => {
+        savePDF(tab.webview, false, targetFileName, (res) => {
           tab.close();
-          resolve({ url: url, result: res });
+          resolve({ url: targetUrl, result: res });
         });
       });
     });
@@ -285,7 +291,12 @@ async function request(url) {
 
     const targetUrl = new Url.URL(url);
     const urls = text.split(/\n/).map((value) => {
-      return new Url.URL(value, `${targetUrl.protocol}//${targetUrl.host}`).href;
+      const baseUrl = `${targetUrl.protocol}//${targetUrl.host}`;
+      if (value.includes(',')) {
+        return `${new Url.URL(value.split(',')[0], baseUrl).href},${value.split(',')[1]}`;
+      } else {
+        return new Url.URL(value, baseUrl).href;
+      }
     });
 
     captureFromUrls(urls);
