@@ -78,8 +78,12 @@ window.addEventListener('load', () => {
   submitButton.addEventListener('click', () => {
     tabGroup.getActiveTab().webview.setAttribute('src', urlBar.value);
   });
-  photoButton.addEventListener('click', () => {
-    savePDF();
+  photoButton.addEventListener('click', async () => {
+    try {
+      await savePDF();
+    } catch (error) {
+      showDialog(error.message);
+    }
   });
   folderButton.addEventListener('click', () => {
     selectFolder();
@@ -138,7 +142,7 @@ function createTab(url = 'https://test-ptosh.herokuapp.com', active = true) {
   });
 }
 
-function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true, fileName, callback) {
+function savePDF(webview = tabGroup.getActiveTab().webview, fileName) {
   const today = new Date();
 
   if (document.getElementById('show-url').checked) {
@@ -148,44 +152,41 @@ function savePDF(webview = tabGroup.getActiveTab().webview, isShowDialog = true,
     webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
   }
 
-  const trialName = webview.src.split('/')[4];
-  const sheetName = webview.src.split('/')[8];
-  const datetime = moment(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmss');
-  const path = fileName ? `${saveDirectory}/${fileName}` : `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
+  const path = getSavePDFPath(webview.src, today, fileName);
 
-  webview.printToPDF(
-    {
-      printBackground: true
-    },
-    (error, data) => {
-      if (error !== null) {
-        if (isShowDialog) {
-          showDialog(error.toString());
+  return new Promise((resolve, reject) => {
+    webview.printToPDF(
+      {
+        printBackground: true
+      },
+      (error, data) => {
+        if (error !== null) {
+          reject(error);
         }
-        if (typeof callback === 'function') {
-          callback(error.toString());
-        }
-        return;
+
+        fs.ensureFileSync(path);
+        fs.writeFile(path, data, (error) => {
+          webview.send('remove-inserted-element');
+          if (error === null) {
+            resolve({ url: webview.src, result: path });
+          } else {
+            reject(error);
+          }
+        });
       }
+    );
+  });
+}
 
-      fs.ensureFileSync(path);
-      fs.writeFile(path, data, (error) => {
-        webview.send('remove-inserted-element');
-        if (error === null) {
-          if (typeof callback === 'function') {
-            callback(path);
-          }
-        } else {
-          if (isShowDialog) {
-            showDialog(error.toString());
-          }
-          if (typeof callback === 'function') {
-            callback(error.toString());
-          }
-        }
-      });
-    }
-  );
+function getSavePDFPath(src, today, fileName) {
+  if (fileName) {
+    return `${saveDirectory}/${fileName}`;
+  }
+
+  const trialName = src.split('/')[4];
+  const sheetName = src.split('/')[8];
+  const datetime = moment(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmss');
+  return `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
 }
 
 function showDialog(message) {
@@ -226,34 +227,18 @@ async function captureFromUrls(urls) {
     return new Promise((resolve, reject) => { setTimeout(resolve, msec); });
   }
 
-  const doPromise = (url) => {
+  for (const url of urls) {
+    // ファイル名に秒を使っているので、上書きしないために最低１秒空けている。
+    await sleep(1000);
+
     let targetUrl = url;
     let targetFileName = null;
     if (url.includes(',')) {
       targetUrl = url.split(',')[0];
       targetFileName = url.split(',')[1].replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_');
     }
-    return new Promise((resolve, reject) => {
-      const tab = tabGroup.addTab({
-        title: 'blank',
-        src: targetUrl,
-        visible: true,
-        webviewAttributes: { partition: 'persist:ptosh' }
-      });
-      tab.webview.preload = './js/webview.js';
-      tab.webview.addEventListener('did-stop-loading', () => {
-        savePDF(tab.webview, false, targetFileName, (res) => {
-          tab.close();
-          resolve({ url: targetUrl, result: res });
-        });
-      });
-    });
-  }
 
-  for (let i = 0; i < urls.length; i++) {
-    // ファイル名に秒を使っているので、上書きしないために最低１秒空けている。
-    await sleep(1000);
-    const result = await doPromise(urls[i]);
+    const result = await savePDFWithAttr(targetUrl, targetFileName);
     const row = document.createElement('tr');
     for (let key in result) {
       const cell = document.createElement('td');
@@ -266,6 +251,27 @@ async function captureFromUrls(urls) {
   const div = document.createElement('div');
   div.innerText = '終了しました。'
   captureResult.insertBefore(div, captureResult.firstChild);
+}
+
+function savePDFWithAttr(targetUrl, targetFileName) {
+  return new Promise((resolve, reject) => {
+    const tab = tabGroup.addTab({
+      title: 'blank',
+      src: targetUrl,
+      visible: true,
+      webviewAttributes: { partition: 'persist:ptosh' }
+    });
+    tab.webview.preload = './js/webview.js';
+    tab.webview.addEventListener('did-stop-loading', async () => {
+      try {
+        resolve(await savePDF(tab.webview, targetFileName));
+      } catch (error) {
+        resolve({ url: targetUrl, result: error.message });
+      } finally {
+        tab.close();
+      }
+    });
+  });
 }
 
 ipcRenderer.on('exec-api', (e, arg) => {
