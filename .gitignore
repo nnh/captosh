@@ -3,3 +3,4 @@ dist
 .DS_Store
 app
 yarn-error.log
+.vscode
