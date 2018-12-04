@@ -1,78 +1,69 @@
+import util from 'util';
 import storage from 'electron-json-storage';
+
 const key = 'bookmark';
+const getStorage = util.promisify(storage.get);
+const setStorage = util.promisify(storage.set);
+const clearStorage = util.promisify(storage.clear);
 
-function getData() {
-  return new Promise((resolve, reject) => {
-    storage.get(key, (error, data) => {
-      if (error) {
-        reject(error);
-      }
-      resolve(data);
-    });
-  });
-}
-
-function setData(data) {
-  return new Promise((resolve, reject) => {
-    storage.set(key, data, (error) => {
-      if (error) {
-        reject(error);
-      }
-      resolve();
-    });
-  });
-}
-
-async function getBookmarks() {
-  try {
-    const bookmarks = await getData();
-    if (Object.keys(bookmarks).length) {
-      return bookmarks;
-    } else {
-      const defaultBookmark = { 'https://builder.ptosh.com': 'builder' };
-      await setData(defaultBookmark);
-      return defaultBookmark;
+export default class Bookmark {
+  static async getData() {
+    try {
+      return await getStorage(key);
+    } catch (error) {
+      throw new Error(error.message);
     }
-  } catch(error) {
-    throw new Error(error);
   }
-}
 
-async function addBookmark(url, title) {
-  try {
-    const bookmarks = await getData();
-    bookmarks[url] = title;
-    await setData(bookmarks);
-  } catch(error) {
-    throw new Error(error);
+  static async setData(data) {
+    try {
+      return await setStorage(key, data);
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
-}
 
-async function deleteBookmark(url) {
-  try {
-    const bookmarks = await getData();
-    delete bookmarks[url];
-    await setData(bookmarks);
-    return bookmarks;
-  } catch(error) {
-    throw new Error(error);
-  }
-}
-
-function clearAll() {
-  return new Promise((resolve, reject) => {
-    storage.clear((error) => {
-      if (error) {
-        reject(error);
+  static async get() {
+    try {
+      const bookmarks = await this.getData();
+      if (Object.keys(bookmarks).length) {
+        return bookmarks;
+      } else {
+        const defaultBookmark = { 'https://builder.ptosh.com': 'builder' };
+        await this.setData(defaultBookmark);
+        return defaultBookmark;
       }
-      resolve();
-    });
-  });
-}
+    } catch(error) {
+      throw new Error(error);
+    }
+  }
 
-export default {
-  getBookmarks: getBookmarks,
-  addBookmark: addBookmark,
-  deleteBookmark: deleteBookmark,
-  clearAll: clearAll
+  static async add(url, title) {
+    try {
+      const bookmarks = await this.getData();
+      bookmarks[url] = title;
+      await this.setData(bookmarks);
+    } catch(error) {
+      throw new Error(error);
+    }
+  }
+
+  static async delete(url) {
+    try {
+      const bookmarks = await this.getData();
+      delete bookmarks[url];
+      await this.setData(bookmarks);
+      return bookmarks;
+    } catch(error) {
+      throw new Error(error);
+    }
+  }
+
+  static async clearAll() {
+    try {
+      await clearStorage();
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
 }
