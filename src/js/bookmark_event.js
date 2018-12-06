@@ -1,26 +1,23 @@
 import Bookmark from './bookmark';
 
-let bookmarkSelect, bookmarkMoveButton, bookmarkDeleteButton, bookmarkAddButton;
-
 window.addEventListener('load', () => {
-  bookmarkSelect = document.getElementById('bookmark-select');
-  bookmarkMoveButton = document.getElementById('bookmark-move-button');
-  bookmarkDeleteButton = document.getElementById('bookmark-delete-button');
-  bookmarkAddButton = document.getElementById('bookmark-add-button');
+  const bookmarkSelect = document.getElementById('bookmark-select');
 
-  bookmarkMoveButton.addEventListener('click', () => {
+  document.getElementById('bookmark-move-button').addEventListener('click', () => {
     const selected = bookmarkSelect.options[bookmarkSelect.selectedIndex];
     if (selected) {
       tabGroup.getActiveTab().webview.setAttribute('src', selected.value);
     }
   });
-  bookmarkDeleteButton.addEventListener('click', () => {
+
+  document.getElementById('bookmark-delete-button').addEventListener('click', () => {
     const selected = bookmarkSelect.options[bookmarkSelect.selectedIndex];
     if (selected) {
       deleteBookmark(selected.value);
     }
   });
-  bookmarkAddButton.addEventListener('click', () => {
+
+  document.getElementById('bookmark-add-button').addEventListener('click', () => {
     addBookmark(tabGroup.getActiveTab().webview.src, tabGroup.getActiveTab().webview.getTitle());
   })
 
@@ -28,9 +25,8 @@ window.addEventListener('load', () => {
 });
 
 async function prepareBookmarks() {
-  for (let i = bookmarkSelect.options.length - 1; i >= 0; i--) {
-    bookmarkSelect.remove(i);
-  }
+  const bookmarkSelect = document.getElementById('bookmark-select');
+  bookmarkSelect.innerText = null
 
   try {
     // await Bookmark.clearAll();
@@ -48,6 +44,7 @@ async function prepareBookmarks() {
 }
 
 async function deleteBookmark(url) {
+  const bookmarkSelect = document.getElementById('bookmark-select');
   try {
     await Bookmark.delete(url);
     bookmarkSelect.remove(bookmarkSelect.selectedIndex);
