@@ -29,4 +29,3 @@ export default class Bookmark {
 Bookmark.key = 'bookmark';
 Bookmark.getData = () => util.promisify(storage.get)(Bookmark.key);
 Bookmark.setData = (data) => util.promisify(storage.set)(Bookmark.key, data);
-Bookmark.clearAll = util.promisify(storage.clear);

@@ -51,7 +51,6 @@ export default class BookmarkEvent {
     bookmarkSelect.innerText = null;
 
     try {
-      // await Bookmark.clearAll();
       const bookmarks = await Bookmark.get();
       const keys = Object.keys(bookmarks);
       for (const key of keys) {
