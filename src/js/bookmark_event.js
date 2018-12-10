@@ -32,7 +32,7 @@ export default class BookmarkEvent {
       await Bookmark.delete(selected.value);
       bookmarkSelect.remove(bookmarkSelect.selectedIndex);
     } catch(error) {
-      showDialog(error.toString());
+      this.showDialog(error.toString());
     }
   }
 
@@ -42,7 +42,7 @@ export default class BookmarkEvent {
       await Bookmark.add(webview.src, webview.getTitle());
       this.prepareBookmarks();
     } catch(error) {
-      showDialog(error.toString());
+      this.showDialog(error.toString());
     }
   }
 
@@ -61,7 +61,7 @@ export default class BookmarkEvent {
         bookmarkSelect.add(option);
       }
     } catch(error) {
-      showDialog(error.toString());
+      this.showDialog(error.toString());
     }
   }
 }

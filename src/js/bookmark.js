@@ -1,20 +1,7 @@
 import util from 'util';
 import storage from 'electron-json-storage';
 
-const key = 'bookmark';
-const getStorage = util.promisify(storage.get);
-const setStorage = util.promisify(storage.set);
-const clearStorage = util.promisify(storage.clear);
-
 export default class Bookmark {
-  static async getData() {
-    return await getStorage(key);
-  }
-
-  static async setData(data) {
-    await setStorage(key, data);
-  }
-
   static async get() {
     const bookmarks = await this.getData();
     if (Object.keys(bookmarks).length) {
@@ -37,8 +24,9 @@ export default class Bookmark {
     delete bookmarks[url];
     await this.setData(bookmarks);
   }
-
-  static async clearAll() {
-    await clearStorage();
-  }
 }
+
+Bookmark.key = 'bookmark';
+Bookmark.getData = () => util.promisify(storage.get)(Bookmark.key);
+Bookmark.setData = (data) => util.promisify(storage.set)(Bookmark.key, data);
+Bookmark.clearAll = util.promisify(storage.clear);
