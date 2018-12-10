@@ -1,63 +1,67 @@
 import Bookmark from './bookmark';
 
-window.addEventListener('load', () => {
-  const bookmarkSelect = document.getElementById('bookmark-select');
+export default class BookmarkEvent {
+  constructor({ select, moveButton, deleteButton, addButton, getActiveTab, showDialog }) {
+    this.controls = { select, moveButton, deleteButton, addButton };
+    this.getActiveTab = getActiveTab;
+    this.showDialog = showDialog;
 
-  document.getElementById('bookmark-move-button').addEventListener('click', () => {
+    this.controls.moveButton.addEventListener('click', this.onMove.bind(this));
+    this.controls.deleteButton.addEventListener('click', this.onDelete.bind(this));
+    this.controls.addButton.addEventListener('click', this.onAdd.bind(this));
+
+    this.prepareBookmarks();
+  }
+
+  onMove() {
+    const bookmarkSelect = this.controls.select;
     const selected = bookmarkSelect.options[bookmarkSelect.selectedIndex];
     if (selected) {
-      tabGroup.getActiveTab().webview.setAttribute('src', selected.value);
+      this.getActiveTab().webview.setAttribute('src', selected.value);
     }
-  });
+  }
 
-  document.getElementById('bookmark-delete-button').addEventListener('click', () => {
+  async onDelete() {
+    const bookmarkSelect = this.controls.select;
     const selected = bookmarkSelect.options[bookmarkSelect.selectedIndex];
-    if (selected) {
-      deleteBookmark(selected.value);
+    if (!selected) {
+      return;
     }
-  });
 
-  document.getElementById('bookmark-add-button').addEventListener('click', () => {
-    addBookmark(tabGroup.getActiveTab().webview.src, tabGroup.getActiveTab().webview.getTitle());
-  })
-
-  prepareBookmarks();
-});
-
-async function prepareBookmarks() {
-  const bookmarkSelect = document.getElementById('bookmark-select');
-  bookmarkSelect.innerText = null
-
-  try {
-    // await Bookmark.clearAll();
-    const bookmarks = await Bookmark.get();
-    const keys = Object.keys(bookmarks);
-    for (const key of keys) {
-      const option = document.createElement('option');
-      option.value = key;
-      option.text = `${bookmarks[key]}: ${key}`;
-      bookmarkSelect.add(option);
+    try {
+      await Bookmark.delete(selected.value);
+      bookmarkSelect.remove(bookmarkSelect.selectedIndex);
+    } catch(error) {
+      showDialog(error.toString());
     }
-  } catch(error) {
-    showDialog(error.toString());
   }
-}
 
-async function deleteBookmark(url) {
-  const bookmarkSelect = document.getElementById('bookmark-select');
-  try {
-    await Bookmark.delete(url);
-    bookmarkSelect.remove(bookmarkSelect.selectedIndex);
-  } catch(error) {
-    showDialog(error.toString());
+  async onAdd() {
+    const webview = this.getActiveTab().webview;
+    try {
+      await Bookmark.add(webview.src, webview.getTitle());
+      this.prepareBookmarks();
+    } catch(error) {
+      showDialog(error.toString());
+    }
   }
-}
 
-async function addBookmark(url, title) {
-  try {
-    await Bookmark.add(url, title);
-    prepareBookmarks();
-  } catch(error) {
-    showDialog(error.toString());
+  async prepareBookmarks() {
+    const bookmarkSelect = this.controls.select;
+    bookmarkSelect.innerText = null;
+
+    try {
+      // await Bookmark.clearAll();
+      const bookmarks = await Bookmark.get();
+      const keys = Object.keys(bookmarks);
+      for (const key of keys) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.text = `${bookmarks[key]}: ${key}`;
+        bookmarkSelect.add(option);
+      }
+    } catch(error) {
+      showDialog(error.toString());
+    }
   }
 }

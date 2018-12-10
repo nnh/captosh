@@ -11,7 +11,7 @@ const dialog = remote.dialog;
 
 import TabGroup from 'electron-tabs';
 
-import './js/bookmark_event';
+import BookmarkEvent from './js/bookmark_event';
 
 let tabGroup = null;
 let shiftKey = false
@@ -89,6 +89,15 @@ window.addEventListener('load', () => {
     if (captureText.value.length > 0) {
       captureFromUrls(captureText.value.split('\n'));
     }
+  });
+
+  new BookmarkEvent({
+    select: document.getElementById('bookmark-select'),
+    moveButton: document.getElementById('bookmark-move-button'),
+    deleteButton: document.getElementById('bookmark-delete-button'),
+    addButton: document.getElementById('bookmark-add-button'),
+    getActiveTab: tabGroup.getActiveTab.bind(tabGroup),
+    showDialog: showDialog
   });
 });
 
