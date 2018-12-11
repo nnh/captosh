@@ -12,8 +12,8 @@ const dialog = remote.dialog;
 import TabGroup from 'electron-tabs';
 
 import BookmarkEvent from './js/bookmark_event';
-import CaptureEventViews from './js/capture_event_views';
-const captureEventViews = new CaptureEventViews();
+import CaptureView from './js/capture_view';
+const captureView = new CaptureView();
 
 let tabGroup = null;
 let shiftKey = false
@@ -81,13 +81,13 @@ window.addEventListener('load', () => {
     } else {
       captureContainer.style['display'] = 'none';
       captureText.value = '';
-      captureEventViews.resetViews();
+      captureView.resetView();
     }
   });
 
   document.getElementById('capture-button').addEventListener('click', () => {
     if (captureText.value.length > 0) {
-      captureEventViews.resetViews();
+      captureView.resetView();
       captureFromUrls(captureText.value.split('\n'));
     }
   });
@@ -101,7 +101,7 @@ window.addEventListener('load', () => {
     showDialog: showDialog
   });
 
-  captureEventViews.setViews({
+  captureView.setView({
     captureProgress: document.getElementById('capture-progress'),
     captureResult: document.getElementById('capture-result'),
     progressBar: document.getElementById('progress-bar')
@@ -220,7 +220,7 @@ function selectFolder() {
 
 async function captureFromUrls(urls) {
   urls = urls.filter(v => v);
-  captureEventViews.initializeViews(urls.length);
+  captureView.initializeView(urls.length);
 
   const sleep = (msec) => {
     return new Promise((resolve, reject) => { setTimeout(resolve, msec); });
@@ -239,10 +239,10 @@ async function captureFromUrls(urls) {
     }
 
     const result = await savePDFWithAttr(targetUrl, targetFileName);
-    captureEventViews.updateViews(i + 1, result);
+    captureView.updateView(i + 1, result.errorText);
   };
 
-  captureEventViews.finish();
+  captureView.finish();
 }
 
 function savePDFWithAttr(targetUrl, targetFileName) {
