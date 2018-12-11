@@ -12,6 +12,8 @@ const dialog = remote.dialog;
 import TabGroup from 'electron-tabs';
 
 import BookmarkEvent from './js/bookmark_event';
+import CaptureEventViews from './js/capture_event_views';
+const captureEventViews = new CaptureEventViews();
 
 let tabGroup = null;
 let shiftKey = false
@@ -79,13 +81,13 @@ window.addEventListener('load', () => {
     } else {
       captureContainer.style['display'] = 'none';
       captureText.value = '';
-      resetCaptureResult();
+      captureEventViews.resetViews();
     }
   });
 
   document.getElementById('capture-button').addEventListener('click', () => {
     if (captureText.value.length > 0) {
-      resetCaptureResult();
+      captureEventViews.resetViews();
       captureFromUrls(captureText.value.split('\n'));
     }
   });
@@ -98,13 +100,13 @@ window.addEventListener('load', () => {
     getActiveTab: tabGroup.getActiveTab.bind(tabGroup),
     showDialog: showDialog
   });
-});
 
-function resetCaptureResult() {
-  document.getElementById('capture-progress').innerHTML = '';
-  document.getElementById('capture-result').innerHTML = '';
-  document.getElementById('progress-bar').style['width'] = '0%';
-}
+  captureEventViews.setViews({
+    captureProgress: document.getElementById('capture-progress'),
+    captureResult: document.getElementById('capture-result'),
+    progressBar: document.getElementById('progress-bar')
+  });
+});
 
 window.addEventListener('keydown', (e) => {
   shiftKey = e.shiftKey;
@@ -218,12 +220,7 @@ function selectFolder() {
 
 async function captureFromUrls(urls) {
   urls = urls.filter(v => v);
-
-  let errorText = '';
-  const progressBar = document.getElementById('progress-bar');
-  progressBar.setAttribute('aria-valuemax', urls.length);
-  const captureProgress = document.getElementById('capture-progress');
-  captureProgress.innerText = `0 / ${urls.length}`;
+  captureEventViews.initializeViews(urls.length);
 
   const sleep = (msec) => {
     return new Promise((resolve, reject) => { setTimeout(resolve, msec); });
@@ -242,14 +239,10 @@ async function captureFromUrls(urls) {
     }
 
     const result = await savePDFWithAttr(targetUrl, targetFileName);
-    if (result.errorText) {
-      errorText += result.errorText;
-    }
-    progressBar.style['width'] = `${(i + 1) * 100 / urls.length}%`;
-    captureProgress.innerText = `${i + 1} / ${urls.length}`;
-  }
+    captureEventViews.updateViews(i + 1, result);
+  };
 
-  document.getElementById('capture-result').innerText = errorText.length ? errorText : '終了しました';
+  captureEventViews.finish();
 }
 
 function savePDFWithAttr(targetUrl, targetFileName) {
