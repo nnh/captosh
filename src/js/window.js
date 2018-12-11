@@ -72,7 +72,6 @@ window.addEventListener('load', () => {
 
   const captureContainer = document.getElementById('capture-container');
   const captureText = document.getElementById('capture-text');
-  const captureResult = document.getElementById('capture-result');
 
   document.getElementById('prepare-button').addEventListener('click', () => {
     if (captureContainer.style['display'] === 'none') {
@@ -80,13 +79,13 @@ window.addEventListener('load', () => {
     } else {
       captureContainer.style['display'] = 'none';
       captureText.value = '';
-      captureResult.innerHTML = '';
+      resetCaptureResult();
     }
   });
 
   document.getElementById('capture-button').addEventListener('click', () => {
-    captureResult.innerHTML = '';
     if (captureText.value.length > 0) {
+      resetCaptureResult();
       captureFromUrls(captureText.value.split('\n'));
     }
   });
@@ -101,6 +100,12 @@ window.addEventListener('load', () => {
   });
 });
 
+function resetCaptureResult() {
+  document.getElementById('capture-progress').innerHTML = '';
+  document.getElementById('capture-result').innerHTML = '';
+  document.getElementById('progress-bar').style['width'] = '0%';
+}
+
 window.addEventListener('keydown', (e) => {
   shiftKey = e.shiftKey;
   cmdOrCtrlKey = e.ctrlKey || e.metaKey;
@@ -110,7 +115,7 @@ window.addEventListener('keyup', (e) => {
   cmdOrCtrlKey = e.ctrlKey || e.metaKey;
 });
 
-function createTab(url = 'https://test-ptosh.herokuapp.com', active = true) {
+function createTab(url = 'https://builder.ptosh.com', active = true) {
   const urlBar = document.getElementById('url-bar');
 
   const tab = tabGroup.addTab({
@@ -166,7 +171,7 @@ function savePDF(webview = tabGroup.getActiveTab().webview, fileName) {
         fs.writeFile(path, data, (error) => {
           webview.send('remove-inserted-element');
           if (error === null) {
-            resolve({ url: webview.src, result: path });
+            resolve();
           } else {
             reject(error);
           }
@@ -214,22 +219,20 @@ function selectFolder() {
 async function captureFromUrls(urls) {
   urls = urls.filter(v => v);
 
-  const table = document.createElement('table');
-  table.id = 'capture-result-table';
-  const tbody = document.createElement('tbody');
-  tbody.id = 'capture-result-tbody';
-  table.appendChild(tbody);
-
-  const captureResult = document.getElementById('capture-result');
-  captureResult.appendChild(table);
+  let errorText = '';
+  const progressBar = document.getElementById('progress-bar');
+  progressBar.setAttribute('aria-valuemax', urls.length);
+  const captureProgress = document.getElementById('capture-progress');
+  captureProgress.innerText = `0 / ${urls.length}`;
 
   const sleep = (msec) => {
     return new Promise((resolve, reject) => { setTimeout(resolve, msec); });
   }
 
-  for (const url of urls) {
+  for (let i = 0; i < urls.length; i++) {
     // ファイル名に秒を使っているので、上書きしないために最低１秒空けている。
     await sleep(1000);
+    const url = urls[i];
 
     let targetUrl = url;
     let targetFileName = null;
@@ -239,18 +242,14 @@ async function captureFromUrls(urls) {
     }
 
     const result = await savePDFWithAttr(targetUrl, targetFileName);
-    const row = document.createElement('tr');
-    for (let key in result) {
-      const cell = document.createElement('td');
-      cell.innerText = result[key];
-      row.appendChild(cell);
+    if (result.errorText) {
+      errorText += result.errorText;
     }
-    document.getElementById('capture-result-tbody').appendChild(row);
+    progressBar.style['width'] = `${(i + 1) * 100 / urls.length}%`;
+    captureProgress.innerText = `${i + 1} / ${urls.length}`;
   }
 
-  const div = document.createElement('div');
-  div.innerText = '終了しました。'
-  captureResult.insertBefore(div, captureResult.firstChild);
+  document.getElementById('capture-result').innerText = errorText.length ? errorText : '終了しました';
 }
 
 function savePDFWithAttr(targetUrl, targetFileName) {
@@ -266,7 +265,7 @@ function savePDFWithAttr(targetUrl, targetFileName) {
       try {
         resolve(await savePDF(tab.webview, targetFileName));
       } catch (error) {
-        resolve({ url: targetUrl, result: error.message });
+        resolve({ errorText: `${targetUrl}の保存に失敗しました。(${error.message})\n` });
       } finally {
         tab.close();
       }

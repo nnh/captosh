@@ -57,6 +57,9 @@ html
         p キャプチャーしたいページのURLを入力してください。（改行で複数ページ行います）
         textarea#capture-text.form-control(rows="10")
         button#capture-button.btn.btn-default 開始
+        .progress
+          #progress-bar.progress-bar(role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100")
+        #capture-progress
         #capture-result
 
     //- script.
