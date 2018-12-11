@@ -11,84 +11,70 @@ const dialog = remote.dialog;
 
 import TabGroup from 'electron-tabs';
 
-let tabGroup = null,
-    addTabbutton = null,
-    urlBar = null,
-    backButton = null,
-    nextButton = null,
-    reloadButton = null,
-    submitButton = null,
-    photoButton = null,
-    folderButton = null,
-    folderText = null,
-    saveDirectory = null,
-    prepareButton = null,
-    captureContainer = null,
-    captureText = null,
-    captureButton = null,
-    captureResult = null,
-    shiftKey = false,
-    cmdOrCtrlKey = false;
+import BookmarkEvent from './js/bookmark_event';
+
+let tabGroup = null;
+let shiftKey = false
+let cmdOrCtrlKey = false;
 
 window.addEventListener('load', () => {
   tabGroup = new TabGroup();
   createTab();
 
-  saveDirectory = process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
-
-  addTabbutton = document.getElementById('add-tab-button');
-  urlBar = document.getElementById('url-bar');
-  backButton = document.getElementById('back-button');
-  nextButton = document.getElementById('next-button');
-  reloadButton = document.getElementById('reload-button');
-  submitButton = document.getElementById('submit-button');
-  photoButton = document.getElementById('photo-button');
-  folderButton = document.getElementById('folder-button');
-  folderText = document.getElementById('folder-text');
-  folderText.innerText = saveDirectory;
-  prepareButton = document.getElementById('prepare-button');
-  captureContainer = document.getElementById('capture-container');
-  captureText = document.getElementById('capture-text');
-  captureButton = document.getElementById('capture-button');
-  captureResult = document.getElementById('capture-result');
-
-  addTabbutton.addEventListener('click', () => {
+  document.getElementById('add-tab-button').addEventListener('click', () => {
     createTab();
   });
+
+  const submitButton = document.getElementById('submit-button');
+  const urlBar = document.getElementById('url-bar');
+
+  submitButton.addEventListener('click', () => {
+    tabGroup.getActiveTab().webview.setAttribute('src', urlBar.value);
+  });
+
   urlBar.addEventListener('keypress', (event) => {
     if (event.keyCode === 13) {
       submitButton.click();
     }
   });
-  backButton.addEventListener('click', () => {
+
+  document.getElementById('back-button').addEventListener('click', () => {
     const webview = tabGroup.getActiveTab().webview;
     if (webview.canGoBack()) {
       webview.goBack();
     }
   });
-  nextButton.addEventListener('click', () => {
+
+  document.getElementById('next-button').addEventListener('click', () => {
     const webview = tabGroup.getActiveTab().webview;
     if (webview.canGoForward()) {
       webview.goForward();
     }
   });
-  reloadButton.addEventListener('click', () => {
+
+  document.getElementById('reload-button').addEventListener('click', () => {
     tabGroup.getActiveTab().webview.reload();
   });
-  submitButton.addEventListener('click', () => {
-    tabGroup.getActiveTab().webview.setAttribute('src', urlBar.value);
-  });
-  photoButton.addEventListener('click', async () => {
+
+  document.getElementById('photo-button').addEventListener('click', async () => {
     try {
       await savePDF();
     } catch (error) {
       showDialog(error.message);
     }
   });
-  folderButton.addEventListener('click', () => {
+
+  document.getElementById('folder-text').value = process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
+
+  document.getElementById('folder-button').addEventListener('click', () => {
     selectFolder();
   });
-  prepareButton.addEventListener('click', () => {
+
+  const captureContainer = document.getElementById('capture-container');
+  const captureText = document.getElementById('capture-text');
+  const captureResult = document.getElementById('capture-result');
+
+  document.getElementById('prepare-button').addEventListener('click', () => {
     if (captureContainer.style['display'] === 'none') {
       captureContainer.style['display'] = 'block';
     } else {
@@ -97,11 +83,21 @@ window.addEventListener('load', () => {
       captureResult.innerHTML = '';
     }
   });
-  captureButton.addEventListener('click', () => {
+
+  document.getElementById('capture-button').addEventListener('click', () => {
     captureResult.innerHTML = '';
     if (captureText.value.length > 0) {
       captureFromUrls(captureText.value.split('\n'));
     }
+  });
+
+  new BookmarkEvent({
+    select: document.getElementById('bookmark-select'),
+    moveButton: document.getElementById('bookmark-move-button'),
+    deleteButton: document.getElementById('bookmark-delete-button'),
+    addButton: document.getElementById('bookmark-add-button'),
+    getActiveTab: tabGroup.getActiveTab.bind(tabGroup),
+    showDialog: showDialog
   });
 });
 
@@ -115,6 +111,8 @@ window.addEventListener('keyup', (e) => {
 });
 
 function createTab(url = 'https://test-ptosh.herokuapp.com', active = true) {
+  const urlBar = document.getElementById('url-bar');
+
   const tab = tabGroup.addTab({
     title: 'blank',
     src: url,
@@ -179,6 +177,7 @@ function savePDF(webview = tabGroup.getActiveTab().webview, fileName) {
 }
 
 function getSavePDFPath(src, today, fileName) {
+  const saveDirectory = document.getElementById('folder-text').value;
   if (fileName) {
     return `${saveDirectory}/${fileName}`;
   }
@@ -207,8 +206,7 @@ function selectFolder() {
     properties: ['openDirectory']
   }, (directories) => {
     if (directories) {
-      saveDirectory = directories[0];
-      folderText.innerText = saveDirectory;
+      document.getElementById('folder-text').value = directories[0];
     }
   });
 }
@@ -221,6 +219,8 @@ async function captureFromUrls(urls) {
   const tbody = document.createElement('tbody');
   tbody.id = 'capture-result-tbody';
   table.appendChild(tbody);
+
+  const captureResult = document.getElementById('capture-result');
   captureResult.appendChild(table);
 
   const sleep = (msec) => {
@@ -279,6 +279,7 @@ ipcRenderer.on('exec-api', (e, arg) => {
 });
 
 async function request(url) {
+  const captureContainer = document.getElementById('capture-container');
   if (captureContainer.style['display'] === 'none') {
     captureContainer.style['display'] = 'block';
   }
