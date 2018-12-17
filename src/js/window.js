@@ -4,6 +4,7 @@ import fs from 'fs-extra';
 import moment from 'moment-timezone';
 
 import Url from 'url';
+import util from 'util';
 
 import { ipcRenderer, remote } from 'electron';
 const BrowserWindow = remote.BrowserWindow;
@@ -172,7 +173,7 @@ window.addEventListener('load', () => {
     });
   }
 
-  function savePDF(webview = tabGroup.getActiveTab().webview, fileName) {
+  async function savePDF(webview = tabGroup.getActiveTab().webview, fileName) {
     const today = new Date();
 
     if (document.getElementById('show-url').checked) {
@@ -183,29 +184,16 @@ window.addEventListener('load', () => {
     }
 
     const path = getSavePDFPath(webview.src, today, fileName);
+    const printToPDF = () => util.promisify(webview.printToPDF.bind(webview))({ printBackground: true });
+    const writeFile = util.promisify(fs.writeFile);
 
-    return new Promise((resolve, reject) => {
-      webview.printToPDF(
-        {
-          printBackground: true
-        },
-        (error, data) => {
-          if (error !== null) {
-            reject(error);
-          }
-
-          fs.ensureFileSync(path);
-          fs.writeFile(path, data, (error) => {
-            webview.send('remove-inserted-element');
-            if (error === null) {
-              resolve();
-            } else {
-              reject(error);
-            }
-          });
-        }
-      );
-    });
+    try {
+      const data = await printToPDF();
+      fs.ensureFileSync(path);
+      await writeFile(path, data);
+    } finally {
+      webview.send('remove-inserted-element');
+    }
   }
 
   function getSavePDFPath(src, today, fileName) {
@@ -241,25 +229,28 @@ window.addEventListener('load', () => {
     }
   }
 
-  function savePDFWithAttr(targetUrl, targetFileName) {
-    return new Promise((resolve, reject) => {
-      const tab = tabGroup.addTab({
-        title: 'blank',
-        src: targetUrl,
-        visible: true,
-        webviewAttributes: { partition: 'persist:ptosh' }
-      });
-      tab.webview.preload = './js/webview.js';
-      tab.webview.addEventListener('did-stop-loading', async () => {
-        try {
-          resolve(await savePDF(tab.webview, targetFileName));
-        } catch (error) {
-          resolve({ errorText: `${targetUrl}の保存に失敗しました。(${error.message})\n` });
-        } finally {
-          tab.close();
-        }
-      });
+  async function savePDFWithAttr(targetUrl, targetFileName) {
+    const tab = tabGroup.addTab({
+      title: 'blank',
+      src: targetUrl,
+      visible: true,
+      webviewAttributes: { partition: 'persist:ptosh' }
     });
+    tab.webview.preload = './js/webview.js';
+    const didStopLoading = () => {
+      return new Promise(resolve => {
+        tab.webview.addEventListener('did-stop-loading', resolve);
+      });
+    }
+
+    try {
+      await didStopLoading();
+      await savePDF(tab.webview, targetFileName);
+    } catch (error) {
+      return { errorText: `${targetUrl}の保存に失敗しました。(${error.message})\n` };
+    } finally {
+      tab.close();
+    }
   }
 
   async function request(url) {
