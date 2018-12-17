@@ -1,9 +1,6 @@
 export default class CaptureView {
-  constructor() {
+  constructor({ captureProgress, captureResult, progressBar }) {
     this.max = 0;
-  }
-
-  setView({ captureProgress, captureResult, progressBar }) {
     this.captureProgress = captureProgress;
     this.captureResult = captureResult;
     this.progressBar = progressBar;
@@ -29,9 +26,8 @@ export default class CaptureView {
     if (errorText) {
       this.captureResult.innerText += errorText;
     }
-  }
-
-  finish() {
-    this.captureResult.innerText += '終了しました';
+    if (now === this.max) {
+      this.captureResult.innerText += '終了しました';
+    }
   }
 }
