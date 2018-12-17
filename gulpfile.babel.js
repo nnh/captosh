@@ -17,6 +17,7 @@ const dest = 'app';
 gulp.task('compile-js', () => {
   return gulp.src(srcJs)
     .pipe(babel())
+    .on('error', console.error.bind(console))
     .pipe(gulp.dest(dest));
 });
 
