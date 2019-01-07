@@ -140,7 +140,8 @@ window.addEventListener('load', () => {
   const captureView = new CaptureView({
     captureProgress: document.getElementById('capture-progress'),
     captureResult: document.getElementById('capture-result'),
-    progressBar: document.getElementById('progress-bar')
+    progressBar: document.getElementById('progress-bar'),
+    stopButton: document.getElementById('capture-stop-button')
   });
 
   function createTab(url = 'https://builder.ptosh.com', active = true) {
@@ -226,6 +227,10 @@ window.addEventListener('load', () => {
 
       const result = await savePDFWithAttr(targetUrl, targetFileName);
       captureView.updateView(i + 1, result ? result.errorText : '');
+
+      if (captureView.stopped()) {
+        break;
+      }
     }
   }
 

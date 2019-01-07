@@ -1,9 +1,17 @@
 export default class CaptureView {
-  constructor({ captureProgress, captureResult, progressBar }) {
+  constructor({ captureProgress, captureResult, progressBar, stopButton }) {
     this.max = 0;
+    this.isCapturing = false;
     this.captureProgress = captureProgress;
     this.captureResult = captureResult;
     this.progressBar = progressBar;
+    this.stopButton = stopButton;
+    this.stopButton.addEventListener('click', () => {
+      if (this.isCapturing) {
+        this.isCapturing = false;
+        this.captureResult.innerText += '中止しました';
+      }
+    });
   }
 
   resetView() {
@@ -14,6 +22,7 @@ export default class CaptureView {
 
   initializeView(length) {
     this.max = length;
+    this.isCapturing = true;
     this.progressBar.setAttribute('aria-valuenow', 0);
     this.progressBar.setAttribute('aria-valuemax', this.max);
     this.captureProgress.innerText = `0 / ${this.max}`;
@@ -27,7 +36,12 @@ export default class CaptureView {
       this.captureResult.innerText += errorText;
     }
     if (now === this.max) {
+      this.isCapturing = false;
       this.captureResult.innerText += '終了しました';
     }
+  }
+
+  stopped() {
+    return !this.isCapturing;
   }
 }
