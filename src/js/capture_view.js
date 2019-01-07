@@ -30,4 +30,8 @@ export default class CaptureView {
       this.captureResult.innerText += '終了しました';
     }
   }
+
+  stopView() {
+    this.captureResult.innerText += '中止しました';
+  }
 }
