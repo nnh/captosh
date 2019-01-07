@@ -140,7 +140,8 @@ window.addEventListener('load', () => {
   const captureView = new CaptureView({
     captureProgress: document.getElementById('capture-progress'),
     captureResult: document.getElementById('capture-result'),
-    progressBar: document.getElementById('progress-bar')
+    progressBar: document.getElementById('progress-bar'),
+    stopButton: document.getElementById('capture-stop-button')
   });
 
   function createTab(url = 'https://builder.ptosh.com', active = true) {
@@ -212,9 +213,6 @@ window.addEventListener('load', () => {
     urls = urls.filter(v => v);
     captureView.initializeView(urls.length);
 
-    let stopCapturing = false;
-    document.getElementById('capture-stop-button').addEventListener('click', () => stopCapturing = true );
-
     for (let i = 0; i < urls.length; i++) {
       // ファイル名に秒を使っているので、上書きしないために最低１秒空けている。
       await sleep(1000);
@@ -230,8 +228,7 @@ window.addEventListener('load', () => {
       const result = await savePDFWithAttr(targetUrl, targetFileName);
       captureView.updateView(i + 1, result ? result.errorText : '');
 
-      if (stopCapturing) {
-        captureView.stopView();
+      if (captureView.stopped()) {
         break;
       }
     }
