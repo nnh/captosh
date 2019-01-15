@@ -3,8 +3,10 @@ import babel from 'gulp-babel';
 import exec from 'gulp-exec';
 import pug from 'gulp-pug';
 import sass from 'gulp-sass';
-import watch from 'gulp-watch';
 import runSequence from 'run-sequence';
+import webpack from 'webpack-stream';
+import { webpackDevConfig, webpackProConfig } from './webpack.config';
+import del from 'del';
 
 import { server } from 'electron-connect';
 const electron = server.create();
@@ -14,12 +16,26 @@ const srcCss = 'src/**/*.scss';
 const srcHtml = 'src/**/*.pug';
 const dest = 'app';
 
-gulp.task('compile-js', () => {
+gulp.task('bundle-js-dev', () => {
   return gulp.src(srcJs)
-    .pipe(babel())
+    .pipe(webpack({ config: webpackDevConfig }))
     .on('error', console.error.bind(console))
     .pipe(gulp.dest(dest));
 });
+
+gulp.task('bundle-js-pro', () => {
+  return gulp.src(srcJs)
+    .pipe(webpack({ config: webpackProConfig }))
+    .on('error', console.error.bind(console))
+    .pipe(gulp.dest(dest));
+});
+
+// gulp.task('compile-js', () => {
+//   return gulp.src(srcJs)
+//     .pipe(babel())
+//     .on('error', console.error.bind(console))
+//     .pipe(gulp.dest(dest));
+// });
 
 gulp.task('compile-css', () => {
   return gulp.src(srcCss)
@@ -41,7 +57,8 @@ gulp.task('copy-font', () => {
 });
 
 gulp.task('watch', () => {
-  gulp.watch(srcJs, ['compile-js']);
+  gulp.watch(srcJs, ['bundle-js-dev']);
+  // gulp.watch(srcJs, ['compile-js']);
   gulp.watch(srcCss, ['compile-css']);
   gulp.watch(srcHtml, ['compile-html']);
 });
@@ -70,11 +87,17 @@ gulp.task('package:test', (callback) => {
     .pipe(exec.reporter());
 });
 
+gulp.task('clean', (callback) => {
+  del(['app'], callback);
+});
+
 // ------------------------------
 
-gulp.task('default', ['compile', 'copy-font']);
+gulp.task('default', ['bundle-js-dev', 'compile', 'copy-font']);
 
-gulp.task('compile', ['compile-js', 'compile-css', 'compile-html']);
+gulp.task('package-prepare', ['bundle-js-pro', 'compile', 'copy-font']);
+
+gulp.task('compile', ['compile-css', 'compile-html']);
 
 gulp.task('dev', () => {
   runSequence('default', ['watch', 'serve']);
@@ -85,5 +108,5 @@ gulp.task('dev-vs', () => {
 });
 
 gulp.task('package', () => {
-  runSequence('default', 'package:mac', 'package:win');
+  runSequence('package-prepare', 'package:mac', 'package:win');
 });
