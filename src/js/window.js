@@ -12,8 +12,8 @@ const dialog = remote.dialog;
 
 import TabGroup from 'electron-tabs';
 
-import BookmarkEvent from './js/bookmark_event';
-import CaptureView from './js/capture_view';
+import BookmarkEvent from './bookmark_event';
+import CaptureView from './capture_view';
 
 let shiftKey = false
 let cmdOrCtrlKey = false;
