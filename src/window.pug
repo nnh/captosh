@@ -57,11 +57,19 @@ html
         p キャプチャーしたいページのURLを入力してください。（改行で複数ページ行います）
         textarea#capture-text.form-control(rows="10")
         button#capture-button.btn.btn-default 開始
-        .progress
-          #progress-bar.progress-bar(role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100")
-        #capture-progress
+        #capture-progress-container
         #capture-result
-        button#capture-stop-button.btn.btn-danger 中止
+        #origin-node(style="display:none")
+          .row
+            .col-xs-8
+              .progress
+                .progress-bar(role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100")
+            .col-xs-2
+              .progress-num 0 / 0
+            .col-xs-1
+              button.capture-stop-button.btn.btn-danger 中止
+            .col-xs-1
+              .progress-status 待機中
 
     //- script.
     //-   require('electron-connect').client.create();

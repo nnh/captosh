@@ -50,6 +50,13 @@ body {
 #capture-container {
   margin: 10px;
   text-align: center;
+
+  #capture-progress-container {
+    .progress, .progress-num, .progress-status {
+      margin-top: 7px;
+      text-align: left;
+    }
+  }
 }
 
 #capture-button {

@@ -17,6 +17,7 @@ import CaptureView from './capture_view';
 
 let shiftKey = false
 let cmdOrCtrlKey = false;
+let captureTasks = [];
 
 window.addEventListener('keydown', (e) => {
   shiftKey = e.shiftKey;
@@ -112,18 +113,19 @@ window.addEventListener('load', () => {
   const captureText = document.getElementById('capture-text');
 
   document.getElementById('prepare-button').addEventListener('click', () => {
+    if (captureTasks.length === 0) {
+      captureView.resetView();
+    }
     if (captureContainer.style['display'] === 'none') {
       captureContainer.style['display'] = 'block';
     } else {
       captureContainer.style['display'] = 'none';
       captureText.value = '';
-      captureView.resetView();
     }
   });
 
   document.getElementById('capture-button').addEventListener('click', () => {
     if (captureText.value.length > 0) {
-      captureView.resetView();
       captureFromUrls(captureText.value.split('\n'));
     }
   });
@@ -138,10 +140,9 @@ window.addEventListener('load', () => {
   });
 
   const captureView = new CaptureView({
-    captureProgress: document.getElementById('capture-progress'),
     captureResult: document.getElementById('capture-result'),
-    progressBar: document.getElementById('progress-bar'),
-    stopButton: document.getElementById('capture-stop-button')
+    captureProgressContainer: document.getElementById('capture-progress-container'),
+    originNode: document.getElementById('origin-node').firstElementChild
   });
 
   function createTab(url = 'https://builder.ptosh.com', active = true) {
@@ -209,27 +210,42 @@ window.addEventListener('load', () => {
     return `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
   }
 
-  async function captureFromUrls(urls) {
-    urls = urls.filter(v => v);
-    captureView.initializeView(urls.length);
+  async function captureFromUrls(passedUrls) {
+    if (captureTasks.length === 0) {
+      captureView.resetView();
+    }
 
-    for (let i = 0; i < urls.length; i++) {
-      const url = urls[i];
+    const task = { id: Date.now(), urls: passedUrls.filter(v => v) };
+    captureTasks.push(task);
+    captureView.createProgressView(task.id, task.urls.length);
 
-      let targetUrl = url;
-      let targetFileName = null;
-      if (url.includes(',')) {
-        targetUrl = url.split(',')[0];
-        targetFileName = url.split(',')[1].replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_');
-      }
+    if (captureTasks.length > 1) return;
 
-      const result = await savePDFWithAttr(targetUrl, targetFileName);
-      captureView.updateView(i + 1, result ? result.errorText : '');
+    for (let i = 0; i < captureTasks.length; i++) {
+      const task = captureTasks[i];
+      const id = task.id;
+      const urls = task.urls;
 
-      if (captureView.stopped()) {
-        break;
+      for (let j = 0; j < urls.length; j++) {
+        if (captureView.stopped(id)) {
+          break;
+        }
+
+        const url = urls[j];
+
+        let targetUrl = url;
+        let targetFileName = null;
+        if (url.includes(',')) {
+          targetUrl = url.split(',')[0];
+          targetFileName = url.split(',')[1].replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_');
+        }
+
+        const result = await savePDFWithAttr(targetUrl, targetFileName);
+        captureView.updateView(id, j + 1 , result ? result.errorText : '');
       }
     }
+
+    captureTasks = [];
   }
 
   async function savePDFWithAttr(targetUrl, targetFileName) {
