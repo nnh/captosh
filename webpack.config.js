@@ -5,7 +5,7 @@ const baseConfig = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: [
           {
@@ -22,7 +22,7 @@ const baseConfig = {
     ]
   },
   resolve: {
-    extensions: ['.js']
+    extensions: ['.js', '.jsx']
   },
   node: {
     __dirname: false,

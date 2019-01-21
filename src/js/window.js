@@ -12,12 +12,15 @@ const dialog = remote.dialog;
 
 import TabGroup from 'electron-tabs';
 
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 import BookmarkEvent from './bookmark_event';
 import CaptureView from './capture_view';
+import ProgressStatus from './progress_status';
 
 let shiftKey = false
 let cmdOrCtrlKey = false;
-let captureTasks = [];
 
 window.addEventListener('keydown', (e) => {
   shiftKey = e.shiftKey;
@@ -113,9 +116,6 @@ window.addEventListener('load', () => {
   const captureText = document.getElementById('capture-text');
 
   document.getElementById('prepare-button').addEventListener('click', () => {
-    if (captureTasks.length === 0) {
-      captureView.resetView();
-    }
     if (captureContainer.style['display'] === 'none') {
       captureContainer.style['display'] = 'block';
     } else {
@@ -139,11 +139,14 @@ window.addEventListener('load', () => {
     showDialog: showDialog
   });
 
-  const captureView = new CaptureView({
-    captureResult: document.getElementById('capture-result'),
-    captureProgressContainer: document.getElementById('capture-progress-container'),
-    originNode: document.getElementById('origin-node').firstElementChild
-  });
+  const captureView = ReactDOM.render(
+    React.createElement(
+      CaptureView,
+      { savePDFWithAttr: savePDFWithAttr },
+      null
+    ),
+    document.getElementById('capture-view')
+  );
 
   function createTab(url = 'https://builder.ptosh.com', active = true) {
     const urlBar = document.getElementById('url-bar');
@@ -211,41 +214,12 @@ window.addEventListener('load', () => {
   }
 
   async function captureFromUrls(passedUrls) {
-    if (captureTasks.length === 0) {
-      captureView.resetView();
-    }
-
-    const task = { id: Date.now(), urls: passedUrls.filter(v => v) };
-    captureTasks.push(task);
-    captureView.createProgressView(task.id, task.urls.length);
-
-    if (captureTasks.length > 1) return;
-
-    for (let i = 0; i < captureTasks.length; i++) {
-      const task = captureTasks[i];
-      const id = task.id;
-      const urls = task.urls;
-
-      for (let j = 0; j < urls.length; j++) {
-        if (captureView.stopped(id)) {
-          break;
-        }
-
-        const url = urls[j];
-
-        let targetUrl = url;
-        let targetFileName = null;
-        if (url.includes(',')) {
-          targetUrl = url.split(',')[0];
-          targetFileName = url.split(',')[1].replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_');
-        }
-
-        const result = await savePDFWithAttr(targetUrl, targetFileName);
-        captureView.updateView(id, j + 1 , result ? result.errorText : '');
-      }
-    }
-
-    captureTasks = [];
+    captureView.setState(state => {
+      const task = { id: Date.now(), urls: passedUrls.filter(v => v), now: 0, status: ProgressStatus.waiting };
+      return { captureTasks: state.captureTasks.concat(task) };
+    }, () => {
+      captureView.prepareCapture();
+    });
   }
 
   async function savePDFWithAttr(targetUrl, targetFileName) {
