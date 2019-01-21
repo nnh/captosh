@@ -12,7 +12,8 @@ const baseConfig = {
             loader: 'babel-loader',
             options: {
               'presets': [
-                ['@babel/env', { 'targets': { 'node': 'current' } }]
+                ['@babel/env', { 'targets': { 'node': 'current' } }],
+                '@babel/preset-react'
               ]
             }
           }

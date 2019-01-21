@@ -11,7 +11,7 @@ import del from 'del';
 import { server } from 'electron-connect';
 const electron = server.create();
 
-const srcJs = 'src/**/*.js';
+const srcJs = 'src/**/*.js*';
 const srcCss = 'src/**/*.scss';
 const srcHtml = 'src/**/*.pug';
 const dest = 'app';
