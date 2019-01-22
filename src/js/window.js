@@ -205,7 +205,7 @@ window.addEventListener('load', () => {
 
     const trialName = src.split('/')[4];
     const sheetName = src.split('/')[8];
-    const datetime = moment(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmss');
+    const datetime = moment(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmssSSS');
     return `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
   }
 
@@ -214,8 +214,6 @@ window.addEventListener('load', () => {
     captureView.initializeView(urls.length);
 
     for (let i = 0; i < urls.length; i++) {
-      // ファイル名に秒を使っているので、上書きしないために最低１秒空けている。
-      await sleep(1000);
       const url = urls[i];
 
       let targetUrl = url;
