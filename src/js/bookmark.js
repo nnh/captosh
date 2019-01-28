@@ -4,7 +4,7 @@ import storage from 'electron-json-storage';
 export default class Bookmark {
   static async get() {
     const bookmarks = await this.getData();
-    if (Object.keys(bookmarks).length) {
+    if (Object.keys(bookmarks).length && bookmarks[0] !== null) {
       return bookmarks;
     } else {
       const defaultBookmark = { 'https://builder.ptosh.com': 'builder' };
