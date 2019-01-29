@@ -126,7 +126,7 @@ window.addEventListener('load', () => {
 
   document.getElementById('capture-button').addEventListener('click', () => {
     if (captureText.value.length > 0) {
-      captureFromUrls(captureText.value.split('\n'));
+      captureView.captureFromUrls(captureText.value.split('\n'));
     }
   });
 
@@ -213,15 +213,6 @@ window.addEventListener('load', () => {
     return `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
   }
 
-  async function captureFromUrls(passedUrls) {
-    captureView.setState(state => {
-      const task = { id: Date.now(), urls: passedUrls.filter(v => v), now: 0, status: ProgressStatus.waiting };
-      return { captureTasks: state.captureTasks.concat(task) };
-    }, () => {
-      captureView.prepareCapture();
-    });
-  }
-
   async function savePDFWithAttr(targetUrl, targetFileName) {
     const tab = tabGroup.addTab({
       title: 'blank',
@@ -274,7 +265,7 @@ window.addEventListener('load', () => {
         }
       });
 
-      captureFromUrls(urls);
+      captureView.captureFromUrls(urls);
     } catch(error) {
       showDialog(error);
     }

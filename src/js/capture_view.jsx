@@ -7,6 +7,7 @@ export default class CaptureView extends React.Component {
     super(props);
     this.state = {
       captureTasks: [],
+      stopRequests: {},
       result: '',
       capturing: false
     }
@@ -14,56 +15,40 @@ export default class CaptureView extends React.Component {
     this.clearTask = this.clearTask.bind(this);
   }
 
-  render() {
-    return(
-      <div>
-        <Button bsStyle='default' onClick={this.clearTask} disabled={this.state.capturing}>表示をクリア</Button>
-        <div className='capture-progress-container'>
-          {
-            this.state.captureTasks.map(task => {
-              const buttonDisabled = task.status === ProgressStatus.done || task.status === ProgressStatus.stopped;
-              return <ProgressView key={task.id} now={task.now} max={task.urls.length} status={task.status}
-                buttonDisabled={buttonDisabled} stopTask={() => this.handleStop(task.id)} />
-            })
-          }
-        </div>
-        <div>{this.state.result}</div>
+  render = () => (
+    <div>
+      <Button bsStyle='default' onClick={this.clearTask} disabled={this.state.capturing}>表示をクリア</Button>
+      <div className='capture-progress-container'>
+        {
+          this.state.captureTasks.map(task => (
+            <ProgressView key={task.id} now={task.now} max={task.urls.length} status={task.status} stopTask={() => this.handleStop(task.id)}
+                          buttonDisabled={task.status === ProgressStatus.done || task.status === ProgressStatus.stopped} />
+          ))
+        }
       </div>
-    );
-  }
+      <div>{this.state.result}</div>
+    </div>
+  );
 
   clearTask() {
     this.setState({ captureTasks: [], result: '' });
   }
 
   handleStop(id) {
-    // const captureTasks = this.state.captureTasks.map(task => {
-    //   if (task.id === id) {
-    //     task.status = ProgressStatus.stopped;
-    //   }
-    //   return task;
-    // });
-    // this.setState({ captureTasks: captureTasks });
-
-    const newTasks = this.state.captureTasks.map(t => ({ ...t, status: t.id === id ? ProgressStatus.stopped : t.status }));
-    this.setState({ captureTasks: newTasks });
-  }
-
-  prepareCapture() {
-    if (this.state.capturing) {
-      return;
-    } else {
-      this.setState({ capturing: true });
-      this.capture();
-    }
+    this.setState({ stopRequests: { ...this.state.stopRequests, [id]: true } });
   }
 
   async capture() {
+    this.setState({ capturing: true });
+
     for (let i = 0; i < this.state.captureTasks.length; i++) {
       const task = this.state.captureTasks[i];
 
       for (let j = 0; j < task.urls.length; j++) {
-        if (task.status === ProgressStatus.done || task.status === ProgressStatus.stopped) {
+        if (task.status === ProgressStatus.done) break;
+        if (this.state.stopRequests[task.id]) {
+          delete this.state.stopRequests[task.id];
+          task.status = ProgressStatus.stopped;
           break;
         }
 
@@ -94,6 +79,13 @@ export default class CaptureView extends React.Component {
     }
 
     this.setState({ capturing: false });
+  }
+
+  async captureFromUrls(passedUrls) {
+    const task = { id: Date.now(), urls: passedUrls.filter(v => v), now: 0, status: ProgressStatus.waiting };
+    this.setState({ captureTasks: this.state.captureTasks.concat(task) }, () =>  {
+      if (!this.state.capturing) this.capture();
+    });
   }
 }
 

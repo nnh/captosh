@@ -14,6 +14,9 @@ const baseConfig = {
               'presets': [
                 ['@babel/env', { 'targets': { 'node': 'current' } }],
                 '@babel/preset-react'
+              ],
+              'plugins': [
+                '@babel/plugin-proposal-class-properties'
               ]
             }
           }
