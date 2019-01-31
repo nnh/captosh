@@ -81,7 +81,7 @@ export default class CaptureView extends React.Component {
     this.setState({ capturing: false });
   }
 
-  async captureFromUrls(passedUrls) {
+  captureFromUrls(passedUrls) {
     const task = { id: Date.now(), urls: passedUrls.filter(v => v), now: 0, status: ProgressStatus.waiting };
     this.setState({ captureTasks: this.state.captureTasks.concat(task) }, () =>  {
       if (!this.state.capturing) this.capture();
