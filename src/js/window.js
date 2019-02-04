@@ -14,13 +14,26 @@ import TabGroup from 'electron-tabs';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createStore, applyMiddleware } from 'redux'
+import { Provider } from 'react-redux';
+import { createLogger } from 'redux-logger';
+import rootReducer from './reducers';
+import CaptureContainer from './containers/capture_container';
 
 import BookmarkEvent from './bookmark_event';
-import CaptureView from './capture_view';
-import ProgressStatus from './progress_status';
+import { newTask } from './actions';
 
 let shiftKey = false
 let cmdOrCtrlKey = false;
+const middlewares = [];
+
+if (process.env.NODE_ENV !== 'production') {
+  const logger = createLogger({
+    diff: true,
+    collapsed: true,
+  });
+  middlewares.push(logger);
+}
 
 window.addEventListener('keydown', (e) => {
   shiftKey = e.shiftKey;
@@ -42,10 +55,6 @@ function showDialog(message) {
     detail: message
   };
   dialog.showMessageBox(win, options);
-}
-
-const sleep = (msec) => {
-  return new Promise((resolve, reject) => { setTimeout(resolve, msec); });
 }
 
 window.addEventListener('load', () => {
@@ -126,7 +135,7 @@ window.addEventListener('load', () => {
 
   document.getElementById('capture-button').addEventListener('click', () => {
     if (captureText.value.length > 0) {
-      captureView.captureFromUrls(captureText.value.split('\n'));
+      store.dispatch(newTask(Date.now(), captureText.value.split('\n')));
     }
   });
 
@@ -139,12 +148,11 @@ window.addEventListener('load', () => {
     showDialog: showDialog
   });
 
-  const captureView = ReactDOM.render(
-    React.createElement(
-      CaptureView,
-      { savePDFWithAttr: savePDFWithAttr },
-      null
-    ),
+  const store = createStore(rootReducer, {}, applyMiddleware(...middlewares));
+  ReactDOM.render(
+    <Provider store={store}>
+      <CaptureContainer savePDFWithAttr={savePDFWithAttr} captureTasks={[]} capturing={false} result={''} />
+    </Provider>,
     document.getElementById('capture-view')
   );
 
@@ -265,7 +273,7 @@ window.addEventListener('load', () => {
         }
       });
 
-      captureView.captureFromUrls(urls);
+      store.dispatch(newTask(Date.now(), urls));
     } catch(error) {
       showDialog(error);
     }

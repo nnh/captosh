@@ -1,4 +1,5 @@
 import path from 'path';
+import webpack from 'webpack';
 import webpackMerge from 'webpack-merge';
 
 const baseConfig = {
