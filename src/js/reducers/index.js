@@ -10,8 +10,8 @@ const captureTasks = (state = [], action) => {
       return state.map((task) => {
         if ([ProgressStatus.stopped, ProgressStatus.done].includes(task.status)) return task;
 
-        const newStatus =  task.urls.length === action.now ? ProgressStatus.done : ProgressStatus.running;
-        return task.id === action.id ? { ...task, now: action.now, status: newStatus } : task;
+        const newStatus =  task.urls.length === task.now + 1 ? ProgressStatus.done : ProgressStatus.running;
+        return task.id === action.id ? { ...task, now: task.now + 1, status: newStatus } : task;
       });
     case ActionType.stop:
       return state.map((task) => action.id === task.id ? { ...task, status: ProgressStatus.stopped } : task);
@@ -35,7 +35,7 @@ const captureState = (state = false, action) => {
 
 const resultText = (state = '', action) => {
   switch (action.type) {
-    case ActionType.result:
+    case ActionType.add:
       return state + action.result;
     case ActionType.clear:
       return '';

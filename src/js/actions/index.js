@@ -3,22 +3,18 @@ import ProgressStatus from "../progress_status";
 export const newTask = (id, urls) => ({
   type: ActionType.new,
   id,
-  urls,
-  now: 0,
-  status: ProgressStatus.waiting
+  urls
 });
 
-export const addProgress = (id, now) => ({
+export const addProgress = (id, result) => ({
   type: ActionType.add,
   id,
-  now,
-  status: ProgressStatus.running
+  result
 });
 
 export const stopTask = (id) => ({
   type: ActionType.stop,
-  id,
-  status: ProgressStatus.stopped
+  id
 });
 
 export const clearView = () => ({
@@ -26,18 +22,11 @@ export const clearView = () => ({
 });
 
 export const startCapture = () => ({
-  type: ActionType.start,
-  capturing: true
+  type: ActionType.start
 });
 
 export const endCapture = () => ({
-  type: ActionType.end,
-  capturing: false
-});
-
-export const addResult = (text) => ({
-  type: ActionType.result,
-  result: text
+  type: ActionType.end
 });
 
 export const ActionType = {
@@ -46,6 +35,5 @@ export const ActionType = {
   stop: 'STOP_TASK',
   clear: 'CLEAR_VIEW',
   start: 'START_CAPTURE',
-  end: 'END_CAPTURE',
-  result: 'ADD_RESULT'
+  end: 'END_CAPTURE'
 }

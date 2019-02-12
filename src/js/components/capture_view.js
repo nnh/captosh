@@ -45,8 +45,7 @@ class CaptureView extends React.Component {
         }
 
         const result = await this.props.savePDFWithAttr(targetUrl, targetFileName);
-        this.props.count(task.id, j + 1);
-        if (result) this.props.error(result.errorText);
+        this.props.count(task.id, result && result.errorText ? result.errorText : '');
       }
     }
 
