@@ -25,31 +25,28 @@ class CaptureView extends React.Component {
   );
 
   componentDidUpdate(prevProps, prevState) {
-    if (!this.props.capturing && this.props.captureTasks.length > 0) this.capture();
+    if (this.props.capturable()) this.capture();
   }
 
   async capture() {
     this.props.startCapture();
 
-    for (let i = 0; i < this.props.captureTasks.length; i++) {
-      for (let j = 0; j < this.props.captureTasks[i].urls.length; j++) {
-        const task = this.props.captureTasks[i];
-        if ([ProgressStatus.stopped, ProgressStatus.done].includes(task.status)) break;
-
-        const url = task.urls[j];
-        let targetUrl = url;
-        let targetFileName = null;
-        if (url.includes(',')) {
-          targetUrl = url.split(',')[0];
-          targetFileName = url.split(',')[1].replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_');
-        }
-
-        const result = await this.props.savePDFWithAttr(targetUrl, targetFileName);
-        this.props.count(task.id, result && result.errorText ? result.errorText : '');
+    const task = this.props.nextTask();
+    if (task) {
+      const url = task.url;
+      let targetUrl = url;
+      let targetFileName = null;
+      if (url.includes(',')) {
+        targetUrl = url.split(',')[0];
+        targetFileName = url.split(',')[1].replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_');
       }
-    }
 
-    this.props.endCapture();
+      const result = await this.props.savePDFWithAttr(targetUrl, targetFileName);
+      this.props.count(task.id, result && result.errorText ? result.errorText : '');
+      this.capture();
+    } else {
+      this.props.endCapture();
+    }
   }
 }
 

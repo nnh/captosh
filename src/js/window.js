@@ -135,7 +135,7 @@ window.addEventListener('load', () => {
 
   document.getElementById('capture-button').addEventListener('click', () => {
     if (captureText.value.length > 0) {
-      store.dispatch(newTask(Date.now(), captureText.value.split('\n')));
+      store.dispatch(newTask(Date.now(), captureText.value.split('\n').filter(v => v)));
     }
   });
 
