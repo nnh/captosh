@@ -1,18 +1,23 @@
 import path from 'path';
+import webpack from 'webpack';
 import webpackMerge from 'webpack-merge';
 
 const baseConfig = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: [
           {
             loader: 'babel-loader',
             options: {
               'presets': [
-                ['@babel/env', { 'targets': { 'node': 'current' } }]
+                ['@babel/env', { 'targets': { 'node': 'current' } }],
+                '@babel/preset-react'
+              ],
+              'plugins': [
+                '@babel/plugin-proposal-class-properties'
               ]
             }
           }
@@ -21,7 +26,7 @@ const baseConfig = {
     ]
   },
   resolve: {
-    extensions: ['.js']
+    extensions: ['.js', '.jsx']
   },
   node: {
     __dirname: false,

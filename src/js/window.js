@@ -12,11 +12,28 @@ const dialog = remote.dialog;
 
 import TabGroup from 'electron-tabs';
 
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { createStore, applyMiddleware } from 'redux'
+import { Provider } from 'react-redux';
+import { createLogger } from 'redux-logger';
+import rootReducer from './reducers';
+import CaptureContainer from './containers/capture_container';
+
 import BookmarkEvent from './bookmark_event';
-import CaptureView from './capture_view';
+import { newTask } from './actions';
 
 let shiftKey = false
 let cmdOrCtrlKey = false;
+const middlewares = [];
+
+if (process.env.NODE_ENV !== 'production') {
+  const logger = createLogger({
+    diff: true,
+    collapsed: true,
+  });
+  middlewares.push(logger);
+}
 
 window.addEventListener('keydown', (e) => {
   shiftKey = e.shiftKey;
@@ -38,10 +55,6 @@ function showDialog(message) {
     detail: message
   };
   dialog.showMessageBox(win, options);
-}
-
-const sleep = (msec) => {
-  return new Promise((resolve, reject) => { setTimeout(resolve, msec); });
 }
 
 window.addEventListener('load', () => {
@@ -117,14 +130,12 @@ window.addEventListener('load', () => {
     } else {
       captureContainer.style['display'] = 'none';
       captureText.value = '';
-      captureView.resetView();
     }
   });
 
   document.getElementById('capture-button').addEventListener('click', () => {
     if (captureText.value.length > 0) {
-      captureView.resetView();
-      captureFromUrls(captureText.value.split('\n'));
+      store.dispatch(newTask(Date.now(), captureText.value.split('\n').filter(v => v)));
     }
   });
 
@@ -137,12 +148,13 @@ window.addEventListener('load', () => {
     showDialog: showDialog
   });
 
-  const captureView = new CaptureView({
-    captureProgress: document.getElementById('capture-progress'),
-    captureResult: document.getElementById('capture-result'),
-    progressBar: document.getElementById('progress-bar'),
-    stopButton: document.getElementById('capture-stop-button')
-  });
+  const store = createStore(rootReducer, {}, applyMiddleware(...middlewares));
+  ReactDOM.render(
+    <Provider store={store}>
+      <CaptureContainer savePDFWithAttr={savePDFWithAttr} captureTasks={[]} capturing={false} result={''} />
+    </Provider>,
+    document.getElementById('capture-view')
+  );
 
   function createTab(url = 'https://builder.ptosh.com', active = true) {
     const urlBar = document.getElementById('url-bar');
@@ -209,29 +221,6 @@ window.addEventListener('load', () => {
     return `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
   }
 
-  async function captureFromUrls(urls) {
-    urls = urls.filter(v => v);
-    captureView.initializeView(urls.length);
-
-    for (let i = 0; i < urls.length; i++) {
-      const url = urls[i];
-
-      let targetUrl = url;
-      let targetFileName = null;
-      if (url.includes(',')) {
-        targetUrl = url.split(',')[0];
-        targetFileName = url.split(',')[1].replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_');
-      }
-
-      const result = await savePDFWithAttr(targetUrl, targetFileName);
-      captureView.updateView(i + 1, result ? result.errorText : '');
-
-      if (captureView.stopped()) {
-        break;
-      }
-    }
-  }
-
   async function savePDFWithAttr(targetUrl, targetFileName) {
     const tab = tabGroup.addTab({
       title: 'blank',
@@ -284,7 +273,7 @@ window.addEventListener('load', () => {
         }
       });
 
-      captureFromUrls(urls);
+      store.dispatch(newTask(Date.now(), urls));
     } catch(error) {
       showDialog(error);
     }
