@@ -240,7 +240,7 @@ window.addEventListener('load', () => {
       await didStopLoading();
       if (tab.webview.src.indexOf('users/sign_in') !== -1) {
         store.dispatch(clearView());
-        requireSignin();
+        requireSignin(tab.webview.src);
       } else {
         await savePDF(tab.webview, targetFileName);
       }
@@ -269,7 +269,7 @@ window.addEventListener('load', () => {
         redirect: 'manual'
       });
       if (response.type === 'opaqueredirect' || response.status === 401) {
-        requireSignin();
+        requireSignin(response.url);
         return;
       }
       const text = await response.text();
@@ -294,9 +294,9 @@ window.addEventListener('load', () => {
     request(arg);
   });
 
-  function requireSignin() {
+  function requireSignin(url) {
     captureContainer.style['display'] = 'none';
-    tabGroup.getActiveTab().webview.src = defaultURL;
+    tabGroup.getActiveTab().webview.src = new URL(url).origin;
     showDialog('captoshアプリ内でptoshにログインしていません。ログイン後に再度実行してください。');
   }
 });
