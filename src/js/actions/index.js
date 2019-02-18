@@ -1,5 +1,3 @@
-import ProgressStatus from "../progress_status";
-
 export const newTask = (id, urls) => ({
   type: ActionType.new,
   id,

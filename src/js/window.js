@@ -21,10 +21,11 @@ import rootReducer from './reducers';
 import CaptureContainer from './containers/capture_container';
 
 import BookmarkEvent from './bookmark_event';
-import { newTask } from './actions';
+import { newTask, clearView } from './actions';
 
 let shiftKey = false
 let cmdOrCtrlKey = false;
+const defaultURL = 'https://builder.ptosh.com';
 const middlewares = [];
 
 if (process.env.NODE_ENV !== 'production') {
@@ -156,7 +157,7 @@ window.addEventListener('load', () => {
     document.getElementById('capture-view')
   );
 
-  function createTab(url = 'https://builder.ptosh.com', active = true) {
+  function createTab(url = defaultURL, active = true) {
     const urlBar = document.getElementById('url-bar');
 
     const tab = tabGroup.addTab({
@@ -237,7 +238,12 @@ window.addEventListener('load', () => {
 
     try {
       await didStopLoading();
-      await savePDF(tab.webview, targetFileName);
+      if (tab.webview.src.indexOf('users/sign_in') !== -1) {
+        store.dispatch(clearView());
+        requireSignin(tab.webview.src);
+      } else {
+        await savePDF(tab.webview, targetFileName);
+      }
     } catch (error) {
       return { errorText: `${targetUrl}の保存に失敗しました。(${error.message})\n` };
     } finally {
@@ -259,8 +265,13 @@ window.addEventListener('load', () => {
         credentials: 'include',
         headers: {
           'Content-Type': 'text/plain',
-        }
+        },
+        redirect: 'manual'
       });
+      if (response.type === 'opaqueredirect' || response.status === 401) {
+        requireSignin(response.url);
+        return;
+      }
       const text = await response.text();
 
       const targetUrl = new Url.URL(url);
@@ -282,4 +293,10 @@ window.addEventListener('load', () => {
   ipcRenderer.on('exec-api', (e, arg) => {
     request(arg);
   });
+
+  function requireSignin(url) {
+    captureContainer.style['display'] = 'none';
+    tabGroup.getActiveTab().webview.src = new URL(url).origin;
+    showDialog('captoshアプリ内でptoshにログインしていません。ログイン後に再度実行してください。');
+  }
 });
