@@ -109,6 +109,7 @@ app.on('activate', () => {
 app.on('will-finish-launching', () => {
   // for OSX
   app.on('open-url', (e, url) => {
+
     checkCustomScheme(url);
   });
 
@@ -118,6 +119,11 @@ app.on('will-finish-launching', () => {
 
 function checkCustomScheme(url) {
   if (customSchemeRegExp.test(url) && mainWindow && mainWindow.webContents) {
-    mainWindow.webContents.send('exec-api', url.replace(customScheme, 'http://'));
+    mainWindow.webContents.send('exec-api', url.replace(customScheme, 'https://'));
   }
 }
+
+// for debug
+// setTimeout(() => {
+//   checkCustomScheme("captosh://...")
+// }, 10000)

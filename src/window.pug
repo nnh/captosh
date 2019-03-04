@@ -8,56 +8,7 @@ html
     script(type="text/javascript" src="js/window.js")
 
   body
-    nav.navbar.navbar-default
-      .container-fluid
-        .navbar-header.tab-container
-          span.navbar-brand captosh
-          .add-tab-button-container
-            button#add-tab-button.btn.btn-default.add-tab-button(title="タブ追加")
-              i.fa.fa-plus
-          .etabs-tabgroup
-            .etabs-tabs
-            .etabs-buttons
-      .bookmark-bar
-        | ブックマーク
-        select#bookmark-select.form-control
-        button#bookmark-move-button.btn.btn-default(title="選択中のブックマークに移動")
-          i.fa.fa-sign-in
-        button#bookmark-delete-button.btn.btn-default(title="選択中のブックマークを削除")
-          i.fa.fa-trash
-        button#bookmark-add-button.btn.btn-default(title="表示中のページをブックマークに追加")
-          i.fa.fa-plus
-
-    .etabs-views
-      .form-inline
-        button#back-button.btn.btn-default.btn-circle(title="前に戻る")
-          i.fa.fa-arrow-left
-        button#next-button.btn.btn-default(title="次に進む")
-          i.fa.fa-arrow-right
-        button#reload-button.btn.btn-default(title="再読み込み")
-          i.fa.fa-refresh
-        input#url-bar.form-control(type="text" placeholder="url" value="")
-        button#submit-button.btn.btn-default(title="移動")
-          i.fa.fa-sign-in
-        button#photo-button.btn.btn-default(title="スクリーンショット撮影")
-          i.fa.fa-camera
-        span 保存先ルート
-        textarea#folder-text.form-control(rows="1" wrap="off" readonly="")
-        button#folder-button.btn.btn-default(title="保存先ルートフォルダ選択")
-          i.fa.fa-folder
-        label.form-check-label
-          input#show-datetime.form-check-input(type="checkbox" checked="")
-          | 日時を印字する
-        label.form-check-label
-          input#show-url.form-check-input(type="checkbox")
-          | URLを印字する
-        button#prepare-button.btn.btn-default(title="まとめてキャプチャー")
-          i.fa.fa-copy
-      #capture-container(style="display:none")
-        p キャプチャーしたいページのURLを入力してください。（改行で複数ページ行います）
-        textarea#capture-text.form-control(rows="10")
-        button#capture-button.btn.btn-default 開始
-        #capture-view
+    #main-view
 
     //- script.
     //-   require('electron-connect').client.create();

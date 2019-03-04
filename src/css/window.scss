@@ -13,7 +13,7 @@ body {
   height: 100%;
 }
 
-#url-bar {
+.form-inline .url-bar {
   width: 50%;
   display: inline-block;
 }
@@ -30,8 +30,8 @@ body {
   padding: 10px;
 }
 
-#bookmark-select {
-  display: inline-block;;
+.bookmark-select {
+  display: inline-block;
   width: 50%;
 }
 
@@ -43,11 +43,11 @@ body {
   height: 100%;
 }
 
-#folder-text {
+.folder-text {
   width: 150px;
 }
 
-#capture-container {
+.capture-container {
   margin: 10px;
   text-align: center;
 
@@ -59,20 +59,30 @@ body {
   }
 }
 
-#capture-button {
+.capture-button {
   margin: 10px;
+}
+
+.pdf-checkbox {
+  margin: 0px 10px;
 }
 
 /* ----- bootstrap override ----- */
 
-.navbar.navbar-default {
-  min-height: 30px;
-  margin-bottom: 0px;
-}
-
-.navbar-header .navbar-brand {
-  height: 30px;
-  padding: 5px 15px;
+.navbar {
+  .container {
+    padding: 10px 0px 0px 0px;
+    width: 100%;
+    .tab-container .navbar-brand {
+      height: 30px;
+      padding: 5px 15px;
+      margin-left: 0px;
+    }
+  }
+  .navbar-default {
+    min-height: 30px;
+    margin-bottom: 0px;
+  }
 }
 
 .form-inline {
