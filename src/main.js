@@ -122,8 +122,3 @@ function checkCustomScheme(url) {
     mainWindow.webContents.send('exec-api', url.replace(customScheme, 'https://'));
   }
 }
-
-// for debug
-// setTimeout(() => {
-//   checkCustomScheme("captosh://...")
-// }, 10000)
