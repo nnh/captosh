@@ -27,11 +27,17 @@ export const endCapture = () => ({
   type: ActionType.end
 });
 
+export const inputUrl = (url) => ({
+  type: ActionType.input,
+  url
+})
+
 export const ActionType = {
   new: 'NEW_TASK',
   add: 'ADD_PROGRESS',
   stop: 'STOP_TASK',
   clear: 'CLEAR_VIEW',
   start: 'START_CAPTURE',
-  end: 'END_CAPTURE'
+  end: 'END_CAPTURE',
+  input: 'INPUT_URL'
 }

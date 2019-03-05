@@ -1,6 +1,8 @@
 import { combineReducers } from 'redux';
 import { ActionType } from '../actions'
 import ProgressStatus from '../progress_status';
+import mainReducer from './main_reducers';
+import bookmarkReducer from './bookmark_reducers';
 
 const captureTasks = (state = [], action) => {
   switch (action.type) {
@@ -44,8 +46,22 @@ const resultText = (state = '', action) => {
   }
 }
 
+const inputUrl = (state = '', action) => {
+  switch(action.type) {
+    case ActionType.input:
+      return action.url;
+    case ActionType.clear:
+      return '';
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   captureTasks,
   captureState,
-  resultText
+  resultText,
+  inputUrl,
+  bookmarkReducer,
+  mainReducer
 });
