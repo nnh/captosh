@@ -3,7 +3,6 @@ import babel from 'gulp-babel';
 import exec from 'gulp-exec';
 import pug from 'gulp-pug';
 import sass from 'gulp-sass';
-import runSequence from 'run-sequence';
 import webpack from 'webpack-stream';
 import { webpackDevConfig, webpackProConfig } from './webpack.config';
 import del from 'del';
@@ -70,19 +69,19 @@ gulp.task('serve', () => {
 });
 
 gulp.task('package:mac', (callback) => {
-  return gulp.src('')
+  return gulp.src('**/**')
     .pipe(exec('./node_modules/.bin/build --mac --x64'))
     .pipe(exec.reporter());
 });
 
 gulp.task('package:win', (callback) => {
-  return gulp.src('')
+  return gulp.src('**/**')
     .pipe(exec('./node_modules/.bin/build --win --x64'))
     .pipe(exec.reporter());
 });
 
 gulp.task('package:test', (callback) => {
-  return gulp.src('')
+  return gulp.src('**/**')
     .pipe(exec('build --dir'))
     .pipe(exec.reporter());
 });
@@ -93,20 +92,14 @@ gulp.task('clean', (callback) => {
 
 // ------------------------------
 
-gulp.task('default', ['bundle-js-dev', 'compile', 'copy-font']);
+gulp.task('compile', gulp.parallel('compile-css', 'compile-html'));
 
-gulp.task('package-prepare', ['bundle-js-pro', 'compile', 'copy-font']);
+gulp.task('default', gulp.parallel('bundle-js-dev', 'compile', 'copy-font'))
 
-gulp.task('compile', ['compile-css', 'compile-html']);
+gulp.task('package-prepare', gulp.parallel('bundle-js-pro', 'compile', 'copy-font'));
 
-gulp.task('dev', () => {
-  runSequence('default', ['watch', 'serve']);
-});
+gulp.task('dev', gulp.series('default', gulp.parallel('watch', 'serve')));
 
-gulp.task('dev-vs', () => {
-  runSequence('default', 'watch');
-});
+gulp.task('dev-vs', gulp.series('default', 'watch'));
 
-gulp.task('package', () => {
-  runSequence('package-prepare', 'package:mac', 'package:win');
-});
+gulp.task('package', gulp.series('package-prepare', 'package:mac', 'package:win'));
