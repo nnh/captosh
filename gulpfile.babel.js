@@ -92,12 +92,11 @@ gulp.task('clean', (callback) => {
 });
 
 // ------------------------------
+gulp.task('compile', gulp.series('compile-css', 'compile-html'));
 
-gulp.task('default', ['bundle-js-dev', 'compile', 'copy-font']);
+gulp.task('default', gulp.series('bundle-js-dev', 'compile', 'copy-font'));
 
-gulp.task('package-prepare', ['bundle-js-pro', 'compile', 'copy-font']);
-
-gulp.task('compile', ['compile-css', 'compile-html']);
+gulp.task('package-prepare', gulp.series('bundle-js-pro', 'compile', 'copy-font'));
 
 gulp.task('dev', () => {
   runSequence('default', ['watch', 'serve']);
