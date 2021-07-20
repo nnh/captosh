@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
+import parse from 'csv-parse/lib/sync';
 
 import ProgressStatus from '../progress_status';
 import ClearContainer from '../containers/clear_container';
@@ -48,15 +49,12 @@ class CaptureView extends React.Component {
 
     const task = this.props.nextTask();
     if (task) {
-      const url = task.url;
-      let targetUrl = url;
-      let targetFileName = null;
-      if (url.includes(',')) {
-        targetUrl = url.split(',')[0];
-        targetFileName = url.split(',')[1].replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_');
-      }
+      const line = parse(task.url)[0];
+      const [targetUrl, targetFileName] = line;
+      const fileName = targetFileName ? targetFileName.replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_') : null;
+      console.log({targetUrl, fileName});
 
-      const result = await this.props.savePDFWithAttr(targetUrl, targetFileName);
+      const result = await this.props.savePDFWithAttr(targetUrl, fileName);
       this.props.count(task.id, result && result.errorText ? result.errorText : '');
       this.capture();
     } else {
