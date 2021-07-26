@@ -30,7 +30,12 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
-    webPreferences: { partition: 'persist:ptosh' }
+    webPreferences: {
+      partition: 'persist:ptosh',
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true,
+    }
   });
   mainWindow.loadURL(`file://${__dirname}/window.html`);
   // mainWindow.webContents.openDevTools();
