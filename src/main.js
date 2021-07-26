@@ -35,6 +35,7 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
+      webviewTag: true,
     }
   });
   mainWindow.loadURL(`file://${__dirname}/window.html`);
