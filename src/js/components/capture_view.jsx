@@ -52,7 +52,6 @@ class CaptureView extends React.Component {
       const line = parse(task.url)[0];
       const [targetUrl, targetFileName] = line;
       const fileName = targetFileName ? targetFileName.replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_') : null;
-      console.log({targetUrl, fileName});
 
       const result = await this.props.savePDFWithAttr(targetUrl, fileName);
       this.props.count(task.id, result && result.errorText ? result.errorText : '');
