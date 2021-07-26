@@ -1,6 +1,6 @@
 {
   "name": "captosh",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "app/main.js",
   "scripts": {
@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "bootstrap-sass": "^3.4.1",
+    "csv-parse": "^4.16.0",
     "electron-json-storage": ">=4.1.4",
     "electron-tabs": ">=0.9.1",
     "font-awesome": "^4.7.0",
