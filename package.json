@@ -33,16 +33,16 @@
     "bootstrap-sass": "^3.4.1",
     "electron-json-storage": ">=4.1.4",
     "electron-tabs": ">=0.9.1",
-    "font-awesome": ">=4.7.0",
+    "font-awesome": "^4.7.0",
     "fs-extra": ">=7.0.1",
     "moment-timezone": ">=0.5.14",
-    "react": ">=16.7.0",
-    "react-bootstrap": ">=0.32.4",
-    "react-dom": ">=16.7.0",
-    "react-redux": ">=6.0.0",
-    "redux": ">=4.0.1",
-    "redux-logger": ">=3.0.6",
-    "redux-thunk": ">=2.3.0"
+    "react": "^16.7.0",
+    "react-bootstrap": "^0.32.4",
+    "react-dom": "^16.7.0",
+    "react-redux": "^6.0.0",
+    "redux": "^4.0.1",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.3.0"
   },
   "build": {
     "protocols": [
