@@ -1,112 +1,107 @@
 import gulp from 'gulp';
 import babel from 'gulp-babel';
-import exec from 'gulp-exec';
 import pug from 'gulp-pug';
-import sass from 'gulp-sass';
-import runSequence from 'run-sequence';
+import sassCompiler from 'sass';
+import gulpSass from 'gulp-sass';
 import webpack from 'webpack-stream';
 import { webpackDevConfig, webpackProConfig } from './webpack.config';
 import del from 'del';
-
 import { server } from 'electron-connect';
+import { exec } from 'child_process';
 const electron = server.create();
+const sass = gulpSass(sassCompiler);
 
 const srcJs = 'src/**/*.js*';
 const srcCss = 'src/**/*.scss';
 const srcHtml = 'src/**/*.pug';
 const dest = 'app';
 
-gulp.task('bundle-js-dev', () => {
+export function bundleJsDev() {
   return gulp.src(srcJs)
     .pipe(webpack({ config: webpackDevConfig }))
     .on('error', console.error.bind(console))
     .pipe(gulp.dest(dest));
-});
+}
 
-gulp.task('bundle-js-pro', () => {
+export function bundleJsPro() {
   return gulp.src(srcJs)
     .pipe(webpack({ config: webpackProConfig }))
     .on('error', console.error.bind(console))
     .pipe(gulp.dest(dest));
-});
+}
 
-// gulp.task('compile-js', () => {
-//   return gulp.src(srcJs)
-//     .pipe(babel())
-//     .on('error', console.error.bind(console))
-//     .pipe(gulp.dest(dest));
-// });
-
-gulp.task('compile-css', () => {
+export function compileCss() {
   return gulp.src(srcCss)
     .pipe(sass())
     .pipe(gulp.dest(dest));
-});
+}
 
-gulp.task('compile-html', () => {
+export function compileHtml() {
   return gulp.src(srcHtml)
     .pipe(pug({
       pretty: true
     }))
     .pipe(gulp.dest(dest));
-});
+}
 
-gulp.task('copy-font', () => {
+export function copyFont() {
   return gulp.src('node_modules/font-awesome/fonts/**.*')
     .pipe(gulp.dest(`${dest}/fonts`));
-});
+}
 
-gulp.task('watch', () => {
-  gulp.watch(srcJs, ['bundle-js-dev']);
-  // gulp.watch(srcJs, ['compile-js']);
-  gulp.watch(srcCss, ['compile-css']);
-  gulp.watch(srcHtml, ['compile-html']);
-});
+export function watch() {
+  gulp.watch(srcJs, bundleJsDev);
+  gulp.watch(srcCss, compileCss);
+  gulp.watch(srcHtml, compileHtml);
+}
 
-gulp.task('serve', () => {
+export function serve() {
   electron.start();
   gulp.watch(`${dest}/**/*.js`, electron.restart);
   gulp.watch([`${dest}/**/*.css`, `${dest}/**/*.html`], electron.reload);
-});
+}
 
-gulp.task('package:mac', (callback) => {
-  return gulp.src('')
-    .pipe(exec('./node_modules/.bin/build --mac --x64'))
-    .pipe(exec.reporter());
-});
+export function packageMac(callback) {
+  exec('./node_modules/.bin/electron-builder --mac --x64', (error, stdout, stderr) => {
+    console.log(stdout);
+    console.log(stderr);
+    callback(error);
+  });
+}
 
-gulp.task('package:win', (callback) => {
-  return gulp.src('')
-    .pipe(exec('./node_modules/.bin/build --win --x64'))
-    .pipe(exec.reporter());
-});
+export function packageWin(callback) {
+  exec('./node_modules/.bin/electron-builder --win --x64', (error, stdout, stderr) => {
+    console.log(stdout);
+    console.log(stderr);
+    callback(error);
+  });
+}
 
-gulp.task('package:test', (callback) => {
-  return gulp.src('')
-    .pipe(exec('build --dir'))
-    .pipe(exec.reporter());
-});
+export function packageTest(callback) {
+  exec('./node_modules/.bin/electron-builder --dir', (error, stdout, stderr) => {
+    console.log(stdout);
+    console.log(stderr);
+    callback(error);
+  });
+}
 
-gulp.task('clean', (callback) => {
+export function clean(callback) {
   del(['app'], callback);
-});
+}
 
 // ------------------------------
 
-gulp.task('default', ['bundle-js-dev', 'compile', 'copy-font']);
+export const compile = gulp.parallel(compileCss, compileHtml);
 
-gulp.task('package-prepare', ['bundle-js-pro', 'compile', 'copy-font']);
+const defaultTask = gulp.parallel(bundleJsDev, compile, copyFont);
+export default defaultTask;
 
-gulp.task('compile', ['compile-css', 'compile-html']);
+export const packagePrepare = gulp.parallel(bundleJsPro, compile, copyFont);
 
-gulp.task('dev', () => {
-  runSequence('default', ['watch', 'serve']);
-});
+export const dev = gulp.series(defaultTask, gulp.parallel(watch, serve));
 
-gulp.task('dev-vs', () => {
-  runSequence('default', 'watch');
-});
+export const devVs = gulp.series(defaultTask, watch);
 
-gulp.task('package', () => {
-  runSequence('package-prepare', 'package:mac', 'package:win');
-});
+export const pack = gulp.series(packagePrepare, packageMac, packageWin);
+
+
