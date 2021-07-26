@@ -1,6 +1,5 @@
 import gulp from 'gulp';
 import babel from 'gulp-babel';
-import exec from 'gulp-exec';
 import pug from 'gulp-pug';
 import sassCompiler from 'sass';
 import gulpSass from 'gulp-sass';
@@ -8,6 +7,7 @@ import webpack from 'webpack-stream';
 import { webpackDevConfig, webpackProConfig } from './webpack.config';
 import del from 'del';
 import { server } from 'electron-connect';
+import { exec } from 'child_process';
 const electron = server.create();
 const sass = gulpSass(sassCompiler);
 
@@ -70,21 +70,27 @@ gulp.task('serve', () => {
 });
 
 gulp.task('package:mac', (callback) => {
-  return gulp.src('**/**')
-    .pipe(exec('./node_modules/.bin/build --mac --x64'))
-    .pipe(exec.reporter());
+  exec('./node_modules/.bin/electron-builder --mac --x64', (error, stdout, stderr) => {
+    console.log(stdout);
+    console.log(stderr);
+    callback(error);
+  });
 });
 
 gulp.task('package:win', (callback) => {
-  return gulp.src('**/**')
-    .pipe(exec('./node_modules/.bin/build --win --x64'))
-    .pipe(exec.reporter());
+  exec('./node_modules/.bin/electron-builder --win --x64', (error, stdout, stderr) => {
+    console.log(stdout);
+    console.log(stderr);
+    callback(error);
+  });
 });
 
 gulp.task('package:test', (callback) => {
-  return gulp.src('**/**')
-    .pipe(exec('build --dir'))
-    .pipe(exec.reporter());
+  exec('./node_modules/.bin/electron-builder --dir', (error, stdout, stderr) => {
+    console.log(stdout);
+    console.log(stderr);
+    callback(error);
+  });
 });
 
 gulp.task('clean', (callback) => {
