@@ -2,13 +2,14 @@ import gulp from 'gulp';
 import babel from 'gulp-babel';
 import exec from 'gulp-exec';
 import pug from 'gulp-pug';
-import sass from 'gulp-sass';
+import sassCompiler from 'sass';
+import gulpSass from 'gulp-sass';
 import webpack from 'webpack-stream';
 import { webpackDevConfig, webpackProConfig } from './webpack.config';
 import del from 'del';
-
 import { server } from 'electron-connect';
 const electron = server.create();
+const sass = gulpSass(sassCompiler);
 
 const srcJs = 'src/**/*.js*';
 const srcCss = 'src/**/*.scss';
