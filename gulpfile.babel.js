@@ -50,9 +50,9 @@ export function copyFont() {
 }
 
 export function watch() {
-  gulp.watch(srcJs, [bundleJsDev]);
-  gulp.watch(srcCss, [compileCss]);
-  gulp.watch(srcHtml, [compileHtml]);
+  gulp.watch(srcJs, bundleJsDev);
+  gulp.watch(srcCss, compileCss);
+  gulp.watch(srcHtml, compileHtml);
 }
 
 export function serve() {
