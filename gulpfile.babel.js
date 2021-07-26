@@ -30,13 +30,6 @@ gulp.task('bundle-js-pro', () => {
     .pipe(gulp.dest(dest));
 });
 
-// gulp.task('compile-js', () => {
-//   return gulp.src(srcJs)
-//     .pipe(babel())
-//     .on('error', console.error.bind(console))
-//     .pipe(gulp.dest(dest));
-// });
-
 gulp.task('compile-css', () => {
   return gulp.src(srcCss)
     .pipe(sass())
