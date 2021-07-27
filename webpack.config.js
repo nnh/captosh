@@ -1,6 +1,6 @@
-import path from 'path';
-import webpack from 'webpack';
-import webpackMerge from 'webpack-merge';
+const path = require('path');
+const webpack = require('webpack');
+const { merge } = require('webpack-merge');
 
 const baseConfig = {
   module: {
@@ -21,7 +21,7 @@ const baseConfig = {
   }
 };
 
-const mainDevConfig = webpackMerge(baseConfig, {
+const mainDevConfig = merge(baseConfig, {
   target: 'electron-main',
   entry: path.resolve(__dirname, 'src') + '/main.ts',
   output: {
@@ -31,11 +31,11 @@ const mainDevConfig = webpackMerge(baseConfig, {
   mode: 'development'
 });
 
-const mainProConfig = webpackMerge(mainDevConfig, {
+const mainProConfig = merge(mainDevConfig, {
   mode: 'production'
 });
 
-const windowDevConfig = webpackMerge(baseConfig, {
+const windowDevConfig = merge(baseConfig, {
   target: 'electron-renderer',
   entry: path.resolve(__dirname, 'src') + '/js/window.ts',
   output: {
@@ -45,11 +45,11 @@ const windowDevConfig = webpackMerge(baseConfig, {
   mode: 'development',
 });
 
-const windowProConfig = webpackMerge(windowDevConfig, {
+const windowProConfig = merge(windowDevConfig, {
   mode: 'production'
 });
 
-const webviewDevConfig = webpackMerge(baseConfig, {
+const webviewDevConfig = merge(baseConfig, {
   target: 'electron-renderer',
   entry: path.resolve(__dirname, 'src') + '/js/webview.ts',
   output: {
@@ -59,9 +59,14 @@ const webviewDevConfig = webpackMerge(baseConfig, {
   mode: 'development',
 });
 
-const webviewProConfig = webpackMerge(webviewDevConfig, {
+const webviewProConfig = merge(webviewDevConfig, {
   mode: 'production',
 });
 
-export const webpackDevConfig = [mainDevConfig, windowDevConfig, webviewDevConfig];
-export const webpackProConfig = [mainProConfig, windowProConfig, webviewProConfig];
+const webpackDevConfig = [mainDevConfig, windowDevConfig, webviewDevConfig];
+const webpackProConfig = [mainProConfig, windowProConfig, webviewProConfig];
+
+module.exports = {
+  webpackDevConfig,
+  webpackProConfig
+};
