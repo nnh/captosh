@@ -6,27 +6,14 @@ const baseConfig = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: {
-              'presets': [
-                ['@babel/env', { 'targets': { 'node': 'current' } }],
-                '@babel/preset-react'
-              ],
-              'plugins': [
-                '@babel/plugin-proposal-class-properties'
-              ]
-            }
-          }
-        ]
+        test: /\.tsx$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
       }
     ]
   },
   resolve: {
-    extensions: ['.js', '.jsx']
+    extensions: ['.ts', '.tsx']
   },
   node: {
     __dirname: false,
@@ -36,7 +23,7 @@ const baseConfig = {
 
 const mainDevConfig = webpackMerge(baseConfig, {
   target: 'electron-main',
-  entry: path.resolve(__dirname, 'src') + '/main.js',
+  entry: path.resolve(__dirname, 'src') + '/main.ts',
   output: {
     path: path.resolve(__dirname, 'app'),
     filename: 'main.js'
@@ -50,7 +37,7 @@ const mainProConfig = webpackMerge(mainDevConfig, {
 
 const windowDevConfig = webpackMerge(baseConfig, {
   target: 'electron-renderer',
-  entry: path.resolve(__dirname, 'src') + '/js/window.js',
+  entry: path.resolve(__dirname, 'src') + '/js/window.ts',
   output: {
     path: path.resolve(__dirname, 'app'),
     filename: 'js/window.js'
@@ -64,7 +51,7 @@ const windowProConfig = webpackMerge(windowDevConfig, {
 
 const webviewDevConfig = webpackMerge(baseConfig, {
   target: 'electron-renderer',
-  entry: path.resolve(__dirname, 'src') + '/js/webview.js',
+  entry: path.resolve(__dirname, 'src') + '/js/webview.ts',
   output: {
     path: path.resolve(__dirname, 'app'),
     filename: 'js/webview.js'
