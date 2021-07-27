@@ -11,6 +11,7 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/register": ">=7.0.0",
+    "@types/gulp": "^4.0.9",
     "@types/sass": "^1.16.1",
     "del": ">=3.0.0",
     "electron": ">=3.0.4",
