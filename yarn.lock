@@ -212,6 +212,14 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/gulp-sass@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@types/gulp-sass/-/gulp-sass-5.0.0.tgz#ce39d75aeec8dc00f5d17855b40dba15f8404937"
+  integrity sha512-7p7nT+IKDREyJzTH13/FC/j3fobDBZTclSJFrgAJA+qzNZgzCENAx3HeiO4N7QlraLRqx44u3OR0Aq0Jw4wz8Q==
+  dependencies:
+    "@types/node" "*"
+    "@types/node-sass" "*"
+
 "@types/gulp@^4.0.9":
   version "4.0.9"
   resolved "https://registry.yarnpkg.com/@types/gulp/-/gulp-4.0.9.tgz#a2f9667bcc26bc72b4899dd16216d6584a12346c"
@@ -235,6 +243,13 @@
   version "0.7.31"
   resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.31.tgz#31b7ca6407128a3d2bbc27fe2d21b345397f6197"
   integrity sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==
+
+"@types/node-sass@*":
+  version "4.11.2"
+  resolved "https://registry.yarnpkg.com/@types/node-sass/-/node-sass-4.11.2.tgz#ecdaa44a1ba8847bf7dea2aadbfe33a91a263514"
+  integrity sha512-pOFlTw/OtZda4e+yMjq6/QYuvY0RDMQ+mxXdWj7rfSyf18V8hS4SfgurO+MasAkQsv6Wt6edOGlwh5QqJml9gw==
+  dependencies:
+    "@types/node" "*"
 
 "@types/node@*":
   version "16.4.3"
