@@ -136,12 +136,11 @@ class MainView extends React.Component {
     }
   }
 
-  selectFolder() {
-    dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
+  async selectFolder() {
+    const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
       properties: ['openDirectory']
-    }, (directories) => {
-      if (directories) { this.props.changeFolder(directories[0]); }
     });
+    if (result.filePaths[0]) { this.props.changeFolder(result.filePaths[0]); }
   }
 
   getSavePDFPath(src, today, fileName) {
