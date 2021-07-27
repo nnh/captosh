@@ -14,6 +14,7 @@
     "@types/gulp": "^4.0.9",
     "@types/gulp-sass": "^5.0.0",
     "@types/sass": "^1.16.1",
+    "@types/webpack-stream": "^3.2.12",
     "del": ">=3.0.0",
     "electron": ">=3.0.4",
     "electron-builder": ">=20.8.1",
