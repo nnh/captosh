@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 
-const baseConfig = {
+module.exports = {
   module: {
     rules: [
       {
@@ -13,60 +13,15 @@ const baseConfig = {
     ]
   },
   resolve: {
-    extensions: ['.ts', '.tsx']
+    extensions: ['.js', '.ts', '.tsx']
   },
-  node: {
-    __dirname: false,
-    __filename: false
+  entry: {
+    'main': './src/main.ts',
+    'js/window': './src/js/window.ts',
+    'js/webview': './src/js/window.ts'
   },
   output: {
-    path: path.resolve(__dirname, 'app')
+    path: path.resolve(__dirname, 'app'),
+    filename: 'app/[name].js'
   }
-};
-
-const mainDevConfig = merge(baseConfig, {
-  target: 'electron-main',
-  entry: path.resolve(__dirname, 'src') + '/main.ts',
-  output: {
-    filename: 'main.js'
-  },
-  mode: 'development'
-});
-
-const mainProConfig = merge(mainDevConfig, {
-  mode: 'production'
-});
-
-const windowDevConfig = merge(baseConfig, {
-  target: 'electron-renderer',
-  entry: path.resolve(__dirname, 'src') + '/js/window.ts',
-  output: {
-    filename: 'js/window.js'
-  },
-  mode: 'development',
-});
-
-const windowProConfig = merge(windowDevConfig, {
-  mode: 'production'
-});
-
-const webviewDevConfig = merge(baseConfig, {
-  target: 'electron-renderer',
-  entry: path.resolve(__dirname, 'src') + '/js/webview.ts',
-  output: {
-    filename: 'js/webview.js'
-  },
-  mode: 'development',
-});
-
-const webviewProConfig = merge(webviewDevConfig, {
-  mode: 'production',
-});
-
-const webpackDevConfig = [mainDevConfig, windowDevConfig, webviewDevConfig];
-const webpackProConfig = [mainProConfig, windowProConfig, webviewProConfig];
-
-module.exports = {
-  webpackDevConfig,
-  webpackProConfig
 };
