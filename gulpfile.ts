@@ -1,11 +1,12 @@
-import gulp from 'gulp';
-import babel from 'gulp-babel';
-import pug from 'gulp-pug';
-import sassCompiler from 'sass';
-import gulpSass from 'gulp-sass';
-import webpack from 'webpack-stream';
+import * as gulp from 'gulp';
+import { TaskCallback } from 'undertaker';
+import * as pug from 'gulp-pug';
+import * as sassCompiler from 'sass';
+import * as gulpSass from 'gulp-sass';
+import { Configuration } from 'webpack';
+import * as webpack  from 'webpack-stream';
 import { webpackDevConfig, webpackProConfig } from './webpack.config';
-import del from 'del';
+import * as del from 'del';
 import { server } from 'electron-connect';
 import { exec } from 'child_process';
 const electron = server.create();
@@ -18,14 +19,14 @@ const dest = 'app';
 
 export function bundleJsDev() {
   return gulp.src(srcJs)
-    .pipe(webpack({ config: webpackDevConfig }))
+    .pipe(webpack({config: webpackDevConfig} as Configuration))
     .on('error', console.error.bind(console))
     .pipe(gulp.dest(dest));
 }
 
 export function bundleJsPro() {
   return gulp.src(srcJs)
-    .pipe(webpack({ config: webpackProConfig }))
+    .pipe(webpack({ config: webpackProConfig } as Configuration))
     .on('error', console.error.bind(console))
     .pipe(gulp.dest(dest));
 }
@@ -38,9 +39,7 @@ export function compileCss() {
 
 export function compileHtml() {
   return gulp.src(srcHtml)
-    .pipe(pug({
-      pretty: true
-    }))
+    .pipe(pug({}))
     .pipe(gulp.dest(dest));
 }
 
@@ -61,7 +60,7 @@ export function serve() {
   gulp.watch([`${dest}/**/*.css`, `${dest}/**/*.html`], electron.reload);
 }
 
-export function packageMac(callback) {
+export function packageMac(callback: TaskCallback) {
   exec('./node_modules/.bin/electron-builder --mac --x64', (error, stdout, stderr) => {
     console.log(stdout);
     console.log(stderr);
@@ -69,7 +68,7 @@ export function packageMac(callback) {
   });
 }
 
-export function packageWin(callback) {
+export function packageWin(callback: TaskCallback) {
   exec('./node_modules/.bin/electron-builder --win --x64', (error, stdout, stderr) => {
     console.log(stdout);
     console.log(stderr);
@@ -77,7 +76,7 @@ export function packageWin(callback) {
   });
 }
 
-export function packageTest(callback) {
+export function packageTest(callback: TaskCallback) {
   exec('./node_modules/.bin/electron-builder --dir', (error, stdout, stderr) => {
     console.log(stdout);
     console.log(stderr);
@@ -85,8 +84,14 @@ export function packageTest(callback) {
   });
 }
 
-export function clean(callback) {
-  del(['app'], callback);
+export async function clean(callback: TaskCallback) {
+  try {
+    await del(['app']);
+    callback(undefined);
+  }
+  catch(e) {
+    callback(e);
+  }
 }
 
 // ------------------------------

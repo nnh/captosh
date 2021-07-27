@@ -3,6 +3,7 @@
     "sourceMap": true,
     "strict": true,
     "jsx": "react",
+    "allowJs": true,
     "moduleResolution": "node"
   }
 }
