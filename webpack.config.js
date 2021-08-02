@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 
-module.exports = {
+const config = {
   module: {
     rules: [
       {
@@ -15,13 +15,26 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts', '.tsx']
   },
-  entry: {
-    'main': './src/main.ts',
-    'js/window': './src/js/window.ts',
-    'js/webview': './src/js/window.ts'
-  },
   output: {
     path: path.resolve(__dirname, 'app'),
     filename: 'app/[name].js'
   }
 };
+
+module.exports = [
+  merge(config, {
+    name: 'main',
+    target: 'electron-main',
+    entry: { 'main': './src/main.ts' }
+  }),
+  merge(config, {
+    name: 'window',
+    target: 'electron-renderer',
+    entry: { 'js/window': './src/js/window.ts' }
+  }),
+  merge(config, {
+    name: 'webview',
+    target: 'electron-renderer',
+    entry: { 'js/webview': './src/js/webview.ts' }
+  }),
+];
