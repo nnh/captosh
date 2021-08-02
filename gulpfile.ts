@@ -5,30 +5,52 @@ import * as sassCompiler from 'sass';
 import * as gulpSass from 'gulp-sass';
 import { Configuration } from 'webpack';
 import * as webpack  from 'webpack-stream';
-import { webpackDevConfig, webpackProConfig } from './webpack.config';
+import * as configs from './webpack.config';
 import * as del from 'del';
 import { server } from 'electron-connect';
-import { exec } from 'child_process';
+import { promisify } from 'util';
+import * as child_process from 'child_process';
+
+const exec = promisify(child_process.exec);
 const electron = server.create();
 const sass = gulpSass(sassCompiler);
 
-const srcJs = 'src/**/*.js*';
+const srcJs = ['src/**/*.js*', 'src/**/*.ts*'];
 const srcCss = 'src/**/*.scss';
 const srcHtml = 'src/**/*.pug';
 const dest = 'app';
 
-export function bundleJsDev() {
-  return gulp.src(srcJs)
-    .pipe(webpack({config: webpackDevConfig} as Configuration))
-    .on('error', console.error.bind(console))
-    .pipe(gulp.dest(dest));
+const webpackConfigs = ['main', 'window', 'webview'];
+
+async function webpackBuild(mode: 'production' | 'development') {
+  await Promise.all(
+    webpackConfigs.map(async (c) => {
+      const { stdout, stderr } = await exec(`./node_modules/.bin/webpack --config-name ${c} --mode ${mode}`)
+      console.log(stdout);
+      console.log(stderr);
+    })
+  );
 }
 
-export function bundleJsPro() {
-  return gulp.src(srcJs)
-    .pipe(webpack({ config: webpackProConfig } as Configuration))
-    .on('error', console.error.bind(console))
-    .pipe(gulp.dest(dest));
+export async function bundleJsDev(callback: TaskCallback) {
+  try {
+    await webpackBuild('development');
+    callback(undefined);
+  }
+  catch (e) {
+    console.log(e.stdout)
+    callback(e);
+  }
+}
+
+export async function bundleJsPro(callback: TaskCallback) {
+  try {
+    await webpackBuild('production');
+    callback(undefined);
+  }
+  catch (e) {
+    callback(e);
+  }
 }
 
 export function compileCss() {
@@ -61,7 +83,7 @@ export function serve() {
 }
 
 export function packageMac(callback: TaskCallback) {
-  exec('./node_modules/.bin/electron-builder --mac --x64', (error, stdout, stderr) => {
+  child_process.exec('./node_modules/.bin/electron-builder --mac --x64', (error, stdout, stderr) => {
     console.log(stdout);
     console.log(stderr);
     callback(error);
@@ -69,7 +91,7 @@ export function packageMac(callback: TaskCallback) {
 }
 
 export function packageWin(callback: TaskCallback) {
-  exec('./node_modules/.bin/electron-builder --win --x64', (error, stdout, stderr) => {
+  child_process.exec('./node_modules/.bin/electron-builder --win --x64', (error, stdout, stderr) => {
     console.log(stdout);
     console.log(stderr);
     callback(error);
@@ -77,7 +99,7 @@ export function packageWin(callback: TaskCallback) {
 }
 
 export function packageTest(callback: TaskCallback) {
-  exec('./node_modules/.bin/electron-builder --dir', (error, stdout, stderr) => {
+  child_process.exec('./node_modules/.bin/electron-builder --dir', (error, stdout, stderr) => {
     console.log(stdout);
     console.log(stderr);
     callback(error);
