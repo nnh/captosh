@@ -14,7 +14,7 @@ export type TaskType = {
 export type CaptureState = {
   captureTasks: TaskType[],
   resultText: string,
-  captureState: unknown,
+  captureState: boolean,
   inputUrl: string,
 }
 
