@@ -1,10 +1,18 @@
-import { combineReducers } from 'redux';
+import { Action, combineReducers } from 'redux';
 import { ActionType } from '../actions'
 import { ProgressStatus } from '../progress_status';
 import mainReducer from './main_reducers';
 import bookmarkReducer from './bookmark_reducers';
+import { TaskType } from '../containers/capture_container';
 
-const captureTasks = (state = [], action) => {
+const initialState = {
+  captureTasks: [] as TaskType[],
+  captureState: false,
+  resultText: '',
+  inputUrl: '',
+};
+
+const captureTasks = (state: TaskType[] = [], action: TaskType & Action<string>) => {
   switch (action.type) {
     case ActionType.new:
       return state.concat([{ id: action.id, now: 0, urls: action.urls, status: ProgressStatus.waiting }]);
@@ -24,7 +32,7 @@ const captureTasks = (state = [], action) => {
   }
 }
 
-const captureState = (state = false, action) => {
+const captureState = (state = false, action: Action<string>) => {
   switch (action.type) {
     case ActionType.start:
       return true;
@@ -35,7 +43,7 @@ const captureState = (state = false, action) => {
   }
 }
 
-const resultText = (state = '', action) => {
+const resultText = (state = '', action: {result: string} & Action<string>) => {
   switch (action.type) {
     case ActionType.add:
       return state + action.result;
@@ -46,7 +54,7 @@ const resultText = (state = '', action) => {
   }
 }
 
-const inputUrl = (state = '', action) => {
+const inputUrl = (state = '', action: {url: string} & Action<string>) => {
   switch(action.type) {
     case ActionType.input:
       return action.url;

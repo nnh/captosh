@@ -1,8 +1,24 @@
+import { Action } from 'redux';
 import { MainActionType } from '../actions/main_actions'
 
+export const initialMainReducer = {
+  urlBar: '',
+  printDatetime: true,
+  printUrl: false,
+  folderText: '',
+  showContainer: false,
+  src: '',
+  title: '',
+  ptoshUrl: '',
+  shift: false,
+  cmdOrCtrl: false
+};
+
+export type MainReducerType = (typeof initialMainReducer);
+
 const mainReducer = (
-  state = { urlBar: '', printDatetime: true, printUrl: false, folderText: '', showContainer: false, src: '', title: '', ptoshUrl: '', shift: false, cmdOrCtrl: false },
-  action
+  state = initialMainReducer,
+  action: MainReducerType & Action<string>
 ) => {
   console.log(state)
   switch (action.type) {

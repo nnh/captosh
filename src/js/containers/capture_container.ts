@@ -5,7 +5,7 @@ import { ProgressStatus, ProgressStatusType } from '../progress_status';
 
 export type TaskType = {
   id: number,
-  url: string,
+  url?: string,
   urls: string[],
   now: number,
   status: ProgressStatusType,

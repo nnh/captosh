@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import { createLogger } from 'redux-logger';
 import thunk from 'redux-thunk'
 import rootReducer from './reducers';
+import { MainReducerType, initialMainReducer } from './reducers/main_reducers';
 import MainView from './components/main_view';
 import { captureRequest, changeShiftKey, changeCmdOrCtrlKey } from './actions/main_actions';
 
@@ -26,8 +27,9 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 window.addEventListener('load', () => {
-  const folderText = process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"];
-  const initialState = { mainReducer: { urlBar: defaultUrl, folderText: folderText, printDatetime: true, printUrl: false } };
+  const folderText = process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"] ?? initialMainReducer.folderText;
+  const mainReducer: MainReducerType = {...initialMainReducer, urlBar: defaultUrl, folderText };
+  const initialState = { mainReducer };
   store = createStore(rootReducer, initialState, applyMiddleware(...middlewares));
 
   ReactDOM.render(
