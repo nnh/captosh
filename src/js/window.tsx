@@ -4,7 +4,7 @@ import { ipcRenderer } from 'electron';
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, Store, Middleware } from 'redux'
 import { Provider } from 'react-redux';
 import { createLogger } from 'redux-logger';
 import thunk from 'redux-thunk'
@@ -14,8 +14,8 @@ import { captureRequest, changeShiftKey, changeCmdOrCtrlKey } from './actions/ma
 
 const defaultUrl = 'https://builder.ptosh.com';
 
-let store;
-const middlewares = [thunk];
+let store: Store; // TODO: parameter type
+const middlewares: Middleware[] = [thunk];
 
 if (process.env.NODE_ENV !== 'production') {
   const logger = createLogger({
