@@ -37,6 +37,8 @@ class MainView extends React.Component<Props> {
     this.showDialog = this.showDialog.bind(this);
   }
 
+  tabGroup!: TabGroup;
+
   componentDidMount() {
     if (!this.tabGroup) {
       this.tabGroup = new TabGroup();
@@ -68,13 +70,13 @@ class MainView extends React.Component<Props> {
         <div className='form-inline'>
           <Button bsStyle='default' title='前に戻る' onClick={this.goBack}><i className='fa fa-arrow-left'></i></Button>
           <Button bsStyle='default' title='次に進む' onClick={this.goForward}><i className='fa fa-arrow-right'></i></Button>
-          <Button bsStyle='default' title='再読み込み' onClick={() => this.tabGroup.getActiveTab().webview.reload()}><i className='fa fa-refresh'></i></Button>
+          <Button bsStyle='default' title='再読み込み' onClick={() => this.tabGroup.getActiveTab()?.webview.reload()}><i className='fa fa-refresh'></i></Button>
           <input className='url-bar form-control' type='text' placeholder='url'
             value={this.props.urlBar} onChange={(e) => this.props.inputUrl(e.target.value)} onKeyPress={this.keyPress} />
           <Button bsStyle='default' title='移動' onClick={() => this.submit()}><i className='fa fa-sign-in'></i></Button>
           <Button bsStyle='default' title='スクリーンショット撮影' onClick={this.save}><i className='fa fa-camera'></i></Button>
           <span>保存先ルート</span>
-          <textarea className='folder-text form-control' rows='1' wrap='off' value={this.props.folderText} readOnly></textarea>
+          <textarea className='folder-text form-control' rows={1} wrap='off' value={this.props.folderText} readOnly></textarea>
           <Button bsStyle='default' title='保存先ルートフォルダ選択' onClick={this.selectFolder}><i className='fa fa-folder'></i></Button>
           <Checkbox className='pdf-checkbox' checked={this.props.printDatetime} inline onChange={this.props.togglePrintDatetime}>日時を印字する</Checkbox>
           <Checkbox className='pdf-checkbox' checked={this.props.printUrl} inline onChange={this.props.togglePrintUrl}>URLを印字する</Checkbox>
@@ -117,40 +119,52 @@ class MainView extends React.Component<Props> {
     });
   }
 
-  keyPress(e) {
+  keyPress(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') { this.submit(); }
   }
 
   submit(src = this.props.urlBar) {
-    this.tabGroup.getActiveTab().webview.src = src;
+    const tab = this.tabGroup.getActiveTab();
+    if (tab) {
+      tab.webview.src = src;
+    }
   }
 
   goBack() {
-    const webview = this.tabGroup.getActiveTab().webview;
-    if (webview.canGoBack()) { webview.goBack(); }
+    const tab = this.tabGroup.getActiveTab();
+    if (tab) {
+      const webview = tab.webview;
+      if (webview.canGoBack()) { webview.goBack(); }
+    }
   }
 
   goForward() {
-    const webview = this.tabGroup.getActiveTab().webview;
-    if (webview.canGoForward()) { webview.goForward(); }
+    const tab = this.tabGroup.getActiveTab();
+    if (tab) {
+      const webview = tab.webview;
+      if (webview.canGoForward()) { webview.goForward(); }
+    }
   }
 
   async save() {
     try {
-      await this.savePDF();
+      await this.savePDF(undefined, undefined);
     } catch (error) {
       this.showDialog(error.message);
     }
   }
 
   async selectFolder() {
-    const result = await dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
-      properties: ['openDirectory']
-    });
-    if (result.filePaths[0]) { this.props.changeFolder(result.filePaths[0]); }
+    const bw = BrowserWindow.getFocusedWindow();
+    if (bw) {
+      const result = await dialog.showOpenDialog(bw, {
+        properties: ['openDirectory']
+      });
+      if (result.filePaths[0]) { this.props.changeFolder(result.filePaths[0]); }
+    }
   }
 
-  getSavePDFPath(src, today, fileName) {
+  getSavePDFPath(src: string, today: Date, fileName?: string) {
     const saveDirectory = this.props.folderText;
     if (fileName) {
       return `${saveDirectory}/${fileName}`;
@@ -162,26 +176,27 @@ class MainView extends React.Component<Props> {
     return `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
   }
 
-  async savePDF(webview = this.tabGroup.getActiveTab().webview, fileName) {
-    const today = new Date();
-
-    if (this.props.printUrl) {
-      webview.send('insert-url', webview.src);
-    }
-    if (this.props.printDatetime) {
-      webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
-    }
-
-    const path = this.getSavePDFPath(webview.src, today, fileName);
-    const printToPDF = () => util.promisify(webview.printToPDF.bind(webview))({ printBackground: true });
-    const writeFile = util.promisify(fs.writeFile);
-
-    try {
-      const data = await printToPDF();
-      fs.ensureFileSync(path);
-      await writeFile(path, data);
-    } finally {
-      webview.send('remove-inserted-element');
+  async savePDF(webview = this.tabGroup.getActiveTab()?.webview, fileName?: string) {
+    if (webview) {
+      const today = new Date();
+      
+      if (this.props.printUrl) {
+        webview.send('insert-url', webview.src);
+      }
+      if (this.props.printDatetime) {
+        webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
+      }
+      
+      const path = this.getSavePDFPath(webview.src, today, fileName);
+      const bindedPrintToPDF = webview.printToPDF.bind(webview);
+      
+      try {
+        const data = await bindedPrintToPDF({ printBackground: true });
+        fs.ensureFileSync(path);
+        await fs.promises.writeFile(path, data);
+      } finally {
+        webview.send('remove-inserted-element');
+      }
     }
   }
 
@@ -214,7 +229,7 @@ class MainView extends React.Component<Props> {
     }
   }
 
-  async request(url) {
+  async request(url: string) {
     this.props.clearPtoshUrl();
     if (!this.props.showContainer) { this.props.toggleContainer(); }
 
@@ -251,22 +266,29 @@ class MainView extends React.Component<Props> {
     }
   }
 
-  requireSignin(url) {
+  requireSignin(url: string) {
     this.props.toggleContainer();
-    this.tabGroup.getActiveTab().webview.src = new URL(url).origin;
-    this.showDialog('captoshアプリ内でptoshにログインしていません。ログイン後に再度実行してください。');
+    const tab = this.tabGroup.getActiveTab();
+    if (tab) {
+      tab.webview.src = new URL(url).origin;
+      this.showDialog('captoshアプリ内でptoshにログインしていません。ログイン後に再度実行してください。');
+    } else {
+      this.showDialog('タブを開いてください。');
+    }
   }
 
-  showDialog(message) {
+  showDialog(message: string) {
     const win = BrowserWindow.getFocusedWindow();
-    const options = {
-      type: 'error',
-      buttons: ['閉じる'],
-      title: 'error',
-      message: 'error',
-      detail: message
-    };
-    dialog.showMessageBox(win, options);
+    if (win) {
+      const options = {
+        type: 'error',
+        buttons: ['閉じる'],
+        title: 'error',
+        message: 'error',
+        detail: message
+      };
+      dialog.showMessageBox(win, options);
+    }
   }
 }
 
