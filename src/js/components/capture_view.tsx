@@ -5,7 +5,7 @@ import { ConnectedProps } from 'react-redux';
 
 import connector from '../containers/capture_container';
 import { ProgressStatus } from '../progress_status';
-import ClearContainer from '../containers/clear_container';
+import ClearButton from '../components/clear_button';
 import ProgressView from './progress_view';
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
@@ -28,7 +28,7 @@ class CaptureView extends React.Component<Props> {
         <p>キャプチャーしたいページのURLを入力してください。（改行で複数ページ行います）</p>
         <textarea className='form-control' rows={10} value={this.props.urls} onChange={(e) => this.props.inputUrl(e.target.value)}></textarea>
         <Button className='capture-button' bsStyle='default' onClick={this.onClick}>開始</Button>
-        <ClearContainer capturing={this.props.capturing} />
+        <ClearButton capturing={this.props.capturing} />
         <div className='capture-progress-container'>
           {
             this.props.captureTasks.map(task => (
