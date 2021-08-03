@@ -1,4 +1,4 @@
-export const inputUrlBar = (urlBar) => ({
+export const inputUrlBar = (urlBar: string) => ({
   type: MainActionType.input,
   urlBar
 });
@@ -11,7 +11,7 @@ export const togglePrintUrl = () => ({
   type: MainActionType.url
 });
 
-export const changeFolder = (folderText) => ({
+export const changeFolder = (folderText: string) => ({
   type: MainActionType.folder,
   folderText
 });
@@ -20,23 +20,23 @@ export const toggleContainer = () => ({
   type: MainActionType.show
 });
 
-export const setWebviewStatus = (src, title) => ({
+export const setWebviewStatus = (src: string, title: string) => ({
   type: MainActionType.webview,
   src,
   title
 });
 
-export const captureRequest = (ptoshUrl) => ({
+export const captureRequest = (ptoshUrl: string) => ({
   type: MainActionType.request,
   ptoshUrl
 });
 
-export const changeShiftKey = (shift) => ({
+export const changeShiftKey = (shift: boolean) => ({
   type: MainActionType.changeShift,
   shift
 });
 
-export const changeCmdOrCtrlKey = (cmdOrCtrl) => ({
+export const changeCmdOrCtrlKey = (cmdOrCtrl: boolean) => ({
   type: MainActionType.changeCmdOrCtrl,
   cmdOrCtrl
 });

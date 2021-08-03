@@ -2,7 +2,22 @@ import { connect } from 'react-redux';
 import { inputUrlBar, togglePrintDatetime, togglePrintUrl, changeFolder, toggleContainer, setWebviewStatus, captureRequest } from '../actions/main_actions';
 import { newTask, clearView } from '../actions';
 
-const mapStateToProps = (state) => ({
+type MainState = {
+  mainReducer: {
+    urlBar: unknown,
+    printDatetime: unknown,
+    printUrl: unknown,
+    folderText: unknown,
+    showContainer: unknown,
+    src: unknown,
+    title: unknown,
+    ptoshUrl: unknown,
+    shift: unknown,
+    cmdOrCtrl: unknown
+  }
+}
+
+const mapStateToProps = (state: MainState) => ({
   urlBar: state.mainReducer.urlBar,
   printDatetime: state.mainReducer.printDatetime,
   printUrl: state.mainReducer.printUrl,

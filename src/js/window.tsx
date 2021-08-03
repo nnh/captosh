@@ -48,6 +48,6 @@ window.addEventListener('keyup', (e) => {
   if (!e.ctrlKey && !e.metaKey) store.dispatch(changeCmdOrCtrlKey(false));
 });
 
-ipcRenderer.on('exec-api', (e, arg) => {
+ipcRenderer.on('exec-api', (_e, arg) => {
   store.dispatch(captureRequest(arg));
 });
