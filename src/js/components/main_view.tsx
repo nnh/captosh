@@ -14,7 +14,7 @@ import * as TabGroup from 'electron-tabs';
 import { ConnectedProps } from 'react-redux';
 
 import connector from '../containers/main_container';
-import CaptureContainer from '../containers/capture_container';
+import CaptureView from '../components/capture_view';
 import BookmarkContainer from '../containers/bookmark_container';
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
@@ -83,7 +83,7 @@ class MainView extends React.Component<Props> {
           <Button bsStyle='default' title='まとめてキャプチャー' onClick={this.props.toggleContainer}><i className='fa fa-copy'></i></Button>
         </div>
         <div className='capture-container'>
-          <CaptureContainer savePDFWithAttr={this.savePDFWithAttr} captureTasks={[]} capturing={false} result={''} showContainer={this.props.showContainer} />
+          <CaptureView savePDFWithAttr={this.savePDFWithAttr} captureTasks={[]} capturing={false} result={''} showContainer={this.props.showContainer} />
         </div>
       </div>
     </div>
@@ -200,7 +200,7 @@ class MainView extends React.Component<Props> {
     }
   }
 
-  async savePDFWithAttr(targetUrl, targetFileName) {
+  async savePDFWithAttr(targetUrl: string, targetFileName?: string) {
     const tab = this.tabGroup.addTab({
       title: 'blank',
       src: targetUrl,
