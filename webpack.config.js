@@ -30,7 +30,7 @@ module.exports = [
   merge(config, {
     name: 'window',
     target: 'electron-renderer',
-    entry: { 'js/window': './src/js/window.ts' }
+    entry: { 'js/window': './src/js/window.tsx' }
   }),
   merge(config, {
     name: 'webview',
