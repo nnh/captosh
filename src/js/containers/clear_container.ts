@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { clearView } from '../actions';
-import ClearButton from '../components/clear_button';
 
 const mapStateToProps = () => ({ });
 
