@@ -4,12 +4,13 @@ import * as parse from 'csv-parse/lib/sync';
 import { ConnectedProps } from 'react-redux';
 
 import connector from '../containers/capture_container';
-import ProgressStatus from '../progress_status';
+import { ProgressStatus } from '../progress_status';
 import ClearContainer from '../containers/clear_container';
 import ProgressView from './progress_view';
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = {
+  showContainer: boolean,
   savePDFWithAttr: (url: string, fileName?: string) => any,
 } & PropsFromRedux;
 

@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { ActionType } from '../actions'
-import ProgressStatus from '../progress_status';
+import { ProgressStatus } from '../progress_status';
 import mainReducer from './main_reducers';
 import bookmarkReducer from './bookmark_reducers';
 

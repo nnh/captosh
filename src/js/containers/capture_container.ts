@@ -1,9 +1,24 @@
 import { connect } from 'react-redux';
 import { newTask, addProgress, startCapture, endCapture, inputUrl } from '../actions';
 import CaptureView from '../components/capture_view';
-import ProgressStatus from '../progress_status';
+import { ProgressStatus, ProgressStatusType } from '../progress_status';
 
-const mapStateToProps = (state) => ({
+export type TaskType = {
+  id: number,
+  url: string,
+  urls: string[],
+  now: number,
+  status: ProgressStatusType,
+};
+
+export type CaptureState = {
+  captureTasks: TaskType[],
+  resultText: string,
+  captureState: unknown,
+  inputUrl: string,
+}
+
+const mapStateToProps = (state: CaptureState) => ({
   captureTasks: state.captureTasks,
   result: state.resultText,
   capturing: state.captureState,
@@ -21,9 +36,9 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch, ownProps) => ({
   startCapture: () => { dispatch(startCapture()) },
   endCapture: () => { dispatch(endCapture()) },
-  count: (id, result) => { dispatch(addProgress(id, result) )},
-  addTask: (urls) => { dispatch(newTask(Date.now(), urls)) },
-  inputUrl: (url) => { dispatch(inputUrl(url)) }
+  count: (id: number, result: string) => { dispatch(addProgress(id, result) )},
+  addTask: (urls: string[]) => { dispatch(newTask(Date.now(), urls)) },
+  inputUrl: (url: string) => { dispatch(inputUrl(url)) }
 });
 
 export default connect(
