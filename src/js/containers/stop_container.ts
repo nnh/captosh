@@ -4,7 +4,7 @@ import { stopTask } from '../actions';
 const mapStateToProps = () => ({ });
 
 const mapDispatchToProps = (dispatch) => ({
-  stopTask: id => dispatch(stopTask(id))
+  stopTask: (id: number) => dispatch(stopTask(id))
 });
 
 export default connect(

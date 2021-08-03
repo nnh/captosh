@@ -16,13 +16,13 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  inputUrl: (url) => { dispatch(inputUrlBar(url)) },
+  inputUrl: (url: string) => { dispatch(inputUrlBar(url)) },
   togglePrintDatetime: () => { dispatch(togglePrintDatetime()) },
   togglePrintUrl: () => { dispatch(togglePrintUrl()) },
-  changeFolder: (path) => { dispatch(changeFolder(path)) },
+  changeFolder: (path: string) => { dispatch(changeFolder(path)) },
   toggleContainer: () => { dispatch(toggleContainer()) },
-  setWebviewStatus: (src, title) => { dispatch(setWebviewStatus(src, title)) },
-  addTask: (urls) => { dispatch(newTask(Date.now(), urls)) },
+  setWebviewStatus: (src: string, title: string) => { dispatch(setWebviewStatus(src, title)) },
+  addTask: (urls: string[]) => { dispatch(newTask(Date.now(), urls)) },
   clearView: () => { dispatch(clearView()) },
   clearPtoshUrl: () => { dispatch(captureRequest('')) }
 });

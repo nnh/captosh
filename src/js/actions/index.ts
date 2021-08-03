@@ -4,13 +4,13 @@ export const newTask = (id: number, urls: string[]) => ({
   urls
 });
 
-export const addProgress = (id, result) => ({
+export const addProgress = (id: number, result: string) => ({
   type: ActionType.add,
   id,
   result
 });
 
-export const stopTask = (id) => ({
+export const stopTask = (id: number) => ({
   type: ActionType.stop,
   id
 });
