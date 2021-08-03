@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { ProgressBar } from 'react-bootstrap';
 import StopContainer from '../containers/stop_container';
+import { ProgressStatusType } from '../progress_status'
 
-const ProgressView = ({ now, max, status, disabled, taskId }) => (
+const ProgressView = ({ now, max, status, disabled, taskId }: {now: number, max: number, status: ProgressStatusType,disabled: boolean, taskId: number}) => (
   <div className='row'>
     <div className='col-xs-8'>
       <ProgressBar min={0} now={now} max={max} />
