@@ -1,7 +1,7 @@
 import * as util from 'util';
 import * as storage from 'electron-json-storage';
 
-type BookmarkType = {[T: string]: string};
+export type BookmarkType = {[T: string]: string};
 
 const key = 'bookmark';
 
@@ -23,10 +23,12 @@ export default class Bookmark {
     await this.setData(bookmarks);
   }
 
-  static async delete(url: string) {
-    const bookmarks = await this.getData();
-    delete bookmarks[url];
-    await this.setData(bookmarks);
+  static async delete(url?: string) {
+    if (url) {
+      const bookmarks = await this.getData();
+      delete bookmarks[url];
+      await this.setData(bookmarks);
+    }
   }
   static getData() {
     return util.promisify(storage.get)(key) as Promise<BookmarkType>;

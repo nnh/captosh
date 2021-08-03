@@ -17,7 +17,7 @@ export const selectBookmark = (url: string) => ({
   url
 });
 
-export const deleteBookmark = (url: string) => {
+export const deleteBookmark = (url?: string) => {
   return async dispatch => {
     await Bookmark.delete(url);
     getAction(dispatch);
