@@ -1,5 +1,5 @@
-import util from 'util';
-import storage from 'electron-json-storage';
+import * as util from 'util';
+import * as storage from 'electron-json-storage';
 
 export default class Bookmark {
   static async get() {

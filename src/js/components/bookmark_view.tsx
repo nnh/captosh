@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Button } from 'react-bootstrap';
 
 class BookmarkView extends React.Component {

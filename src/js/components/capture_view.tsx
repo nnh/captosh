@@ -1,6 +1,6 @@
-import React from 'react';
+import * as React from 'react';
 import { Button } from 'react-bootstrap';
-import parse from 'csv-parse/lib/sync';
+import * as parse from 'csv-parse/lib/sync';
 
 import ProgressStatus from '../progress_status';
 import ClearContainer from '../containers/clear_container';

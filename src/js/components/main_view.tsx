@@ -1,16 +1,16 @@
-import fs from 'fs-extra';
-import moment from 'moment-timezone';
-import Url from 'url';
-import util from 'util';
+import * as fs from 'fs-extra';
+import * as  moment from 'moment-timezone';
+import * as Url from 'url';
+import * as util from 'util';
 
 import { remote } from 'electron';
 const BrowserWindow = remote.BrowserWindow;
 const dialog = remote.dialog;
 
-import React from 'react';
+import * as React from 'react';
 import { Navbar, Button, Checkbox } from 'react-bootstrap';
 
-import TabGroup from 'electron-tabs';
+import * as TabGroup from 'electron-tabs';
 
 import CaptureContainer from '../containers/capture_container';
 import BookmarkContainer from '../containers/bookmark_container';
