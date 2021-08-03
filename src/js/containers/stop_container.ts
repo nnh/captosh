@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { stopTask } from '../actions';
-import StopButton from '../components/stop_button';
 
 const mapStateToProps = () => ({ });
 
@@ -11,4 +10,4 @@ const mapDispatchToProps = (dispatch) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(StopButton);
+);
