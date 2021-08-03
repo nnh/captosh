@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { getBookmarks, selectBookmark, deleteBookmark, addBookmark } from '../actions/bookmark_actions';
-import BookmarkView from '../components/bookmark_view';
 
 const mapStateToProps = (state) => ({
   selected: state.bookmarkReducer.selected,
@@ -17,4 +16,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(BookmarkView);
+);

@@ -15,7 +15,7 @@ import { ConnectedProps } from 'react-redux';
 
 import connector from '../containers/main_container';
 import CaptureView from '../components/capture_view';
-import BookmarkContainer from '../containers/bookmark_container';
+import BookmarkView from '../components/bookmark_view';
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = {
@@ -63,7 +63,7 @@ class MainView extends React.Component<Props> {
             <div className='etabs-buttons'></div>
           </div>
         </div>
-        <BookmarkContainer showDialog={this.showDialog} submit={this.submit} bookmarks={{}} currentUrl={this.props.src} currentTitle={this.props.title} />
+        <BookmarkView showDialog={this.showDialog} submit={this.submit} bookmarks={{}} currentUrl={this.props.src} currentTitle={this.props.title} />
       </Navbar>
 
       <div className='etabs-views'>

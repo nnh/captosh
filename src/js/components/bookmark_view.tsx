@@ -1,8 +1,19 @@
 import * as React from 'react';
 import { Button } from 'react-bootstrap';
+import { ConnectedProps } from 'react-redux';
 
-class BookmarkView extends React.Component {
-  constructor(props) {
+import connector from '../containers/bookmark_container';
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = {
+  currentTitle: unknown,
+  currentUrl: unknown,
+  submit: (url: unknown) => void,
+} & PropsFromRedux;
+
+
+class BookmarkView extends React.Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.moveBookmark = this.moveBookmark.bind(this);
@@ -38,4 +49,4 @@ class BookmarkView extends React.Component {
   }
 }
 
-export default BookmarkView;
+export default connector(BookmarkView);
