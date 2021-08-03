@@ -11,12 +11,19 @@ import * as React from 'react';
 import { Navbar, Button, Checkbox } from 'react-bootstrap';
 
 import * as TabGroup from 'electron-tabs';
+import { ConnectedProps } from 'react-redux';
 
+import connector from '../containers/main_container';
 import CaptureContainer from '../containers/capture_container';
 import BookmarkContainer from '../containers/bookmark_container';
 
-class MainView extends React.Component {
-  constructor(props) {
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = {
+  defaultUrl: string,
+} & PropsFromRedux;
+
+class MainView extends React.Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.submit = this.submit.bind(this);
@@ -263,4 +270,4 @@ class MainView extends React.Component {
   }
 }
 
-export default MainView;
+export default connector(MainView);

@@ -9,7 +9,7 @@ import { Provider } from 'react-redux';
 import { createLogger } from 'redux-logger';
 import thunk from 'redux-thunk'
 import rootReducer from './reducers';
-import MainContainer from './containers/main_container';
+import MainView from './components/main_view';
 import { captureRequest, changeShiftKey, changeCmdOrCtrlKey } from './actions/main_actions';
 
 const defaultUrl = 'https://builder.ptosh.com';
@@ -32,7 +32,7 @@ window.addEventListener('load', () => {
 
   ReactDOM.render(
     <Provider store={store}>
-      <MainContainer defaultUrl={defaultUrl} />
+      <MainView defaultUrl={defaultUrl} />
     </Provider>,
     document.getElementById('main-view')
   );

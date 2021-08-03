@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import { inputUrlBar, togglePrintDatetime, togglePrintUrl, changeFolder, toggleContainer, setWebviewStatus, captureRequest } from '../actions/main_actions';
 import { newTask, clearView } from '../actions';
-import MainView from '../components/main_view';
 
 const mapStateToProps = (state) => ({
   urlBar: state.mainReducer.urlBar,
@@ -31,4 +30,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(MainView);
+);
