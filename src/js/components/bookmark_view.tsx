@@ -6,9 +6,9 @@ import connector from '../containers/bookmark_container';
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = {
-  currentTitle: unknown,
-  currentUrl: unknown,
-  submit: (url: unknown) => void,
+  currentTitle: string,
+  currentUrl: string,
+  submit: (url: string) => void,
 } & PropsFromRedux;
 
 
