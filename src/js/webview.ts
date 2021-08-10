@@ -1,6 +1,7 @@
 'use strict';
 
 import { ipcRenderer } from 'electron';
+import * as $ from 'jquery';
 
 ipcRenderer.on('insert-datetime', (event, arg) => {
   insertElement('screenshot-datetime', arg);
