@@ -4,13 +4,6 @@ import { ProgressStatus } from '../progress_status';
 import mainReducer from './main_reducers';
 import { TaskType } from '../containers/capture_container';
 
-const initialState = {
-  captureTasks: [] as TaskType[],
-  captureState: false,
-  resultText: '',
-  inputUrl: '',
-};
-
 const captureTasks = (state: TaskType[] = [], action: TaskType & Action<string>) => {
   switch (action.type) {
     case ActionType.new:
