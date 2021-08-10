@@ -63,7 +63,7 @@ class MainView extends React.Component<Props> {
             <div className='etabs-buttons'></div>
           </div>
         </div>
-        <BookmarkView showDialog={this.showDialog} submit={this.submit} bookmarks={{}} currentUrl={this.props.src} currentTitle={this.props.title} />
+        <BookmarkView submit={this.submit} currentUrl={this.props.src} currentTitle={this.props.title} />
       </Navbar>
 
       <div className='etabs-views'>
@@ -83,7 +83,7 @@ class MainView extends React.Component<Props> {
           <Button bsStyle='default' title='まとめてキャプチャー' onClick={this.props.toggleContainer}><i className='fa fa-copy'></i></Button>
         </div>
         <div className='capture-container'>
-          <CaptureView savePDFWithAttr={this.savePDFWithAttr} captureTasks={[]} capturing={false} result={''} showContainer={this.props.showContainer} />
+          <CaptureView savePDFWithAttr={this.savePDFWithAttr} showContainer={this.props.showContainer} />
         </div>
       </div>
     </div>
