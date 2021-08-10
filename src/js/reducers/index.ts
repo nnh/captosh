@@ -2,7 +2,6 @@ import { Action, combineReducers } from 'redux';
 import { ActionType } from '../actions'
 import { ProgressStatus } from '../progress_status';
 import mainReducer from './main_reducers';
-import bookmarkReducer from './bookmark_reducers';
 import { TaskType } from '../containers/capture_container';
 
 const initialState = {
@@ -70,6 +69,5 @@ export default combineReducers({
   captureState,
   resultText,
   inputUrl,
-  bookmarkReducer,
   mainReducer
 });

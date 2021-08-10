@@ -1,9 +1,10 @@
 import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 import { clearView } from '../actions';
 
 const mapStateToProps = () => ({ });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   onClick: () => dispatch(clearView())
 });
 

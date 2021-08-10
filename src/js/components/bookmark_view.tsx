@@ -1,52 +1,62 @@
 import * as React from 'react';
 import { Button } from 'react-bootstrap';
-import { ConnectedProps } from 'react-redux';
+import Bookmark, { BookmarkType } from '../bookmark';
 
-import connector from '../containers/bookmark_container';
-
-type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = {
   currentTitle: string,
   currentUrl: string,
   submit: (url: string) => void,
-} & PropsFromRedux;
+};
 
-
-class BookmarkView extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    this.moveBookmark = this.moveBookmark.bind(this);
-  }
-
-  componentDidMount() {
-    this.props.getBookmarks();
-  }
-
-  render() {
-    const options = Object.keys(this.props.bookmarks).map((key) => {
-      return <option value={key} key={`bookmark-option-${key}`}>{`${this.props.bookmarks[key]}: ${key}`}</option>;
-    });
-    return (
-      <div className='bookmark-bar'>
-        ブックマーク
-        <select className='bookmark-select form-control' value={this.props.selected} onChange={(e) => this.props.selectBookmark(e.target.value)}>
-          {options}
-        </select>
-        <Button bsStyle='default' title='選択中のブックマークに移動' onClick={this.moveBookmark}><i className='fa fa-sign-in'></i></Button>
-        <Button bsStyle='default' title='選択中のブックマークを削除' onClick={() => this.props.deleteBookmark(this.props.selected)}><i className='fa fa-trash'></i></Button>
-        <Button bsStyle='default' title='表示中のページをブックマークに追加' onClick={() => this.props.addBookmark(this.props.currentUrl, this.props.currentTitle)}>
-          <i className='fa fa-plus'></i>
-        </Button>
-      </div>
-    );
-  };
-
-  moveBookmark() {
-    if (!this.props.selected) return;
-
-    this.props.submit(this.props.selected);
-  }
+function BookmarkOptions(props: {bookmarks: BookmarkType}) {
+  return (
+    <>
+    {
+      Object.keys(props.bookmarks).map((key) => (
+        <option value={key} key={`bookmark-option-${key}`}>{`${props.bookmarks[key]}: ${key}`}</option>
+      ))
+    }
+    </>
+  );
 }
 
-export default connector(BookmarkView);
+export default function BookmarkView(props: Props) {
+  const [bookmarks, setBookmarks] = React.useState({} as BookmarkType);
+  const [selected, setSelected] = React.useState(props.currentUrl);
+
+  React.useEffect(() => {
+    Bookmark.get().then((bookmark) => setBookmarks(bookmark));
+  }, [])
+
+  function moveBookmark() {
+    if (!selected) return;
+
+    props.submit(selected);
+  }
+
+  async function deleteBookmark() {
+    await Bookmark.delete(selected);
+    const newBookmarks = await Bookmark.get();
+    setBookmarks(newBookmarks);
+  }
+
+  async function addBookmark() {
+    await Bookmark.add(props.currentUrl, props.currentTitle);
+    const newBookmarks = await Bookmark.get();
+    setBookmarks(newBookmarks);    
+  }
+  
+  return (
+    <div className='bookmark-bar'>
+      ブックマーク
+      <select className='bookmark-select form-control' defaultValue={selected} onChange={(e) => setSelected(e.target.value)}>
+        <BookmarkOptions bookmarks={bookmarks} />
+      </select>
+      <Button bsStyle='default' title='選択中のブックマークに移動' onClick={moveBookmark}><i className='fa fa-sign-in'></i></Button>
+      <Button bsStyle='default' title='選択中のブックマークを削除' onClick={() => deleteBookmark()}><i className='fa fa-trash'></i></Button>
+      <Button bsStyle='default' title='表示中のページをブックマークに追加' onClick={() => addBookmark()}>
+        <i className='fa fa-plus'></i>
+      </Button>
+    </div>
+  );
+}

@@ -1,9 +1,10 @@
 import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 import { stopTask } from '../actions';
 
 const mapStateToProps = () => ({ });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   stopTask: (id: number) => dispatch(stopTask(id))
 });
 

@@ -1,17 +1,18 @@
 import { connect } from 'react-redux';
 import { inputUrlBar, togglePrintDatetime, togglePrintUrl, changeFolder, toggleContainer, setWebviewStatus, captureRequest } from '../actions/main_actions';
 import { newTask, clearView } from '../actions';
+import { Dispatch } from 'redux';
 
 type MainState = {
   mainReducer: {
-    urlBar: unknown,
-    printDatetime: unknown,
-    printUrl: unknown,
-    folderText: unknown,
-    showContainer: unknown,
-    src: unknown,
-    title: unknown,
-    ptoshUrl: unknown,
+    urlBar: string,
+    printDatetime: boolean,
+    printUrl: boolean,
+    folderText: string,
+    showContainer: boolean,
+    src: string,
+    title: string,
+    ptoshUrl?: string,
     shift: unknown,
     cmdOrCtrl: unknown
   }
@@ -30,7 +31,7 @@ const mapStateToProps = (state: MainState) => ({
   cmdOrCtrl: state.mainReducer.cmdOrCtrl
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   inputUrl: (url: string) => { dispatch(inputUrlBar(url)) },
   togglePrintDatetime: () => { dispatch(togglePrintDatetime()) },
   togglePrintUrl: () => { dispatch(togglePrintUrl()) },

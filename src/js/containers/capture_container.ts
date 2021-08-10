@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 import { newTask, addProgress, startCapture, endCapture, inputUrl } from '../actions';
 import CaptureView from '../components/capture_view';
 import { ProgressStatus, ProgressStatusType } from '../progress_status';
@@ -33,7 +34,7 @@ const mapStateToProps = (state: CaptureState) => ({
   }
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   startCapture: () => { dispatch(startCapture()) },
   endCapture: () => { dispatch(endCapture()) },
   count: (id: number, result: string) => { dispatch(addProgress(id, result) )},
