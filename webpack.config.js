@@ -17,7 +17,7 @@ const config = {
   },
   output: {
     path: path.resolve(__dirname, 'app'),
-    filename: 'app/[name].js'
+    filename: '[name].js'
   }
 };
 
