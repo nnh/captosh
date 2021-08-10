@@ -1,13 +1,21 @@
-import React from 'react';
+import * as React from 'react';
 import { Button } from 'react-bootstrap';
-import parse from 'csv-parse/lib/sync';
+import * as parse from 'csv-parse/lib/sync';
+import { ConnectedProps } from 'react-redux';
 
-import ProgressStatus from '../progress_status';
-import ClearContainer from '../containers/clear_container';
+import connector from '../containers/capture_container';
+import { ProgressStatus } from '../progress_status';
+import ClearButton from '../components/clear_button';
 import ProgressView from './progress_view';
 
-class CaptureView extends React.Component {
-  constructor(props) {
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = {
+  showContainer: boolean,
+  savePDFWithAttr: (url: string, fileName?: string) => any,
+} & PropsFromRedux;
+
+class CaptureView extends React.Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.onClick = this.onClick.bind(this);
@@ -18,9 +26,9 @@ class CaptureView extends React.Component {
     return (
       <div>
         <p>キャプチャーしたいページのURLを入力してください。（改行で複数ページ行います）</p>
-        <textarea className='form-control' rows='10' value={this.props.urls} onChange={(e) => this.props.inputUrl(e.target.value)}></textarea>
+        <textarea className='form-control' rows={10} value={this.props.urls} onChange={(e) => this.props.inputUrl(e.target.value)}></textarea>
         <Button className='capture-button' bsStyle='default' onClick={this.onClick}>開始</Button>
-        <ClearContainer capturing={this.props.capturing} />
+        <ClearButton capturing={this.props.capturing} />
         <div className='capture-progress-container'>
           {
             this.props.captureTasks.map(task => (
@@ -49,9 +57,10 @@ class CaptureView extends React.Component {
 
     const task = this.props.nextTask();
     if (task) {
+      type Tupple = [string, string|undefined];
       const line = parse(task.url)[0];
-      const [targetUrl, targetFileName] = line;
-      const fileName = targetFileName ? targetFileName.replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_') : null;
+      const [targetUrl, targetFileName]: Tupple = line;
+      const fileName = targetFileName ? targetFileName.replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_') : undefined;
 
       const result = await this.props.savePDFWithAttr(targetUrl, fileName);
       this.props.count(task.id, result && result.errorText ? result.errorText : '');
@@ -62,4 +71,4 @@ class CaptureView extends React.Component {
   }
 }
 
-export default CaptureView;
+export default connector(CaptureView);

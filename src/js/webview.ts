@@ -1,6 +1,7 @@
 'use strict';
 
 import { ipcRenderer } from 'electron';
+import * as $ from 'jquery';
 
 ipcRenderer.on('insert-datetime', (event, arg) => {
   insertElement('screenshot-datetime', arg);
@@ -11,24 +12,26 @@ ipcRenderer.on('insert-url', (event, arg) => {
 });
 
 ipcRenderer.on('remove-inserted-element', (event, arg) => {
-  if (document.getElementById('screenshot-datetime')) {
-    document.getElementById('screenshot-datetime').remove();
+  const datetime = document.getElementById('screenshot-datetime')
+  if (datetime) {
+    datetime.remove();
   }
-  if (document.getElementById('screenshot-url')) {
-    document.getElementById('screenshot-url').remove();
+  const url = document.getElementById('screenshot-url')
+  if (url) {
+    url.remove();
   }
 
   // 付与したimportantを元に戻す
   $('*[style*="display: none"]').css('display', 'none');
 })
 
-function insertElement(id, arg) {
+function insertElement(id: string, arg: string) {
   const div = document.createElement('div');
   div.id = id;
   div.style.cssText = 'text-align:right; width:100%; background:white; font-size:15px';
   div.innerText = arg;
 
-  const parent = document.getElementById('cover') ? document.getElementById('cover') : document.body;
+  const parent = document.getElementById('cover') ?? document.body;
   parent.insertBefore(div, parent.firstChild);
 
   // display:noneが別のcssに上書きされて無視されることがあるのでimportantを付与

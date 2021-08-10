@@ -1,22 +1,29 @@
-import fs from 'fs-extra';
-import moment from 'moment-timezone';
-import Url from 'url';
-import util from 'util';
+import * as fs from 'fs-extra';
+import * as  moment from 'moment-timezone';
+import * as Url from 'url';
+import * as util from 'util';
 
 import { remote } from 'electron';
 const BrowserWindow = remote.BrowserWindow;
 const dialog = remote.dialog;
 
-import React from 'react';
+import * as React from 'react';
 import { Navbar, Button, Checkbox } from 'react-bootstrap';
 
-import TabGroup from 'electron-tabs';
+import * as TabGroup from 'electron-tabs';
+import { ConnectedProps } from 'react-redux';
 
-import CaptureContainer from '../containers/capture_container';
-import BookmarkContainer from '../containers/bookmark_container';
+import connector from '../containers/main_container';
+import CaptureView from '../components/capture_view';
+import BookmarkView from '../components/bookmark_view';
 
-class MainView extends React.Component {
-  constructor(props) {
+type PropsFromRedux = ConnectedProps<typeof connector>;
+type Props = {
+  defaultUrl: string,
+} & PropsFromRedux;
+
+class MainView extends React.Component<Props> {
+  constructor(props: Props) {
     super(props);
 
     this.submit = this.submit.bind(this);
@@ -29,6 +36,8 @@ class MainView extends React.Component {
     this.request = this.request.bind(this);
     this.showDialog = this.showDialog.bind(this);
   }
+
+  tabGroup!: TabGroup;
 
   componentDidMount() {
     if (!this.tabGroup) {
@@ -54,27 +63,27 @@ class MainView extends React.Component {
             <div className='etabs-buttons'></div>
           </div>
         </div>
-        <BookmarkContainer showDialog={this.showDialog} submit={this.submit} bookmarks={{}} currentUrl={this.props.src} currentTitle={this.props.title} />
+        <BookmarkView submit={this.submit} currentUrl={this.props.src} currentTitle={this.props.title} />
       </Navbar>
 
       <div className='etabs-views'>
         <div className='form-inline'>
           <Button bsStyle='default' title='前に戻る' onClick={this.goBack}><i className='fa fa-arrow-left'></i></Button>
           <Button bsStyle='default' title='次に進む' onClick={this.goForward}><i className='fa fa-arrow-right'></i></Button>
-          <Button bsStyle='default' title='再読み込み' onClick={() => this.tabGroup.getActiveTab().webview.reload()}><i className='fa fa-refresh'></i></Button>
+          <Button bsStyle='default' title='再読み込み' onClick={() => this.tabGroup.getActiveTab()?.webview.reload()}><i className='fa fa-refresh'></i></Button>
           <input className='url-bar form-control' type='text' placeholder='url'
             value={this.props.urlBar} onChange={(e) => this.props.inputUrl(e.target.value)} onKeyPress={this.keyPress} />
           <Button bsStyle='default' title='移動' onClick={() => this.submit()}><i className='fa fa-sign-in'></i></Button>
           <Button bsStyle='default' title='スクリーンショット撮影' onClick={this.save}><i className='fa fa-camera'></i></Button>
           <span>保存先ルート</span>
-          <textarea className='folder-text form-control' rows='1' wrap='off' value={this.props.folderText} readOnly></textarea>
+          <textarea className='folder-text form-control' rows={1} wrap='off' value={this.props.folderText} readOnly></textarea>
           <Button bsStyle='default' title='保存先ルートフォルダ選択' onClick={this.selectFolder}><i className='fa fa-folder'></i></Button>
           <Checkbox className='pdf-checkbox' checked={this.props.printDatetime} inline onChange={this.props.togglePrintDatetime}>日時を印字する</Checkbox>
           <Checkbox className='pdf-checkbox' checked={this.props.printUrl} inline onChange={this.props.togglePrintUrl}>URLを印字する</Checkbox>
           <Button bsStyle='default' title='まとめてキャプチャー' onClick={this.props.toggleContainer}><i className='fa fa-copy'></i></Button>
         </div>
         <div className='capture-container'>
-          <CaptureContainer savePDFWithAttr={this.savePDFWithAttr} captureTasks={[]} capturing={false} result={''} showContainer={this.props.showContainer} />
+          <CaptureView savePDFWithAttr={this.savePDFWithAttr} showContainer={this.props.showContainer} />
         </div>
       </div>
     </div>
@@ -110,41 +119,52 @@ class MainView extends React.Component {
     });
   }
 
-  keyPress(e) {
+  keyPress(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter') { this.submit(); }
   }
 
   submit(src = this.props.urlBar) {
-    this.tabGroup.getActiveTab().webview.src = src;
+    const tab = this.tabGroup.getActiveTab();
+    if (tab) {
+      tab.webview.src = src;
+    }
   }
 
   goBack() {
-    const webview = this.tabGroup.getActiveTab().webview;
-    if (webview.canGoBack()) { webview.goBack(); }
+    const tab = this.tabGroup.getActiveTab();
+    if (tab) {
+      const webview = tab.webview;
+      if (webview.canGoBack()) { webview.goBack(); }
+    }
   }
 
   goForward() {
-    const webview = this.tabGroup.getActiveTab().webview;
-    if (webview.canGoForward()) { webview.goForward(); }
+    const tab = this.tabGroup.getActiveTab();
+    if (tab) {
+      const webview = tab.webview;
+      if (webview.canGoForward()) { webview.goForward(); }
+    }
   }
 
   async save() {
     try {
-      await this.savePDF();
+      await this.savePDF(undefined, undefined);
     } catch (error) {
       this.showDialog(error.message);
     }
   }
 
-  selectFolder() {
-    dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
-      properties: ['openDirectory']
-    }, (directories) => {
-      if (directories) { this.props.changeFolder(directories[0]); }
-    });
+  async selectFolder() {
+    const bw = BrowserWindow.getFocusedWindow();
+    if (bw) {
+      const result = await dialog.showOpenDialog(bw, {
+        properties: ['openDirectory']
+      });
+      if (result.filePaths[0]) { this.props.changeFolder(result.filePaths[0]); }
+    }
   }
 
-  getSavePDFPath(src, today, fileName) {
+  getSavePDFPath(src: string, today: Date, fileName?: string) {
     const saveDirectory = this.props.folderText;
     if (fileName) {
       return `${saveDirectory}/${fileName}`;
@@ -156,30 +176,31 @@ class MainView extends React.Component {
     return `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
   }
 
-  async savePDF(webview = this.tabGroup.getActiveTab().webview, fileName) {
-    const today = new Date();
-
-    if (this.props.printUrl) {
-      webview.send('insert-url', webview.src);
-    }
-    if (this.props.printDatetime) {
-      webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
-    }
-
-    const path = this.getSavePDFPath(webview.src, today, fileName);
-    const printToPDF = () => util.promisify(webview.printToPDF.bind(webview))({ printBackground: true });
-    const writeFile = util.promisify(fs.writeFile);
-
-    try {
-      const data = await printToPDF();
-      fs.ensureFileSync(path);
-      await writeFile(path, data);
-    } finally {
-      webview.send('remove-inserted-element');
+  async savePDF(webview = this.tabGroup.getActiveTab()?.webview, fileName?: string) {
+    if (webview) {
+      const today = new Date();
+      
+      if (this.props.printUrl) {
+        webview.send('insert-url', webview.src);
+      }
+      if (this.props.printDatetime) {
+        webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
+      }
+      
+      const path = this.getSavePDFPath(webview.src, today, fileName);
+      const bindedPrintToPDF = webview.printToPDF.bind(webview);
+      
+      try {
+        const data = await bindedPrintToPDF({ printBackground: true });
+        fs.ensureFileSync(path);
+        await fs.promises.writeFile(path, data);
+      } finally {
+        webview.send('remove-inserted-element');
+      }
     }
   }
 
-  async savePDFWithAttr(targetUrl, targetFileName) {
+  async savePDFWithAttr(targetUrl: string, targetFileName?: string) {
     const tab = this.tabGroup.addTab({
       title: 'blank',
       src: targetUrl,
@@ -208,7 +229,7 @@ class MainView extends React.Component {
     }
   }
 
-  async request(url) {
+  async request(url: string) {
     this.props.clearPtoshUrl();
     if (!this.props.showContainer) { this.props.toggleContainer(); }
 
@@ -245,23 +266,30 @@ class MainView extends React.Component {
     }
   }
 
-  requireSignin(url) {
+  requireSignin(url: string) {
     this.props.toggleContainer();
-    this.tabGroup.getActiveTab().webview.src = new URL(url).origin;
-    this.showDialog('captoshアプリ内でptoshにログインしていません。ログイン後に再度実行してください。');
+    const tab = this.tabGroup.getActiveTab();
+    if (tab) {
+      tab.webview.src = new URL(url).origin;
+      this.showDialog('captoshアプリ内でptoshにログインしていません。ログイン後に再度実行してください。');
+    } else {
+      this.showDialog('タブを開いてください。');
+    }
   }
 
-  showDialog(message) {
+  showDialog(message: string) {
     const win = BrowserWindow.getFocusedWindow();
-    const options = {
-      type: 'error',
-      buttons: ['閉じる'],
-      title: 'error',
-      message: 'error',
-      detail: message
-    };
-    dialog.showMessageBox(win, options);
+    if (win) {
+      const options = {
+        type: 'error',
+        buttons: ['閉じる'],
+        title: 'error',
+        message: 'error',
+        detail: message
+      };
+      dialog.showMessageBox(win, options);
+    }
   }
 }
 
-export default MainView;
+export default connector(MainView);

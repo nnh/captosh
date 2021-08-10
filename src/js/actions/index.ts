@@ -1,16 +1,16 @@
-export const newTask = (id, urls) => ({
+export const newTask = (id: number, urls: string[]) => ({
   type: ActionType.new,
   id,
   urls
 });
 
-export const addProgress = (id, result) => ({
+export const addProgress = (id: number, result: string) => ({
   type: ActionType.add,
   id,
   result
 });
 
-export const stopTask = (id) => ({
+export const stopTask = (id: number) => ({
   type: ActionType.stop,
   id
 });
@@ -27,7 +27,7 @@ export const endCapture = () => ({
   type: ActionType.end
 });
 
-export const inputUrl = (url) => ({
+export const inputUrl = (url: string) => ({
   type: ActionType.input,
   url
 })

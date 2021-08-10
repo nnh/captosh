@@ -1,9 +1,24 @@
 import { connect } from 'react-redux';
 import { inputUrlBar, togglePrintDatetime, togglePrintUrl, changeFolder, toggleContainer, setWebviewStatus, captureRequest } from '../actions/main_actions';
 import { newTask, clearView } from '../actions';
-import MainView from '../components/main_view';
+import { Dispatch } from 'redux';
 
-const mapStateToProps = (state) => ({
+type MainState = {
+  mainReducer: {
+    urlBar: string,
+    printDatetime: boolean,
+    printUrl: boolean,
+    folderText: string,
+    showContainer: boolean,
+    src: string,
+    title: string,
+    ptoshUrl?: string,
+    shift: unknown,
+    cmdOrCtrl: unknown
+  }
+}
+
+const mapStateToProps = (state: MainState) => ({
   urlBar: state.mainReducer.urlBar,
   printDatetime: state.mainReducer.printDatetime,
   printUrl: state.mainReducer.printUrl,
@@ -16,14 +31,14 @@ const mapStateToProps = (state) => ({
   cmdOrCtrl: state.mainReducer.cmdOrCtrl
 });
 
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  inputUrl: (url) => { dispatch(inputUrlBar(url)) },
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  inputUrl: (url: string) => { dispatch(inputUrlBar(url)) },
   togglePrintDatetime: () => { dispatch(togglePrintDatetime()) },
   togglePrintUrl: () => { dispatch(togglePrintUrl()) },
-  changeFolder: (path) => { dispatch(changeFolder(path)) },
+  changeFolder: (path: string) => { dispatch(changeFolder(path)) },
   toggleContainer: () => { dispatch(toggleContainer()) },
-  setWebviewStatus: (src, title) => { dispatch(setWebviewStatus(src, title)) },
-  addTask: (urls) => { dispatch(newTask(Date.now(), urls)) },
+  setWebviewStatus: (src: string, title: string) => { dispatch(setWebviewStatus(src, title)) },
+  addTask: (urls: string[]) => { dispatch(newTask(Date.now(), urls)) },
   clearView: () => { dispatch(clearView()) },
   clearPtoshUrl: () => { dispatch(captureRequest('')) }
 });
@@ -31,4 +46,4 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(MainView);
+);

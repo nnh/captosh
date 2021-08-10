@@ -1,8 +1,9 @@
-import React from 'react';
+import * as React from 'react';
 import { ProgressBar } from 'react-bootstrap';
-import StopContainer from '../containers/stop_container';
+import StopButton from '../components/stop_button';
+import { ProgressStatusType } from '../progress_status'
 
-const ProgressView = ({ now, max, status, disabled, taskId }) => (
+const ProgressView = ({ now, max, status, disabled, taskId }: {now: number, max: number, status: ProgressStatusType,disabled: boolean, taskId: number}) => (
   <div className='row'>
     <div className='col-xs-8'>
       <ProgressBar min={0} now={now} max={max} />
@@ -11,7 +12,7 @@ const ProgressView = ({ now, max, status, disabled, taskId }) => (
       <div className='progress-num'>{`${now} / ${max}`}</div>
     </div>
     <div className='col-xs-1'>
-      <StopContainer taskId={taskId} disabled={disabled} />
+      <StopButton taskId={taskId} disabled={disabled} />
     </div>
     <div className='col-xs-1'>
       <div className='progress-status'>{status}</div>
