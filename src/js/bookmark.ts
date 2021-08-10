@@ -8,7 +8,7 @@ const key = 'bookmark';
 export default class Bookmark {
   static async get(): Promise<BookmarkType> {
     const bookmarks = await this.getData();
-    if (Object.keys(bookmarks).length && bookmarks['0']) {
+    if (Object.keys(bookmarks).length && !bookmarks['0']) {
       return bookmarks;
     } else {
       const defaultBookmark: BookmarkType = { 'https://builder.ptosh.com': 'builder' };
