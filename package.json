@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/register": ">=7.0.0",
     "@types/electron-json-storage": ">=4.5.0",
     "@types/gulp": "^4.0.9",
     "@types/gulp-sass": "^5.0.0",
