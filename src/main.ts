@@ -95,6 +95,12 @@ function createWindow() {
           role: 'selectAll'
         }
       ]
+    },
+    {
+      label: '表示',
+      submenu: [
+        { role: 'toggleDevTools' },
+      ]
     }
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
