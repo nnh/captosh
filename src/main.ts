@@ -64,12 +64,12 @@ function createWindow() {
         {
           label: '取り消す',
           accelerator: 'CmdOrCtrl+Z',
-          //selector: 'undo:'
+          role: 'undo'
         },
         {
           label: 'やり直す',
           accelerator: 'Shift+CmdOrCtrl+Z',
-          //selector: 'redo:'
+          role: 'redo'
         },
         {
           type: 'separator'
@@ -77,22 +77,22 @@ function createWindow() {
         {
           label: '切り取り',
           accelerator: 'CmdOrCtrl+X',
-          //selector: 'cut:'
+          role: 'cut'
         },
         {
           label: 'コピー',
           accelerator: 'CmdOrCtrl+C',
-          //selector: 'copy:'
+          role: 'copy'
         },
         {
           label: '貼り付け',
           accelerator: 'CmdOrCtrl+V',
-          //selector: 'paste:'
+          role: 'paste'
         },
         {
           label: 'すべてを選択',
           accelerator: 'CmdOrCtrl+A',
-          //selector: 'selectAll:'
+          role: 'selectAll'
         }
       ]
     }
