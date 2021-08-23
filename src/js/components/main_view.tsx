@@ -238,7 +238,7 @@ class MainView extends React.Component<Props> {
     this.props.clearPtoshUrl();
     if (!this.props.showContainer) { this.props.toggleContainer(); }
 
-    const currentUrl = new URL(this.tabGroup.getActiveTab()?.webview?.src ?? this.props.urlBar);
+    const currentUrl = new URL(this.tabGroup.getActiveTab()?.webview?.src ?? 'https://example.com');
     const url = captoshUrl.replace(customScheme, `${currentUrl.protocol}//`)
 
     try {
