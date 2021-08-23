@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import { inputUrlBar, togglePrintDatetime, togglePrintUrl, changeFolder, toggleContainer, setWebviewStatus, captureRequest } from '../actions/main_actions';
 import { newTask, clearView } from '../actions';
 import { Dispatch } from 'redux';
+import { Task } from '../scheme';
 
 type MainState = {
   mainReducer: {
@@ -38,7 +39,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   changeFolder: (path: string) => { dispatch(changeFolder(path)) },
   toggleContainer: () => { dispatch(toggleContainer()) },
   setWebviewStatus: (src: string, title: string) => { dispatch(setWebviewStatus(src, title)) },
-  addTask: (urls: string[]) => { dispatch(newTask(Date.now(), urls)) },
+  addTask: (tasks: Task[]) => { dispatch(newTask(Date.now(), tasks)) },
   clearView: () => { dispatch(clearView()) },
   clearPtoshUrl: () => { dispatch(captureRequest('')) }
 });

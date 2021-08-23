@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Button } from 'react-bootstrap';
-import * as parse from 'csv-parse/lib/sync';
 import { ConnectedProps } from 'react-redux';
 
 import connector from '../containers/capture_container';
 import { ProgressStatus } from '../progress_status';
 import ClearButton from '../components/clear_button';
 import ProgressView from './progress_view';
+import { parseTasks } from '../scheme';
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = {
@@ -32,7 +32,7 @@ class CaptureView extends React.Component<Props> {
         <div className='capture-progress-container'>
           {
             this.props.captureTasks.map(task => (
-              <ProgressView key={task.id} taskId={task.id} now={task.now} max={task.urls.length} status={task.status}
+              <ProgressView key={task.id} taskId={task.id} now={task.now} max={task.tasks.length} status={task.status}
                             disabled={[ProgressStatus.stopped, ProgressStatus.done].includes(task.status)} />
             ))
           }
@@ -48,7 +48,8 @@ class CaptureView extends React.Component<Props> {
 
   onClick() {
     if (this.props.urls.length > 0) {
-      this.props.addTask(this.props.urls.split('\n').filter(v => v));
+      const tasks = parseTasks(this.props.urls);
+      this.props.addTask(tasks);
     }
   }
 
@@ -57,12 +58,8 @@ class CaptureView extends React.Component<Props> {
 
     const task = this.props.nextTask();
     if (task) {
-      type Tupple = [string, string|undefined];
-      const line = parse(task.url)[0];
-      const [targetUrl, targetFileName]: Tupple = line;
-      const fileName = targetFileName ? targetFileName.replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_') : undefined;
-
-      const result = await this.props.savePDFWithAttr(targetUrl, fileName);
+      const fileName = task.task.path ? task.task.path.replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_') : undefined;
+      const result = await this.props.savePDFWithAttr(task.task.url, fileName);
       this.props.count(task.id, result && result.errorText ? result.errorText : '');
       this.capture();
     } else {

@@ -1,7 +1,9 @@
-export const newTask = (id: number, urls: string[]) => ({
+import { Task } from '../scheme';
+
+export const newTask = (id: number, tasks: Task[]) => ({
   type: ActionType.new,
   id,
-  urls
+  tasks
 });
 
 export const addProgress = (id: number, result: string) => ({

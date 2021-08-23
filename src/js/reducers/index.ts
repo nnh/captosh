@@ -2,17 +2,17 @@ import { Action, combineReducers } from 'redux';
 import { ActionType } from '../actions'
 import { ProgressStatus } from '../progress_status';
 import mainReducer from './main_reducers';
-import { TaskType } from '../containers/capture_container';
+import { CaptureTasksType } from '../containers/capture_container';
 
-const captureTasks = (state: TaskType[] = [], action: TaskType & Action<string>) => {
+const captureTasks = (state: CaptureTasksType[] = [], action: CaptureTasksType & Action<string>) => {
   switch (action.type) {
     case ActionType.new:
-      return state.concat([{ id: action.id, now: 0, urls: action.urls, status: ProgressStatus.waiting }]);
+      return state.concat([{ id: action.id, now: 0, tasks: action.tasks, status: ProgressStatus.waiting }]);
     case ActionType.add:
       return state.map((task) => {
         if ([ProgressStatus.stopped, ProgressStatus.done].includes(task.status)) return task;
 
-        const newStatus =  task.urls.length === task.now + 1 ? ProgressStatus.done : ProgressStatus.running;
+        const newStatus =  task.tasks.length === task.now + 1 ? ProgressStatus.done : ProgressStatus.running;
         return task.id === action.id ? { ...task, now: task.now + 1, status: newStatus } : task;
       });
     case ActionType.stop:

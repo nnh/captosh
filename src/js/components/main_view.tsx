@@ -1,7 +1,5 @@
 import * as fs from 'fs-extra';
 import * as  moment from 'moment-timezone';
-import * as Url from 'url';
-import * as util from 'util';
 
 import { remote } from 'electron';
 const BrowserWindow = remote.BrowserWindow;
@@ -16,6 +14,7 @@ import { ConnectedProps } from 'react-redux';
 import connector from '../containers/main_container';
 import CaptureView from '../components/capture_view';
 import BookmarkView from '../components/bookmark_view';
+import { captureCaptoshLink, customSchemeRegExp } from '../scheme';
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = {
@@ -126,7 +125,11 @@ class MainView extends React.Component<Props> {
   submit(src = this.props.urlBar) {
     const tab = this.tabGroup.getActiveTab();
     if (tab) {
-      tab.webview.src = src;
+      if (src.match(customSchemeRegExp)) {
+        this.request(src)
+      } else {
+        tab.webview.src = src;
+      }
     }
   }
 
@@ -229,40 +232,21 @@ class MainView extends React.Component<Props> {
     }
   }
 
-  async request(url: string) {
+  async request(captoshUrl: string) {
     this.props.clearPtoshUrl();
     if (!this.props.showContainer) { this.props.toggleContainer(); }
 
+    const currentUrl = new URL(this.tabGroup.getActiveTab()?.webview?.src ?? 'https://example.com');
+
     try {
-      const response = await fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-cache',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'text/plain',
-        },
-        redirect: 'manual'
-      });
-      if (response.type === 'opaqueredirect' || response.status === 401) {
-        this.requireSignin(response.url);
-        return;
-      }
-
-      const text = await response.text();
-      const targetUrl = new Url.URL(url);
-      const urls = text.split(/\n/).map((value) => {
-        const baseUrl = `${targetUrl.protocol}//${targetUrl.host}`;
-        if (value.includes(',')) {
-          return `${new Url.URL(value.split(',')[0], baseUrl).href},${value.split(',')[1]}`;
-        } else {
-          return new Url.URL(value, baseUrl).href;
-        }
-      });
-
-      this.props.addTask(urls);
+      const tasks = await captureCaptoshLink(captoshUrl, currentUrl.protocol as 'http:' | 'https:')
+      this.props.addTask(tasks);
     } catch(error) {
-      this.showDialog(error.message);
+      if (error.url) {
+        this.requireSignin(error.url);
+      } else {
+        this.showDialog(error.message);
+      }
     }
   }
 
