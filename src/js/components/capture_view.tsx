@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Button } from 'react-bootstrap';
-import * as parse from 'csv-parse/lib/sync';
 import { ConnectedProps } from 'react-redux';
 
 import connector from '../containers/capture_container';

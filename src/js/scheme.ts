@@ -1,6 +1,10 @@
 import * as Url from 'url';
 import * as parse from 'csv-parse/lib/sync';
-import { Task } from './actions/index';
+
+export type Task = {
+  url: string,
+  path?: string
+};
 
 export const customScheme = 'captosh://';
 export const customSchemeRegExp = new RegExp(customScheme);

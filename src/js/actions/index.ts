@@ -1,7 +1,4 @@
-export type Task = {
-  url: string,
-  path?: string
-};
+import { Task } from '../scheme';
 
 export const newTask = (id: number, tasks: Task[]) => ({
   type: ActionType.new,
