@@ -1,4 +1,6 @@
 import * as Url from 'url';
+import * as parse from 'csv-parse/lib/sync';
+import { Task } from './actions/index';
 
 export const customScheme = 'captosh://';
 export const customSchemeRegExp = new RegExp(customScheme);
@@ -11,7 +13,7 @@ export class NoLoginError extends Error {
   }
 }
 
-export async function captureCaptoshLink(captoshUrl: string, protocol: 'http:' | 'https:') {
+export async function captureCaptoshLink(captoshUrl: string, protocol: 'http:' | 'https:'): Promise<Task[]> {
   const url = captoshUrl.replace(customScheme, `${protocol}//`)
   const response = await fetch(url, {
     method: 'GET',
@@ -29,12 +31,23 @@ export async function captureCaptoshLink(captoshUrl: string, protocol: 'http:' |
 
   const text = await response.text();
   const targetUrl = new Url.URL(url);
-  return text.split(/\n/).map((value) => {
-    const baseUrl = `${targetUrl.protocol}//${targetUrl.host}`;
-    if (value.includes(',')) {
-      return `${new Url.URL(value.split(',')[0], baseUrl).href},${value.split(',')[1]}`;
-    } else {
-      return new Url.URL(value, baseUrl).href;
-    }
-  });
+  const baseUrl = `${targetUrl.protocol}//${targetUrl.host}`;
+  return parseTasks(text).map(task => (
+    {
+      ...task,
+      url: `${new Url.URL(task.url, baseUrl).href}`
+    }));
+}
+
+export function parseTasks(text: string): Task[] {
+  const rows = parse(text) as string[][];
+  return rows
+    .filter(row => row.length > 0)
+    .map((row) => {
+      const [url, path] = row;
+      return {
+        url,
+        path
+      } as Task;
+    });
 }

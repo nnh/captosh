@@ -1,7 +1,12 @@
-export const newTask = (id: number, urls: string[]) => ({
+export type Task = {
+  url: string,
+  path?: string
+};
+
+export const newTask = (id: number, tasks: Task[]) => ({
   type: ActionType.new,
   id,
-  urls
+  tasks
 });
 
 export const addProgress = (id: number, result: string) => ({

@@ -1,12 +1,11 @@
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
-import { newTask, addProgress, startCapture, endCapture, inputUrl } from '../actions';
+import { newTask, addProgress, startCapture, endCapture, inputUrl, Task } from '../actions';
 import { ProgressStatus, ProgressStatusType } from '../progress_status';
 
 export type TaskType = {
   id: number,
-  url?: string,
-  urls: string[],
+  tasks: Task[],
   now: number,
   status: ProgressStatusType,
 };
@@ -29,7 +28,7 @@ const mapStateToProps = (state: CaptureState) => ({
   },
   nextTask: () => {
     const t = state.captureTasks.find(task => ![ProgressStatus.stopped, ProgressStatus.done].includes(task.status));
-    return t && { id: t.id, url: t.urls[t.now] };
+    return t && { id: t.id, task: t.tasks[t.now] };
   }
 });
 
@@ -37,7 +36,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   startCapture: () => { dispatch(startCapture()) },
   endCapture: () => { dispatch(endCapture()) },
   count: (id: number, result: string) => { dispatch(addProgress(id, result) )},
-  addTask: (urls: string[]) => { dispatch(newTask(Date.now(), urls)) },
+  addTask: (tasks: Task[]) => { dispatch(newTask(Date.now(), tasks)) },
   inputUrl: (url: string) => { dispatch(inputUrl(url)) }
 });
 

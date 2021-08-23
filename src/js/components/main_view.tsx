@@ -239,8 +239,8 @@ class MainView extends React.Component<Props> {
     const currentUrl = new URL(this.tabGroup.getActiveTab()?.webview?.src ?? 'https://example.com');
 
     try {
-      const urls = await captureCaptoshLink(captoshUrl, currentUrl.protocol as 'http:' | 'https:')
-      this.props.addTask(urls);
+      const tasks = await captureCaptoshLink(captoshUrl, currentUrl.protocol as 'http:' | 'https:')
+      this.props.addTask(tasks);
     } catch(error) {
       if (error.url) {
         this.requireSignin(error.url);
