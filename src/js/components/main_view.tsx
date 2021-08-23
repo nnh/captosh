@@ -1,7 +1,5 @@
 import * as fs from 'fs-extra';
 import * as  moment from 'moment-timezone';
-import * as Url from 'url';
-import * as util from 'util';
 
 import { remote } from 'electron';
 const BrowserWindow = remote.BrowserWindow;
@@ -16,7 +14,7 @@ import { ConnectedProps } from 'react-redux';
 import connector from '../containers/main_container';
 import CaptureView from '../components/capture_view';
 import BookmarkView from '../components/bookmark_view';
-import { customScheme, customSchemeRegExp } from '../scheme';
+import { captureCaptoshLink, customSchemeRegExp } from '../scheme';
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = {
@@ -239,38 +237,16 @@ class MainView extends React.Component<Props> {
     if (!this.props.showContainer) { this.props.toggleContainer(); }
 
     const currentUrl = new URL(this.tabGroup.getActiveTab()?.webview?.src ?? 'https://example.com');
-    const url = captoshUrl.replace(customScheme, `${currentUrl.protocol}//`)
 
     try {
-      const response = await fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-cache',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'text/plain',
-        },
-        redirect: 'manual'
-      });
-      if (response.type === 'opaqueredirect' || response.status === 401) {
-        this.requireSignin(response.url);
-        return;
-      }
-
-      const text = await response.text();
-      const targetUrl = new Url.URL(url);
-      const urls = text.split(/\n/).map((value) => {
-        const baseUrl = `${targetUrl.protocol}//${targetUrl.host}`;
-        if (value.includes(',')) {
-          return `${new Url.URL(value.split(',')[0], baseUrl).href},${value.split(',')[1]}`;
-        } else {
-          return new Url.URL(value, baseUrl).href;
-        }
-      });
-
+      const urls = await captureCaptoshLink(captoshUrl, currentUrl.protocol as 'http:' | 'https:')
       this.props.addTask(urls);
     } catch(error) {
-      this.showDialog(error.message);
+      if (error.url) {
+        this.requireSignin(error.url);
+      } else {
+        this.showDialog(error.message);
+      }
     }
   }
 
