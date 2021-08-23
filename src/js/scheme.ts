@@ -9,7 +9,7 @@ export type Task = {
 export const customScheme = 'captosh://';
 export const customSchemeRegExp = new RegExp(customScheme);
 
-export class NoLoginError extends Error {
+export class RequireLoginError extends Error {
   url: string;
   constructor(message: string, url: string) {
     super(message);
@@ -30,7 +30,7 @@ export async function captureCaptoshLink(captoshUrl: string, protocol: 'http:' |
     redirect: 'manual'
   });
   if (response.type === 'opaqueredirect' || response.status === 401) {
-    throw new NoLoginError('Require sign_in', response.url);
+    throw new RequireLoginError('Require sign_in', response.url);
   }
 
   const text = await response.text();
