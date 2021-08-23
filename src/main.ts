@@ -1,9 +1,7 @@
 'use strict';
 
 import { app, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions } from 'electron';
-
-const customScheme = 'captosh://';
-const customSchemeRegExp = new RegExp(customScheme);
+import { customSchemeRegExp } from './js/scheme';
 
 let mainWindow: BrowserWindow|undefined = undefined;
 
@@ -131,6 +129,6 @@ app.on('will-finish-launching', () => {
 
 function checkCustomScheme(url: string) {
   if (customSchemeRegExp.test(url) && mainWindow && mainWindow.webContents) {
-    mainWindow.webContents.send('exec-api', url.replace(customScheme, 'https://'));
+    mainWindow.webContents.send('exec-api', url);
   }
 }

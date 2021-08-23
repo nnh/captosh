@@ -16,6 +16,7 @@ import { ConnectedProps } from 'react-redux';
 import connector from '../containers/main_container';
 import CaptureView from '../components/capture_view';
 import BookmarkView from '../components/bookmark_view';
+import { customScheme, customSchemeRegExp } from '../scheme';
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = {
@@ -126,7 +127,11 @@ class MainView extends React.Component<Props> {
   submit(src = this.props.urlBar) {
     const tab = this.tabGroup.getActiveTab();
     if (tab) {
-      tab.webview.src = src;
+      if (src.match(customSchemeRegExp)) {
+        this.request(src)
+      } else {
+        tab.webview.src = src;
+      }
     }
   }
 
@@ -229,9 +234,12 @@ class MainView extends React.Component<Props> {
     }
   }
 
-  async request(url: string) {
+  async request(captoshUrl: string) {
     this.props.clearPtoshUrl();
     if (!this.props.showContainer) { this.props.toggleContainer(); }
+
+    const currentUrl = new URL(this.tabGroup.getActiveTab()?.webview?.src ?? this.props.urlBar);
+    const url = captoshUrl.replace(customScheme, `${currentUrl.protocol}//`)
 
     try {
       const response = await fetch(url, {
