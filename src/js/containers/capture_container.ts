@@ -4,7 +4,7 @@ import { newTask, addProgress, startCapture, endCapture, inputUrl } from '../act
 import { ProgressStatus, ProgressStatusType } from '../progress_status';
 import { Task } from '../scheme';
 
-export type TaskType = {
+export type CaptureTasksType = {
   id: number,
   tasks: Task[],
   now: number,
@@ -12,7 +12,7 @@ export type TaskType = {
 };
 
 export type CaptureState = {
-  captureTasks: TaskType[],
+  captureTasks: CaptureTasksType[],
   resultText: string,
   captureState: boolean,
   inputUrl: string,

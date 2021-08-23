@@ -2,9 +2,9 @@ import { Action, combineReducers } from 'redux';
 import { ActionType } from '../actions'
 import { ProgressStatus } from '../progress_status';
 import mainReducer from './main_reducers';
-import { TaskType } from '../containers/capture_container';
+import { CaptureTasksType } from '../containers/capture_container';
 
-const captureTasks = (state: TaskType[] = [], action: TaskType & Action<string>) => {
+const captureTasks = (state: CaptureTasksType[] = [], action: CaptureTasksType & Action<string>) => {
   switch (action.type) {
     case ActionType.new:
       return state.concat([{ id: action.id, now: 0, tasks: action.tasks, status: ProgressStatus.waiting }]);
