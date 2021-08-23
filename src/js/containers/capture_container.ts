@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { newTask, addProgress, startCapture, endCapture, inputUrl } from '../actions';
-import CaptureView from '../components/capture_view';
 import { ProgressStatus, ProgressStatusType } from '../progress_status';
 
 export type TaskType = {
