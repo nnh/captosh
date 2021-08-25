@@ -7,6 +7,7 @@ import { ProgressStatus } from '../progress_status';
 import ClearButton from '../components/clear_button';
 import ProgressView from './progress_view';
 import { parseTasks } from '../scheme';
+import { sanitizePath } from '../filename';
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = {
@@ -58,7 +59,7 @@ class CaptureView extends React.Component<Props> {
 
     const task = this.props.nextTask();
     if (task) {
-      const fileName = task.task.path ? task.task.path.replace(/\.\.\//g, '').replace(/\\|\:|\*|\?|"|<|>|\||\s/g, '_') : undefined;
+      const fileName = task.task.path ? sanitizePath(task.task.path) : undefined;
       const result = await this.props.savePDFWithAttr(task.task.url, fileName);
       this.props.count(task.id, result && result.errorText ? result.errorText : '');
       this.capture();
