@@ -13,4 +13,5 @@ jobs:
         with:
           node-version: '14'
           cache: 'npm'
+      - run: yarn install
       - run: yarn test
