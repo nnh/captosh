@@ -88,7 +88,7 @@ class MainView extends React.Component<Props> {
     </div>
   );
 
-  createTab(url = this.props.defaultUrl, active = true) {
+  addTab(url: string, active: boolean) {
     const tab = this.tabGroup.addTab({
       title: 'blank',
       src: url,
@@ -96,11 +96,16 @@ class MainView extends React.Component<Props> {
       active: active,
       webviewAttributes: { partition: 'persist:ptosh' }
     });
+    tab.webview.preload = './js/webview.js';
+    return tab;
+  }
+
+  createTab(url = this.props.defaultUrl, active = true) {
+    const tab = this.addTab(url, active);
     tab.on('active', (tab) => {
       this.props.inputUrl(tab.webview.src);
       this.props.setWebviewStatus(tab.webview.src, tab.webview.getTitle());
     });
-    tab.webview.preload = './js/webview.js';
     tab.webview.addEventListener('did-stop-loading', () => {
       if (active) {
         this.props.inputUrl(tab.webview.src);
@@ -207,13 +212,7 @@ class MainView extends React.Component<Props> {
   }
 
   async savePDFWithAttr(targetUrl: string, targetFileName?: string) {
-    const tab = this.tabGroup.addTab({
-      title: 'blank',
-      src: targetUrl,
-      visible: true,
-      webviewAttributes: { partition: 'persist:ptosh' }
-    });
-    tab.webview.preload = './js/webview.js';
+    const tab = this.addTab(targetUrl, false);
     const didStopLoading = () => {
       return new Promise(resolve => {
         tab.webview.addEventListener('did-stop-loading', resolve);
