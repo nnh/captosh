@@ -188,19 +188,19 @@ class MainView extends React.Component<Props> {
     if (webview) {
       const today = new Date();
 
-      if (this.props.printUrl) {
-        const script = `window.insertUrl("${webview.src}")`;
-        await webview.executeJavaScript(script);
-      }
-      if (this.props.printDatetime) {
-        const script = `window.insertDatetime("${moment(today).tz('Asia/Tokyo').format()}")`;
-        await webview.executeJavaScript(script);
-      }
-
-      const path = this.getSavePDFPath(webview.src, today, fileName);
-      const bindedPrintToPDF = webview.printToPDF.bind(webview);
-
       try {
+        if (this.props.printUrl) {
+          const script = `window.insertUrl("${webview.src}")`;
+          await webview.executeJavaScript(script);
+        }
+        if (this.props.printDatetime) {
+          const script = `window.insertDatetime("${moment(today).tz('Asia/Tokyo').format()}")`;
+          await webview.executeJavaScript(script);
+        }
+
+        const path = this.getSavePDFPath(webview.src, today, fileName);
+        const bindedPrintToPDF = webview.printToPDF.bind(webview);
+
         const data = await bindedPrintToPDF({ printBackground: true });
         fs.ensureFileSync(path);
         await fs.promises.writeFile(path, data);
