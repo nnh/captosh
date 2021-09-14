@@ -34,7 +34,7 @@ module.exports = [
   }),
   merge(config, {
     name: 'webview',
-    target: 'electron-renderer',
+    target: 'electron-preload',
     entry: { 'js/webview': './src/js/webview.ts' }
   }),
 ];
