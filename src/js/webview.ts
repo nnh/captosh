@@ -1,7 +1,4 @@
-'use strict';
-
 import { ipcRenderer } from 'electron';
-import * as $ from 'jquery';
 
 ipcRenderer.on('insert-datetime', (event, arg) => {
   insertElement('screenshot-datetime', arg);
@@ -22,7 +19,7 @@ ipcRenderer.on('remove-inserted-element', (event, arg) => {
   }
 
   // 付与したimportantを元に戻す
-  $('*[style*="display: none"]').css('display', 'none');
+  document.querySelectorAll<HTMLElement>('*[style*="display: none"]').forEach((e) => e.style.setProperty('display', 'none'));
 })
 
 function insertElement(id: string, arg: string) {
@@ -35,5 +32,5 @@ function insertElement(id: string, arg: string) {
   parent.insertBefore(div, parent.firstChild);
 
   // display:noneが別のcssに上書きされて無視されることがあるのでimportantを付与
-  $('*[style*="display: none"]').css({ 'cssText': 'display: none !important;' });
+  document.querySelectorAll<HTMLElement>('*[style*="display: none"]').forEach((e) => e.style.setProperty('display', 'none', 'important'));
 }
