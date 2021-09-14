@@ -1,14 +1,13 @@
-import { ipcRenderer } from 'electron';
+import { contextBridge } from 'electron';
 
-ipcRenderer.on('insert-datetime', (event, arg) => {
+contextBridge.exposeInMainWorld('insertDatetime', (arg: string) => {
   insertElement('screenshot-datetime', arg);
 });
-
-ipcRenderer.on('insert-url', (event, arg) => {
+contextBridge.exposeInMainWorld('insertUrl', (arg: string) => {
   insertElement('screenshot-url', arg);
 });
 
-ipcRenderer.on('remove-inserted-element', (event, arg) => {
+contextBridge.exposeInMainWorld('removeInsertedElements', () => {
   const datetime = document.getElementById('screenshot-datetime')
   if (datetime) {
     datetime.remove();
@@ -20,7 +19,7 @@ ipcRenderer.on('remove-inserted-element', (event, arg) => {
 
   // 付与したimportantを元に戻す
   document.querySelectorAll<HTMLElement>('*[style*="display: none"]').forEach((e) => e.style.setProperty('display', 'none'));
-})
+});
 
 function insertElement(id: string, arg: string) {
   const div = document.createElement('div');

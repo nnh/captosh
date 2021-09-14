@@ -182,23 +182,26 @@ class MainView extends React.Component<Props> {
   async savePDF(webview = this.tabGroup.getActiveTab()?.webview, fileName?: string) {
     if (webview) {
       const today = new Date();
-      
+
       if (this.props.printUrl) {
-        webview.send('insert-url', webview.src);
+        const script = `window.insertUrl("${webview.src}")`;
+        await webview.executeJavaScript(script);
       }
       if (this.props.printDatetime) {
-        webview.send('insert-datetime', moment(today).tz('Asia/Tokyo').format());
+        const script = `window.insertDatetime("${moment(today).tz('Asia/Tokyo').format()}")`;
+        await webview.executeJavaScript(script);
       }
-      
+
       const path = this.getSavePDFPath(webview.src, today, fileName);
       const bindedPrintToPDF = webview.printToPDF.bind(webview);
-      
+
       try {
         const data = await bindedPrintToPDF({ printBackground: true });
         fs.ensureFileSync(path);
         await fs.promises.writeFile(path, data);
       } finally {
-        webview.send('remove-inserted-element');
+        const script = 'window.removeInsertedElements()';
+        await webview.executeJavaScript(script);
       }
     }
   }
