@@ -21,7 +21,7 @@
     "@types/redux-logger": "^3.0.6",
     "@types/sass": "^1.16.1",
     "del": "^6.0.0",
-    "electron": "^13.1.7",
+    "electron": "^15.5.5",
     "electron-builder": "^22.11.7",
     "electron-connect": "^0.6.3",
     "gulp": "^4.0.2",
