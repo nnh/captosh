@@ -28,6 +28,8 @@ const config: ForgeConfig = {
           },
         ],
       },
+      port: 9000,
+      loggerPort: 9001
     }),
   ],
 };
