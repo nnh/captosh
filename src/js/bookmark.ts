@@ -4,42 +4,42 @@ const key = 'bookmark';
 const defaultBookmark: BookmarkType = { 'https://builder.ptosh.com': 'builder' };
 
 export default class Bookmark {
-  static loaded = false;
-  static bookmarks: BookmarkType = {};
-
   static loadBookmarks() {
-    if (!this.loaded) {
-      const str = window.localStorage.getItem(key);
-      if (str) {
-        this.bookmarks = JSON.parse(str) as BookmarkType;
+    const str = window.localStorage.getItem(key);
+    let bookmarks: BookmarkType | undefined = undefined;
+    if (str) {
+      try {
+        bookmarks = JSON.parse(str) as BookmarkType;
       }
-      if (!this.bookmarks || (Object.keys(this.bookmarks).length && !this.bookmarks['0'])) {
-        this.bookmarks = defaultBookmark;
-        this.saveBookmarks();
+      catch(e: any) {
+        console.log(e);
+        bookmarks = undefined;
       }
-      this.loaded = true;
     }
-  }
-
-  static get(): BookmarkType {
-    this.loadBookmarks();
-    return this.bookmarks;
+    if (!bookmarks || Object.keys(bookmarks).length === 0) {
+      bookmarks = defaultBookmark;
+      this.saveBookmarks(defaultBookmark);
+    }
+    return bookmarks;
   }
 
   static add(url: string, title: string) {
-    this.loadBookmarks();
-    this.bookmarks[url] = title;
-    this.saveBookmarks();
+    const bm = this.loadBookmarks();
+    const bookmarks = {...bm, [url]: title };
+    console.log({bookmarks});
+    this.saveBookmarks(bookmarks);
+    return this.loadBookmarks();
   }
 
   static delete(url?: string) {
     if (url) {
-      this.loadBookmarks();
-      delete this.bookmarks[url];
-      this.saveBookmarks();
+      const bookmarks = this.loadBookmarks();
+      delete bookmarks[url];
+      this.saveBookmarks(bookmarks);
     }
+    return this.loadBookmarks();
   }
-  static saveBookmarks() {
-    window.localStorage.setItem(key, JSON.stringify(this.bookmarks));
+  static saveBookmarks(bookmarks: BookmarkType) {
+    window.localStorage.setItem(key, JSON.stringify(bookmarks));
   }
 }
