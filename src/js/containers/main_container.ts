@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 import { inputUrlBar, togglePrintDatetime, togglePrintUrl, changeFolder, toggleContainer, setWebviewStatus, captureRequest } from '../actions/main_actions';
 import { newTask, clearView } from '../actions';
 import { Dispatch } from 'redux';
-import { Task } from '../scheme';
 
 type MainState = {
   mainReducer: {

@@ -1,40 +1,45 @@
-import * as util from 'util';
-import * as storage from 'electron-json-storage';
-
 export type BookmarkType = {[T: string]: string};
 
 const key = 'bookmark';
+const defaultBookmark: BookmarkType = { 'https://builder.ptosh.com': 'builder' };
 
 export default class Bookmark {
-  static async get(): Promise<BookmarkType> {
-    const bookmarks = await this.getData();
-    if (Object.keys(bookmarks).length && !bookmarks['0']) {
-      return bookmarks;
-    } else {
-      const defaultBookmark: BookmarkType = { 'https://builder.ptosh.com': 'builder' };
-      await this.setData(defaultBookmark);
-      return defaultBookmark;
+  static loaded = false;
+  static bookmarks: BookmarkType = {};
+
+  static loadBookmarks() {
+    if (!this.loaded) {
+      const str = window.localStorage.getItem(key);
+      if (str) {
+        this.bookmarks = JSON.parse(str) as BookmarkType;
+      }
+      if (!this.bookmarks || (Object.keys(this.bookmarks).length && !this.bookmarks['0'])) {
+        this.bookmarks = defaultBookmark;
+        this.saveBookmarks();
+      }
+      this.loaded = true;
     }
   }
 
-  static async add(url: string, title: string) {
-    const bookmarks = await this.getData();
-    bookmarks[url] = title;
-    await this.setData(bookmarks);
+  static get(): BookmarkType {
+    this.loadBookmarks();
+    return this.bookmarks;
   }
 
-  static async delete(url?: string) {
+  static add(url: string, title: string) {
+    this.loadBookmarks();
+    this.bookmarks[url] = title;
+    this.saveBookmarks();
+  }
+
+  static delete(url?: string) {
     if (url) {
-      const bookmarks = await this.getData();
-      delete bookmarks[url];
-      await this.setData(bookmarks);
+      this.loadBookmarks();
+      delete this.bookmarks[url];
+      this.saveBookmarks();
     }
   }
-  static getData() {
-    return util.promisify(storage.get)(key) as Promise<BookmarkType>;
-  }
-  static setData(data: BookmarkType) {
-    return util.promisify(storage.set)(key, data);
+  static saveBookmarks() {
+    window.localStorage.setItem(key, JSON.stringify(this.bookmarks));
   }
 }
-

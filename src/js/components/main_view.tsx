@@ -1,20 +1,23 @@
-import * as fs from 'fs-extra';
-import * as  moment from 'moment-timezone';
-
-import { remote } from 'electron';
-const BrowserWindow = remote.BrowserWindow;
-const dialog = remote.dialog;
+import moment from 'moment-timezone';
 
 import * as React from 'react';
 import { Navbar, Button, Checkbox } from 'react-bootstrap';
 
-import * as TabGroup from 'electron-tabs';
+import { TabGroup } from 'electron-tabs';
 import { ConnectedProps } from 'react-redux';
 
 import connector from '../containers/main_container';
 import CaptureView from '../components/capture_view';
 import BookmarkView from '../components/bookmark_view';
-import { captureCaptoshLink, customSchemeRegExp } from '../scheme';
+import { customSchemeRegExp } from '../scheme';
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      ['tab-group']: React.DetailedHTMLProps<React.HTMLAttributes<TabGroup>, TabGroup>;
+    }
+  }
+}
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 type Props = {
@@ -24,6 +27,7 @@ type Props = {
 class MainView extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
+    this.tabGroupElement = React.createRef<TabGroup>();
 
     this.submit = this.submit.bind(this);
     this.keyPress = this.keyPress.bind(this);
@@ -36,11 +40,13 @@ class MainView extends React.Component<Props> {
     this.showDialog = this.showDialog.bind(this);
   }
 
+  tabGroupElement: React.RefObject<TabGroup>;
   tabGroup!: TabGroup;
 
   componentDidMount() {
-    if (!this.tabGroup) {
-      this.tabGroup = new TabGroup();
+    const e = this.tabGroupElement.current;
+    if (e) {
+      this.tabGroup = e;
       this.createTab();
     }
   }
@@ -52,39 +58,33 @@ class MainView extends React.Component<Props> {
   render = () => (
     <div>
       <Navbar>
-        <div className='tab-container'>
-          <Navbar.Brand>captosh</Navbar.Brand>
-          <div className='add-tab-button-container'>
-            <Button className='add-tab-button' bsStyle='default' title='タブ追加' onClick={() => this.createTab()}><i className='fa fa-plus'></i></Button>
-          </div>
-          <div className='etabs-tabgroup'>
-            <div className='etabs-tabs'></div>
-            <div className='etabs-buttons'></div>
-          </div>
+        <div className='add-tab-button-container'>
+          <Button className='add-tab-button' bsStyle='default' title='タブ追加' onClick={() => this.createTab()}><i className='fa-solid fa-plus'></i></Button>
         </div>
         <BookmarkView submit={this.submit} currentUrl={this.props.src} currentTitle={this.props.title} />
       </Navbar>
 
       <div className='etabs-views'>
         <div className='form-inline'>
-          <Button bsStyle='default' title='前に戻る' onClick={this.goBack}><i className='fa fa-arrow-left'></i></Button>
-          <Button bsStyle='default' title='次に進む' onClick={this.goForward}><i className='fa fa-arrow-right'></i></Button>
-          <Button bsStyle='default' title='再読み込み' onClick={() => this.tabGroup.getActiveTab()?.webview.reload()}><i className='fa fa-refresh'></i></Button>
+          <Button bsStyle='default' title='前に戻る' onClick={this.goBack}><i className='fa-solid fa-left-long'></i></Button>
+          <Button bsStyle='default' title='次に進む' onClick={this.goForward}><i className='fa-solid fa-arrow-right'></i></Button>
+          <Button bsStyle='default' title='再読み込み' onClick={() => this.tabGroup.getActiveTab()?.webview.reload()}><i className='fa-solid fa-refresh'></i></Button>
           <input className='url-bar form-control' type='text' placeholder='url'
             value={this.props.urlBar} onChange={(e) => this.props.inputUrl(e.target.value)} onKeyPress={this.keyPress} />
-          <Button bsStyle='default' title='移動' onClick={() => this.submit()}><i className='fa fa-sign-in'></i></Button>
-          <Button bsStyle='default' title='スクリーンショット撮影' onClick={this.save}><i className='fa fa-camera'></i></Button>
+          <Button bsStyle='default' title='移動' onClick={() => this.submit()}><i className='fa-solid fa-sign-in'></i></Button>
+          <Button bsStyle='default' title='スクリーンショット撮影' onClick={this.save}><i className='fa-solid fa-camera'></i></Button>
           <span>保存先ルート</span>
           <textarea className='folder-text form-control' rows={1} wrap='off' value={this.props.folderText} readOnly></textarea>
-          <Button bsStyle='default' title='保存先ルートフォルダ選択' onClick={this.selectFolder}><i className='fa fa-folder'></i></Button>
+          <Button bsStyle='default' title='保存先ルートフォルダ選択' onClick={this.selectFolder}><i className='fa-solid fa-folder'></i></Button>
           <Checkbox className='pdf-checkbox' checked={this.props.printDatetime} inline onChange={this.props.togglePrintDatetime}>日時を印字する</Checkbox>
           <Checkbox className='pdf-checkbox' checked={this.props.printUrl} inline onChange={this.props.togglePrintUrl}>URLを印字する</Checkbox>
-          <Button bsStyle='default' title='まとめてキャプチャー' onClick={this.props.toggleContainer}><i className='fa fa-copy'></i></Button>
+          <Button bsStyle='default' title='まとめてキャプチャー' onClick={this.props.toggleContainer}><i className='fa-solid fa-copy'></i></Button>
         </div>
         <div className='capture-container'>
           <CaptureView savePDFWithAttr={this.savePDFWithAttr} showContainer={this.props.showContainer} />
         </div>
       </div>
+      <tab-group ref={this.tabGroupElement} />
     </div>
   );
 
@@ -96,7 +96,8 @@ class MainView extends React.Component<Props> {
       active: active,
       webviewAttributes: { partition: 'persist:ptosh' }
     });
-    tab.webview.preload = './js/webview.js';
+    const webview = tab.webview as Electron.WebviewTag;
+    webview.preload = './js/webview.js';
     return tab;
   }
 
@@ -106,15 +107,16 @@ class MainView extends React.Component<Props> {
       this.props.inputUrl(tab.webview.src);
       this.props.setWebviewStatus(tab.webview.src, tab.webview.getTitle());
     });
-    tab.webview.addEventListener('did-stop-loading', () => {
+    const webview = tab.webview as Electron.WebviewTag;
+    webview.addEventListener('did-stop-loading', () => {
       if (active) {
-        this.props.inputUrl(tab.webview.src);
-        this.props.setWebviewStatus(tab.webview.src, tab.webview.getTitle());
+        this.props.inputUrl(webview.src);
+        this.props.setWebviewStatus(webview.src, webview.getTitle());
       }
-      tab.setTitle(tab.webview.getTitle());
+      tab.setTitle(webview.getTitle());
       // tab.webview.openDevTools();
     });
-    tab.webview.addEventListener('new-window', (e) => {
+    tab.webview.addEventListener('new-window', (e: {url: string}) => {
       if (this.props.shift && this.props.cmdOrCtrl) {
         this.createTab(e.url, false);
       } else {
@@ -130,10 +132,11 @@ class MainView extends React.Component<Props> {
   submit(src = this.props.urlBar) {
     const tab = this.tabGroup.getActiveTab();
     if (tab) {
+      const webview = tab.webview as Electron.WebviewTag;
       if (src.match(customSchemeRegExp)) {
         this.request(src)
       } else {
-        tab.webview.src = src;
+        webview.src = src;
       }
     }
   }
@@ -141,7 +144,7 @@ class MainView extends React.Component<Props> {
   goBack() {
     const tab = this.tabGroup.getActiveTab();
     if (tab) {
-      const webview = tab.webview;
+      const webview = tab.webview as Electron.WebviewTag;
       if (webview.canGoBack()) { webview.goBack(); }
     }
   }
@@ -149,7 +152,7 @@ class MainView extends React.Component<Props> {
   goForward() {
     const tab = this.tabGroup.getActiveTab();
     if (tab) {
-      const webview = tab.webview;
+      const webview = tab.webview as Electron.WebviewTag;
       if (webview.canGoForward()) { webview.goForward(); }
     }
   }
@@ -157,18 +160,15 @@ class MainView extends React.Component<Props> {
   async save() {
     try {
       await this.savePDF(undefined, undefined);
-    } catch (error) {
+    } catch (error: any) {
       this.showDialog(error.message);
     }
   }
 
   async selectFolder() {
-    const bw = BrowserWindow.getFocusedWindow();
-    if (bw) {
-      const result = await dialog.showOpenDialog(bw, {
-        properties: ['openDirectory']
-      });
-      if (result.filePaths[0]) { this.props.changeFolder(result.filePaths[0]); }
+    const path = await window.electronAPI.selectFolder();
+    if (path) {
+      this.props.changeFolder(path);
     }
   }
 
@@ -184,7 +184,7 @@ class MainView extends React.Component<Props> {
     return `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
   }
 
-  async savePDF(webview = this.tabGroup.getActiveTab()?.webview, fileName?: string) {
+  async savePDF(webview: Electron.WebviewTag = this.tabGroup.getActiveTab()?.webview as Electron.WebviewTag, fileName?: string) {
     if (webview) {
       const today = new Date();
 
@@ -202,8 +202,7 @@ class MainView extends React.Component<Props> {
         const bindedPrintToPDF = webview.printToPDF.bind(webview);
 
         const data = await bindedPrintToPDF({ printBackground: true });
-        fs.ensureFileSync(path);
-        await fs.promises.writeFile(path, data);
+        await window.electronAPI.writeFile(path, data);
       } finally {
         const script = 'window.removeInsertedElements()';
         await webview.executeJavaScript(script);
@@ -221,29 +220,30 @@ class MainView extends React.Component<Props> {
 
     try {
       await didStopLoading();
-      if (tab.webview.src.indexOf('users/sign_in') !== -1) {
+      const webview = tab.webview as Electron.WebviewTag;
+      if (webview.src.indexOf('users/sign_in') !== -1) {
         this.props.clearView();
-        this.requireSignin(tab.webview.src);
+        this.requireSignin(webview.src);
       } else {
-        await this.savePDF(tab.webview, targetFileName);
+        await this.savePDF(webview, targetFileName);
       }
-    } catch (error) {
+    } catch (error: any) {
       return { errorText: `${targetUrl}の保存に失敗しました。(${error.message})\n` };
     } finally {
-      tab.close();
+      tab.close(false);
     }
   }
 
   async request(captoshUrl: string) {
     this.props.clearPtoshUrl();
     if (!this.props.showContainer) { this.props.toggleContainer(); }
-
-    const currentUrl = new URL(this.tabGroup.getActiveTab()?.webview?.src ?? 'https://example.com');
+    const webview = this.tabGroup.getActiveTab().webview as Electron.WebviewTag;
+    const currentUrl = new URL(webview.src ?? 'https://example.com');
 
     try {
-      const tasks = await captureCaptoshLink(captoshUrl, currentUrl.protocol as 'http:' | 'https:')
+      const tasks = await window.electronAPI.captureCaptoshLink(captoshUrl, currentUrl.protocol as 'http:' | 'https:');
       this.props.addTask(tasks);
-    } catch(error) {
+    } catch(error: any) {
       if (error.url) {
         this.requireSignin(error.url);
       } else {
@@ -256,7 +256,8 @@ class MainView extends React.Component<Props> {
     this.props.toggleContainer();
     const tab = this.tabGroup.getActiveTab();
     if (tab) {
-      tab.webview.src = new URL(url).origin;
+      const webview = tab.webview as Electron.WebviewTag;
+      webview.src = new URL(url).origin;
       this.showDialog('captoshアプリ内でptoshにログインしていません。ログイン後に再度実行してください。');
     } else {
       this.showDialog('タブを開いてください。');
@@ -264,18 +265,8 @@ class MainView extends React.Component<Props> {
   }
 
   showDialog(message: string) {
-    const win = BrowserWindow.getFocusedWindow();
-    if (win) {
-      const options = {
-        type: 'error',
-        buttons: ['閉じる'],
-        title: 'error',
-        message: 'error',
-        detail: message
-      };
-      dialog.showMessageBox(win, options);
-    }
+    window.electronAPI.showDialog(message);
   }
-}
+};
 
 export default connector(MainView);

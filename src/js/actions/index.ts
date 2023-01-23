@@ -1,5 +1,3 @@
-import { Task } from '../scheme';
-
 export const newTask = (id: number, tasks: Task[]) => ({
   type: ActionType.new,
   id,

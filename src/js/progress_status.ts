@@ -1,4 +1,4 @@
-export type ProgressStatusType = 
+export type ProgressStatusType =
   '待機中' |
   '実行中' |
   '中止' |

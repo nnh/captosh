@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { newTask, addProgress, startCapture, endCapture, inputUrl } from '../actions';
 import { ProgressStatus, ProgressStatusType } from '../progress_status';
-import { Task } from '../scheme';
 
 export type CaptureTasksType = {
   id: number,
