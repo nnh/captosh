@@ -53,7 +53,7 @@ class MainView extends React.Component<Props> {
     const e = this.tabGroupElement.current;
     if (e) {
       this.tabGroup = e;
-      this.createTab();
+      this.createTab(this.props.defaultUrl, true);
     }
   }
 
@@ -68,8 +68,14 @@ class MainView extends React.Component<Props> {
         <div className='form-inline'>
           <Button bsStyle='default' title='前に戻る' onClick={this.goBack}><i className='fa-solid fa-left-long'></i></Button>
           <Button bsStyle='default' title='次に進む' onClick={this.goForward}><i className='fa-solid fa-arrow-right'></i></Button>
-          <Button bsStyle='default' title='再読み込み' onClick={() => this.tabGroup.getActiveTab()?.webview.reload()}><i className='fa-solid fa-refresh'></i></Button>
-          <Button className='add-tab-button' bsStyle='default' title='タブ追加' onClick={() => this.createTab()}><i className='fa-solid fa-plus'></i></Button>
+          <Button
+            bsStyle='default'
+            title='再読み込み'
+            onClick={() => {
+              const tab = this.tabGroup.getActiveTab();
+              (tab.webview as Electron.WebviewTag).reload();
+            }}><i className='fa-solid fa-refresh'></i></Button>
+          <Button className='add-tab-button' bsStyle='default' title='タブ追加' onClick={() => this.createTab(this.props.defaultUrl, true)}><i className='fa-solid fa-plus'></i></Button>
           <input className='url-bar form-control' type='text' placeholder='url'
             value={this.props.urlBar} onChange={(e) => this.props.inputUrl(e.target.value)} onKeyPress={this.keyPress} />
           <Button bsStyle='default' title='移動' onClick={() => this.submit()}><i className='fa-solid fa-sign-in'></i></Button>
@@ -130,7 +136,7 @@ class MainView extends React.Component<Props> {
     return tab;
   }
 
-  createTab(url = this.props.defaultUrl, active = true) {
+  createTab(url: string, active: boolean) {
     const tab = this.addTab(url, active);
     tab.on('active', (tab) => {
       this.props.inputUrl(tab.webview.src);
@@ -144,13 +150,15 @@ class MainView extends React.Component<Props> {
       }
       tab.setTitle(webview.getTitle());
     });
+    /*
     tab.webview.addEventListener('new-window', (e: {url: string}) => {
       if (this.props.shift && this.props.cmdOrCtrl) {
         this.createTab(e.url, false);
       } else {
-        this.createTab(e.url);
+        this.createTab(e.url, true);
       }
     });
+    */
   }
 
   keyPress(e: React.KeyboardEvent<HTMLInputElement>) {
