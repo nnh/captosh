@@ -3,7 +3,7 @@ $icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
 $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
 @import "@fortawesome/fontawesome-free/scss/fontawesome";
 @import "@fortawesome/fontawesome-free/scss/solid";
-@import "~electron-tabs/electron-tabs.css";
+@import "~electron-tabs/src/style.css";
 
 html {
   width: 100%;
