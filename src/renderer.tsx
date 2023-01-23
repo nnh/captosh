@@ -28,4 +28,47 @@
 
 import './index.scss';
 
-console.log('👋 This message is being logged by "renderer.js", included via webpack');
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { createStore, applyMiddleware, Store, Middleware } from 'redux'
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk'
+import rootReducer from './js/reducers';
+import { MainReducerType, initialMainReducer } from './js/reducers/main_reducers';
+import MainView  from './js/components/main_view';
+import { captureRequest, changeShiftKey, changeCmdOrCtrlKey } from './js/actions/main_actions';
+import 'electron-tabs';
+
+const defaultUrl = 'https://builder.ptosh.com';
+
+let store: Store; // TODO: parameter type
+const middlewares: Middleware[] = [thunk];
+
+window.addEventListener('load', () => {
+  //const folderText = process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"] ?? initialMainReducer.folderText;
+  const folderText = initialMainReducer.folderText;
+  const mainReducer: MainReducerType = {...initialMainReducer, urlBar: defaultUrl, folderText };
+  const initialState = { mainReducer };
+  const store = createStore(rootReducer, initialState, applyMiddleware(...middlewares));
+
+  ReactDOM.render(
+    <Provider store={store}>
+      <MainView defaultUrl={defaultUrl}/>
+    </Provider>,
+    document.getElementById('main-view')
+  );
+
+  window.electronAPI.handleCaptureRequest((_e, arg) => {
+    store.dispatch(captureRequest(arg));
+  });
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.shiftKey) store.dispatch(changeShiftKey(true));
+  if (e.ctrlKey || e.metaKey) store.dispatch(changeCmdOrCtrlKey(true));
+});
+
+window.addEventListener('keyup', (e) => {
+  if (!e.shiftKey) store.dispatch(changeShiftKey(false));
+  if (!e.ctrlKey && !e.metaKey) store.dispatch(changeCmdOrCtrlKey(false));
+});
