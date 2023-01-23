@@ -26,27 +26,22 @@ export default function BookmarkView(props: Props) {
 
   React.useEffect(() => {
     const bookmarks = Bookmark.loadBookmarks();
-    console.log({bookmarks});
     setBookmarks(bookmarks);
   }, [])
 
   function moveBookmark() {
     if (!selected) return;
-    console.log({bookmarks});
 
     props.submit(selected);
   }
 
   function deleteBookmark() {
     const newBookmarks = Bookmark.delete(selected);
-    console.log({newBookmarks});
     setBookmarks(newBookmarks);
   }
 
   function addBookmark() {
-    console.log({props: props.currentUrl})
     const newBookmarks = Bookmark.add(props.currentUrl, props.currentTitle);
-    console.log({newBookmarks});
     setBookmarks(newBookmarks);
   }
 
