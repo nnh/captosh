@@ -130,7 +130,10 @@ app.whenReady().then(() => {
       }
     }
   });
-  ipcMain.handle('show-dialog', async (_e, path: string, data: Uint8Array) => {
+  ipcMain.handle('show-dialog', async (_e, message: string) => {
+    alert(message);
+  });
+  ipcMain.handle('write-file', async (_e, path: string, data: Uint8Array) => {
     //TODO: FIXME
     //fs.ensureFileSync(path);
     //await fs.promises.writeFile(path, data);
