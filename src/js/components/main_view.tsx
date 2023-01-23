@@ -104,7 +104,7 @@ class MainView extends React.Component<Props> {
     });
     const webview = tab.webview as Electron.WebviewTag;
     webview.addEventListener('dom-ready', () => {
-      webview.openDevTools();
+      //webview.openDevTools();
 
       const script =
         "window.insertElement = (id, arg) => {\n" +

@@ -135,6 +135,10 @@ app.whenReady().then(() => {
   ipcMain.handle('show-dialog', async (_e, message: string) => {
     alert(message);
   });
+  ipcMain.handle('get-root-directory', async (_e) => {
+    const folderText = process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"] ?? '';
+    return folderText;
+  });
   ipcMain.handle('write-file', async (_e, pathStr: string, data: Uint8Array) => {
     const dir = path.dirname(pathStr)
     fs.mkdirSync(dir, { recursive: true })

@@ -14,6 +14,7 @@ declare global {
     selectFolder: () => Promise<string | undefined>,
     showDialog: (message: string) => Promise<void>,
     writeFile: (path: string, data: Uint8Array) => Promise<void>,
+    getRootDirectory: () => Promise<string>,
     captureCaptoshLink: (captoshUrl: string, protocol: 'http:' | 'https:') => Promise<Task[]>,
     handleCaptureRequest: (callback: CaptureRequestCallback) => void,
   };
@@ -23,6 +24,7 @@ declare global {
 
 const api: ElectronAPI = {
   selectFolder: () => ipcRenderer.invoke('select-folder'),
+  getRootDirectory: () => ipcRenderer.invoke('get-root-directory'),
   showDialog: (message: string) => ipcRenderer.invoke('show-dialog', message),
   writeFile: (path: string, data: Uint8Array) => ipcRenderer.invoke('write-file', path, data),
   captureCaptoshLink: (captoshUrl: string, protocol: 'http:' | 'https:') => ipcRenderer.invoke('capture-captosh-link', captoshUrl, protocol),

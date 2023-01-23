@@ -44,9 +44,9 @@ const defaultUrl = 'https://builder.ptosh.com';
 let store: Store; // TODO: parameter type
 const middlewares: Middleware[] = [thunk];
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   //const folderText = process.env[process.platform === "win32" ? "USERPROFILE" : "HOME"] ?? initialMainReducer.folderText;
-  const folderText = initialMainReducer.folderText;
+  const folderText = await window.electronAPI.getRootDirectory();
   const mainReducer: MainReducerType = {...initialMainReducer, urlBar: defaultUrl, folderText };
   const initialState = { mainReducer };
   const store = createStore(rootReducer, initialState, applyMiddleware(...middlewares));
