@@ -1,4 +1,10 @@
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ja';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+dayjs.locale('ja')
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 import * as React from 'react';
 import { Navbar, Button, Checkbox } from 'react-bootstrap';
@@ -40,7 +46,7 @@ class MainView extends React.Component<Props> {
     this.showDialog = this.showDialog.bind(this);
   }
 
-  tabGroupElement: React.RefObject<TabGroup>;
+  tabGroupElement!: React.RefObject<TabGroup>;
   tabGroup!: TabGroup;
 
   componentDidMount() {
@@ -97,7 +103,35 @@ class MainView extends React.Component<Props> {
       webviewAttributes: { partition: 'persist:ptosh' }
     });
     const webview = tab.webview as Electron.WebviewTag;
-    webview.preload = './js/webview.js';
+    webview.addEventListener('dom-ready', () => {
+      webview.openDevTools();
+
+      const script =
+        "window.insertElement = (id, arg) => {\n" +
+        "  const div = document.createElement('div');\n" +
+        "  div.id = id;\n" +
+        "  div.style.cssText = 'text-align:right; width:100%; background:white; font-size:15px';\n" +
+        "  div.innerText = arg;\n" +
+        "  const parent = document.getElementById('cover') ?? document.body;\n" +
+        "  parent.insertBefore(div, parent.firstChild);\n" +
+        "  // display:noneが別のcssに上書きされて無視されることがあるのでimportantを付与\n" +
+        "  document.querySelectorAll('*[style*=\"display: none\"]').forEach((e) => e.style.setProperty('display', 'none', 'important'));\n" +
+        "};" +
+        "window.removeInsertedElements = () => {\n" +
+        "  const datetime = document.getElementById('screenshot-datetime')\n" +
+        "  if (datetime) {\n" +
+        "    datetime.remove();\n" +
+        "  }\n" +
+        "  const url = document.getElementById('screenshot-url')\n" +
+        "  if (url) {\n" +
+        "    url.remove();\n" +
+        "  }\n" +
+        "  // 付与したimportantを元に戻す\n" +
+        "  document.querySelectorAll('*[style*=\"display: none\"]').forEach((e) => e.style.setProperty('display', 'none'));\n" +
+        "}\n" +
+        "undefined";
+      webview.executeJavaScript(script);
+    });
     return tab;
   }
 
@@ -114,7 +148,6 @@ class MainView extends React.Component<Props> {
         this.props.setWebviewStatus(webview.src, webview.getTitle());
       }
       tab.setTitle(webview.getTitle());
-      // tab.webview.openDevTools();
     });
     tab.webview.addEventListener('new-window', (e: {url: string}) => {
       if (this.props.shift && this.props.cmdOrCtrl) {
@@ -158,8 +191,11 @@ class MainView extends React.Component<Props> {
   }
 
   async save() {
+    console.log("hello save PDF")
     try {
-      await this.savePDF(undefined, undefined);
+      const tab = this.tabGroup.getActiveTab();
+      const webview = tab.webview as Electron.WebviewTag
+      await this.savePDF(webview, undefined);
     } catch (error: any) {
       this.showDialog(error.message);
     }
@@ -180,21 +216,22 @@ class MainView extends React.Component<Props> {
 
     const trialName = src.split('/')[4];
     const sheetName = src.split('/')[8];
-    const datetime = moment(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmssSSS');
+    const datetime = dayjs(today).tz('Asia/Tokyo').format('YYYYMMDD_HHmmssSSS');
     return `${saveDirectory}/ptosh_crf_image/${trialName}/${sheetName}/${datetime}.pdf`;
   }
 
-  async savePDF(webview: Electron.WebviewTag = this.tabGroup.getActiveTab()?.webview as Electron.WebviewTag, fileName?: string) {
+  async savePDF(webview: Electron.WebviewTag, fileName?: string) {
     if (webview) {
       const today = new Date();
 
       try {
         if (this.props.printUrl) {
-          const script = `window.insertUrl("${webview.src}")`;
+          const script = `window.insertElement('screenshot-url', "${webview.src}")`;
           await webview.executeJavaScript(script);
         }
         if (this.props.printDatetime) {
-          const script = `window.insertDatetime("${moment(today).tz('Asia/Tokyo').format()}")`;
+          const now = dayjs(today).tz('Asia/Tokyo').format()
+          const script = `window.insertElement('screenshot-datetime', "${now}")`;
           await webview.executeJavaScript(script);
         }
 
@@ -203,7 +240,11 @@ class MainView extends React.Component<Props> {
 
         const data = await bindedPrintToPDF({ printBackground: true });
         await window.electronAPI.writeFile(path, data);
-      } finally {
+      }
+      catch(e: any) {
+        console.log({e});
+      }
+      finally {
         const script = 'window.removeInsertedElements()';
         await webview.executeJavaScript(script);
       }
