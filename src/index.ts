@@ -1,5 +1,7 @@
 import { app, ipcMain, dialog, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions } from 'electron';
-//import * as fs from 'fs-extra';
+import * as fs from 'fs'
+import { writeFile } from 'node:fs/promises';
+import * as path from 'node:path';
 import { customSchemeRegExp } from './js/scheme';
 import { captureCaptoshLink } from './js/capture-captosh-link';
 
@@ -133,10 +135,10 @@ app.whenReady().then(() => {
   ipcMain.handle('show-dialog', async (_e, message: string) => {
     alert(message);
   });
-  ipcMain.handle('write-file', async (_e, path: string, data: Uint8Array) => {
-    //TODO: FIXME
-    //fs.ensureFileSync(path);
-    //await fs.promises.writeFile(path, data);
+  ipcMain.handle('write-file', async (_e, pathStr: string, data: Uint8Array) => {
+    const dir = path.dirname(pathStr)
+    fs.mkdirSync(dir, { recursive: true })
+    writeFile(pathStr, data);
   });
   ipcMain.handle('capture-captosh-link', async (_e, captoshUrl: string, protocol: 'http:' | 'https:') => {
     return await captureCaptoshLink(captoshUrl, protocol);
