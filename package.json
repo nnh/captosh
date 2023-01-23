@@ -3,6 +3,7 @@
   "productName": "captosh",
   "version": "1.1.4",
   "description": "PDF capture of multiple web pages.",
+  "packageManager": "yarn@3.2.0",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
@@ -21,6 +22,10 @@
     "@electron-forge/maker-zip": "^6.0.4",
     "@electron-forge/plugin-webpack": "^6.0.4",
     "@fortawesome/fontawesome-free": "^6.2.1",
+    "@types/react": "^18.0.26",
+    "@types/react-bootstrap": "^0.32.4",
+    "@types/react-dom": "^18.0.10",
+    "@types/redux-thunk": "^2.1.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "@vercel/webpack-asset-relocator-loader": "1.7.3",
@@ -32,6 +37,11 @@
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^7.2.13",
     "node-loader": "^2.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.0.5",
+    "redux": "^4.2.0",
+    "redux-logger": "^3.0.6",
     "sass": "^1.57.1",
     "sass-loader": "^13.2.0",
     "style-loader": "^3.0.0",
@@ -40,7 +50,11 @@
     "typescript": "~4.5.4"
   },
   "dependencies": {
+    "csv-parse": "^5.3.3",
     "electron-squirrel-startup": "^1.0.0",
-    "electron-tabs": "^0.15.0"
+    "electron-tabs": "^1.0.1",
+    "fs-extra": "^11.1.0",
+    "moment-timezone": "^0.5.40",
+    "react-bootstrap": "0.32.4"
   }
 }
