@@ -4,14 +4,8 @@ import { rules } from './webpack.rules';
 import { plugins } from './webpack.plugins';
 
 rules.push({
-  test: /\.(eot|svg|ttf|woff|woff2)$/,
-  use: [{
-    loader: 'file-loader',
-    options: {
-      name: "[path][name].[ext]",
-      publicPath: "../",
-    }
-  }]
+  test: /\.(eot|svg|ttf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+  type: 'asset/resource'
 });
 rules.push({
   test: /\.s[ac]ss(\?v=[^=]+)?$/i,
