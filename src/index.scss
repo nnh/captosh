@@ -1,6 +1,9 @@
-@import '../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap';
-@import '../../node_modules/font-awesome/scss/font-awesome';
-@import '../../node_modules/electron-tabs/electron-tabs.css';
+$icon-font-path: "~bootstrap-sass/assets/fonts/bootstrap/";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap";
+$fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
+@import "@fortawesome/fontawesome-free/scss/fontawesome";
+@import "@fortawesome/fontawesome-free/scss/solid";
+@import "~electron-tabs/src/style.css";
 
 html {
   width: 100%;

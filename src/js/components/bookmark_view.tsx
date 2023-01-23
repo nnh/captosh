@@ -25,7 +25,8 @@ export default function BookmarkView(props: Props) {
   const [selected, setSelected] = React.useState(props.currentUrl);
 
   React.useEffect(() => {
-    Bookmark.get().then((bookmark) => setBookmarks(bookmark));
+    const bookmarks = Bookmark.loadBookmarks();
+    setBookmarks(bookmarks);
   }, [])
 
   function moveBookmark() {
@@ -34,18 +35,16 @@ export default function BookmarkView(props: Props) {
     props.submit(selected);
   }
 
-  async function deleteBookmark() {
-    await Bookmark.delete(selected);
-    const newBookmarks = await Bookmark.get();
+  function deleteBookmark() {
+    const newBookmarks = Bookmark.delete(selected);
     setBookmarks(newBookmarks);
   }
 
-  async function addBookmark() {
-    await Bookmark.add(props.currentUrl, props.currentTitle);
-    const newBookmarks = await Bookmark.get();
-    setBookmarks(newBookmarks);    
+  function addBookmark() {
+    const newBookmarks = Bookmark.add(props.currentUrl, props.currentTitle);
+    setBookmarks(newBookmarks);
   }
-  
+
   return (
     <div className='bookmark-bar'>
       ブックマーク
