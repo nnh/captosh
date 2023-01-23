@@ -63,18 +63,13 @@ class MainView extends React.Component<Props> {
 
   render = () => (
     <div>
-      <Navbar>
-        <div className='add-tab-button-container'>
-          <Button className='add-tab-button' bsStyle='default' title='タブ追加' onClick={() => this.createTab()}><i className='fa-solid fa-plus'></i></Button>
-        </div>
-        <BookmarkView submit={this.submit} currentUrl={this.props.src} currentTitle={this.props.title} />
-      </Navbar>
-
+      <BookmarkView submit={this.submit} currentUrl={this.props.src} currentTitle={this.props.title} />
       <div className='etabs-views'>
         <div className='form-inline'>
           <Button bsStyle='default' title='前に戻る' onClick={this.goBack}><i className='fa-solid fa-left-long'></i></Button>
           <Button bsStyle='default' title='次に進む' onClick={this.goForward}><i className='fa-solid fa-arrow-right'></i></Button>
           <Button bsStyle='default' title='再読み込み' onClick={() => this.tabGroup.getActiveTab()?.webview.reload()}><i className='fa-solid fa-refresh'></i></Button>
+          <Button className='add-tab-button' bsStyle='default' title='タブ追加' onClick={() => this.createTab()}><i className='fa-solid fa-plus'></i></Button>
           <input className='url-bar form-control' type='text' placeholder='url'
             value={this.props.urlBar} onChange={(e) => this.props.inputUrl(e.target.value)} onKeyPress={this.keyPress} />
           <Button bsStyle='default' title='移動' onClick={() => this.submit()}><i className='fa-solid fa-sign-in'></i></Button>
