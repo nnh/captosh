@@ -1,74 +1,44 @@
 {
   "name": "captosh",
-  "version": "1.1.4",
-  "description": "",
-  "main": "app/main.js",
+  "productName": "captosh",
+  "version": "2.0.0",
+  "description": "My Electron application description",
+  "main": ".vite/build/main.js",
   "scripts": {
-    "start": "electron .",
-    "package": "gulp pack",
-    "test": "jest"
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts,.tsx ."
   },
-  "author": "",
-  "license": "ISC",
+  "keywords": [],
+  "license": "MIT",
   "devDependencies": {
-    "@types/electron-json-storage": "^4.5.0",
-    "@types/gulp": "^4.0.9",
-    "@types/gulp-sass": "^5.0.0",
-    "@types/jest": "^27.0.1",
-    "@types/react": "^16.7.0",
-    "@types/react-bootstrap": "^0.32.4",
-    "@types/react-dom": "^16.7.0",
-    "@types/redux-logger": "^3.0.6",
-    "@types/sass": "^1.16.1",
-    "del": "^6.0.0",
-    "electron": "^13.1.7",
-    "electron-builder": "^22.11.7",
-    "electron-connect": "^0.6.3",
-    "gulp": "^4.0.2",
-    "gulp-pug": "^5.0.0",
-    "gulp-sass": "^5.0.0",
-    "jest": "^27.0.6",
-    "sass": "^1.36.0",
-    "ts-jest": "^27.0.5",
-    "ts-loader": "^9.2.4",
-    "ts-node": "^10.1.0",
-    "typescript": "^4.3.5",
-    "typescript-language-server": ">=0.5.4",
-    "webpack": "^5.49.0",
-    "webpack-cli": "^4.7.2",
-    "webpack-merge": "^5.8.0"
+    "@electron-forge/cli": "^7.2.0",
+    "@electron-forge/maker-deb": "^7.2.0",
+    "@electron-forge/maker-dmg": "^7.8.1",
+    "@electron-forge/maker-rpm": "^7.2.0",
+    "@electron-forge/maker-squirrel": "^7.2.0",
+    "@electron-forge/maker-zip": "^7.2.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.2.0",
+    "@electron-forge/plugin-fuses": "^7.2.0",
+    "@electron-forge/plugin-vite": "^7.2.0",
+    "@electron/fuses": "^1.8.0",
+    "@types/electron-squirrel-startup": "^1.0.2",
+    "@types/papaparse": "^5.3.16",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "electron": "36.4.0",
+    "eslint": "^9.28.0",
+    "eslint-plugin-import": "^2.31.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5"
   },
   "dependencies": {
-    "bootstrap-sass": "^3.4.1",
-    "csv-parse": "^4.16.0",
-    "electron-json-storage": "^4.5.0",
-    "electron-tabs": "^0.15.0",
-    "font-awesome": "^4.7.0",
-    "fs-extra": "^10.0.0",
-    "moment-timezone": "^0.5.33",
-    "react": "^16.7.0",
-    "react-bootstrap": "^0.32.4",
-    "react-dom": "^16.7.0",
-    "react-redux": "^7.2.4",
-    "redux": "^4.0.1",
-    "redux-logger": "^3.0.6",
-    "redux-thunk": "^2.3.0"
-  },
-  "build": {
-    "protocols": [
-      {
-        "name": "captosh",
-        "schemes": [
-          "captosh",
-          "captoshs"
-        ]
-      }
-    ],
-    "win": {
-      "target": "nsis"
-    },
-    "nsis": {
-      "perMachine": true
-    }
+    "@date-fns/tz": "^1.2.0",
+    "date-fns": "^4.1.0",
+    "electron-squirrel-startup": "^1.0.1",
+    "papaparse": "^5.5.3"
   }
 }

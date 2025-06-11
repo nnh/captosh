@@ -1,109 +1,48 @@
-'use strict';
+import { app, BrowserWindow, ipcMain, dialog, webContents } from 'electron';
+import path from 'node:path';
+import started from 'electron-squirrel-startup';
+import { TZDate } from '@date-fns/tz';
+import { GlobalState, store } from './store';
+import { promises as fs } from 'fs'
+import type { ElectronAppPathName } from "./type";
 
-import { app, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions } from 'electron';
-import { customSchemeRegExp } from './js/scheme';
-
-let mainWindow: BrowserWindow|undefined = undefined;
-
-const lock = app.requestSingleInstanceLock();
-if (lock) {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) {
-        mainWindow.restore();
-      }
-      mainWindow.focus();
-
-      // for Windows
-      commandLine.forEach(checkCustomScheme);
-    }
-  })
-
-  app.on('ready', createWindow);
-} else {
+// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+if (started) {
   app.quit();
 }
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
+const createWindow = () => {
+  // Create the browser window.
+  const mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
     webPreferences: {
-      partition: 'persist:ptosh',
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true,
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
       webviewTag: true,
-    }
-  });
-  mainWindow.loadURL(`file://${__dirname}/window.html`);
-  // mainWindow.webContents.openDevTools();
-
-  mainWindow.on('closed', () => {
-    mainWindow = undefined;
+    },
   });
 
-  const template: (MenuItemConstructorOptions | MenuItem)[] = [
-    {
-      label: 'Application',
-      submenu: [
-        {
-          label: '終了',
-          accelerator: 'Command+Q',
-          click: () => {
-            app.quit();
-          }
-        }
-      ]
-    },
-    {
-      label: '編集',
-      submenu: [
-        {
-          label: '取り消す',
-          accelerator: 'CmdOrCtrl+Z',
-          role: 'undo'
-        },
-        {
-          label: 'やり直す',
-          accelerator: 'Shift+CmdOrCtrl+Z',
-          role: 'redo'
-        },
-        {
-          type: 'separator'
-        },
-        {
-          label: '切り取り',
-          accelerator: 'CmdOrCtrl+X',
-          role: 'cut'
-        },
-        {
-          label: 'コピー',
-          accelerator: 'CmdOrCtrl+C',
-          role: 'copy'
-        },
-        {
-          label: '貼り付け',
-          accelerator: 'CmdOrCtrl+V',
-          role: 'paste'
-        },
-        {
-          label: 'すべてを選択',
-          accelerator: 'CmdOrCtrl+A',
-          role: 'selectAll'
-        }
-      ]
-    },
-    {
-      label: '表示',
-      submenu: [
-        { role: 'toggleDevTools' },
-      ]
-    }
-  ];
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-}
+  // and load the index.html of the app.
+  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  } else {
+    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+  }
 
+  // Open the DevTools.
+  mainWindow.webContents.openDevTools();
+};
+
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', createWindow);
+
+// Quit when all windows are closed, except on macOS. There, it's common
+// for applications and their menu bar to stay active until the user quits
+// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -111,24 +50,101 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  if (mainWindow === null) {
+  // On OS X it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });
 
-app.on('will-finish-launching', () => {
-  // for OSX
-  app.on('open-url', (e, url) => {
+// In this file you can include the rest of your app's specific main process
+// code. You can also put them in separate files and import them here.
 
-    checkCustomScheme(url);
-  });
+ipcMain.on('navigate-to', (event, url) => {
+  if (/^https?:\/\//.test(url)) {
+    event.sender.send('do-navigate', url)
+  } else {
+    event.sender.send('alert', `Invalid URL: ${url}`);
+  }
+})
 
-  // for Windows
-  process.argv.forEach(checkCustomScheme);
+ipcMain.handle('get-state', (_e, key: keyof GlobalState) => {
+  return store.get(key);
 });
 
-function checkCustomScheme(url: string) {
-  if (customSchemeRegExp.test(url) && mainWindow && mainWindow.webContents) {
-    mainWindow.webContents.send('exec-api', url);
+ipcMain.on('set-state', (_e, key: keyof GlobalState, value: GlobalState[keyof GlobalState]) => {
+  store.set(key, value);
+});
+
+ipcMain.handle('get-app-path', (_e, name: ElectronAppPathName) => {
+  return app.getPath(name);
+})
+
+ipcMain.handle('select-output-directory', async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory', 'createDirectory'],
+    title: '出力先フォルダを選択',
+    defaultPath: app.getPath('documents'),
+  });
+
+  if (result.canceled || result.filePaths.length === 0) {
+    return null;
   }
+
+  return result.filePaths[0];
+});
+
+async function insertElement(window: BrowserWindow, id: string, content: string) {
+  await window.webContents.executeJavaScript(`
+    (() => {
+      let element = document.createElement('div');
+      element.id = '${id}';
+      element.innerText = \`${content}\`;
+      Object.assign(element.style, {
+        'text-align': 'right',
+        width: '100%',
+        backgroundColor: 'white' ,
+      })
+      let parent = document.getElementById('cover') ?? document.body;
+      parent.insertBefore(element, parent.firstChild);
+      // display:noneが別のcssに上書きされて無視されることがあるのでimportantを付与
+      document.querySelectorAll('*[style*="display: none"]').forEach(el => {
+        el.style.setProperty('display', 'none', 'important');
+      });
+    })();
+  `);
 }
+
+ipcMain.handle('print-pdf', async (e, { webContentsId, url, outputPath }: { webContentsId: number, url: string, outputPath: string }) => {
+  const outputFullPath = path.join(store.get('outputDirectory'), 'ptosh_crf_image', outputPath);
+  const webContent = webContents.fromId(webContentsId);
+
+  if (!webContent) {
+    throw new Error(`No webContents for id ${webContentsId}`)
+  }
+
+  const offscreen = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      offscreen: true,
+      session: webContent.session,
+    }
+  });
+
+  await offscreen.loadURL(url);
+
+  if (store.get('isPrintingDateTime')) {
+    const dateTime = new TZDate().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+    await insertElement(offscreen, 'captosh-date-time', dateTime);
+  }
+
+  if (store.get('isPrintingURL')) {
+    await insertElement(offscreen, 'captosh-url', url);
+  }
+
+  const buffer = await offscreen.webContents.printToPDF({ printBackground: true });
+  await fs.mkdir(path.dirname(outputFullPath), { recursive: true });
+  await fs.writeFile(outputFullPath, buffer);
+  offscreen.destroy();
+  return outputFullPath;
+});
