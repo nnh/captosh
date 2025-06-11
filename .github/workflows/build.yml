@@ -18,7 +18,7 @@ jobs:
             artifact_path: out/make/squirrel.windows/**/*.exe
           - os: macos-latest
             platform: macos
-            artifact_path: out/make/dmg/**/*.dmg
+            artifact_path: out/make/**/*.dmg
 
     runs-on: ${{ matrix.os }}
     name: Build for ${{ matrix.platform }}
