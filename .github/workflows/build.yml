@@ -38,7 +38,7 @@ jobs:
           node-version: ${{ steps.get-node-version.outputs.node_version }}
           cache: 'yarn'
 
-      - run: yarn install --frozen-lockfile
+      - run: yarn install
         shell: bash
 
       - name: Build with Electron Forge
