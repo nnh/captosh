@@ -2,12 +2,50 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Hello World!</title>
-
+    <title>Captosh</title>
   </head>
   <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
+    <div id="menu-container">
+      <div>
+        <input id="url-input" type="text" style="width:60%">
+        <button id="go">移動</button>
+      </div>
+      <div>
+        <input id="output-dir-input" type="text" readonly disabled style="width:60%">
+        <button id="select-output-dir">出力フォルダを選択</button>
+      </div>
+      <div>
+        <label>
+          <input id="print-date-time" type="checkbox" />
+          日時を印字する
+        </label>
+        <label>
+          <input id="print-url" type="checkbox" />
+          URLを印字する
+        </label>
+        <button id="print">現在のページを印刷</button>
+        <button id="show-bulk-print">複数印刷</button>
+      </div>
+      <div id="bulk-print-panel" style="display:none;">
+        <textarea id="bulk-input" rows="6" style="width:100%; white-space:nowrap; overflow-x:auto;"></textarea>
+        <br>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button id="bulk-print">印刷</button>
+          <div id="bulk-print-status" style="display:none;">
+            <label>
+              ダウンロード中:
+              <progress id="bulk-print-progress" value="0" max="100"></progress>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <webview
+      id="ptosh-webview"
+      src="https://builder.ptosh.com/"
+    />
+
     <script type="module" src="/src/renderer.ts"></script>
   </body>
 </html>
