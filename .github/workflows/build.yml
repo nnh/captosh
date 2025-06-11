@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            artifact_path: out/make/deb/**/*.deb
+          - os: windows-latest
+            platform: windows
+            artifact_path: out/make/squirrel.windows/**/*.exe
+          - os: macos-latest
+            platform: macos
+            artifact_path: out/make/dmg/**/*.dmg
+
+    runs-on: ${{ matrix.os }}
+    name: Build for ${{ matrix.platform }}
+
+    steps:
+      - uses: ./.github/actions/setup
+
+      - name: Build with Electron Forge
+        run: yarn make
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-build
+          path: ${{ matrix.artifact_path }}
