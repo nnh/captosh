@@ -24,7 +24,22 @@ jobs:
     name: Build for ${{ matrix.platform }}
 
     steps:
-      - uses: ./.github/actions/setup
+      - uses: actions/checkout@v4
+
+      - id: get-node-version
+        shell: bash
+        run: |
+          NODE_VERSION=$(grep '^node' .mise.toml | awk '{print $3}')
+          echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "NODE_VERSION=$NODE_VERSION"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.get-node-version.outputs.node_version }}
+          cache: 'yarn'
+
+      - run: yarn install --frozen-lockfile
+        shell: bash
 
       - name: Build with Electron Forge
         run: yarn make
