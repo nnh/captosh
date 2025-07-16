@@ -131,20 +131,26 @@ ipcMain.handle('print-pdf', async (e, { webContentsId, url, outputPath }: { webC
     }
   });
 
-  await offscreen.loadURL(url);
+  try {
+    await offscreen.loadURL(url);
 
-  if (store.get('isPrintingDateTime')) {
-    const dateTime = new TZDate().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
-    await insertElement(offscreen, 'captosh-date-time', dateTime);
+    if (store.get('isPrintingDateTime')) {
+      const dateTime = new TZDate().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+      await insertElement(offscreen, 'captosh-date-time', dateTime);
+    }
+
+    if (store.get('isPrintingURL')) {
+      await insertElement(offscreen, 'captosh-url', url);
+    }
+
+    const buffer = await offscreen.webContents.printToPDF({ printBackground: true });
+    await fs.mkdir(path.dirname(outputFullPath), { recursive: true });
+    await fs.writeFile(outputFullPath, buffer);
+  } catch (error) {
+    console.error('Failed to print PDF:', error);
+    throw error;
+  } finally {
+    offscreen.destroy();
   }
-
-  if (store.get('isPrintingURL')) {
-    await insertElement(offscreen, 'captosh-url', url);
-  }
-
-  const buffer = await offscreen.webContents.printToPDF({ printBackground: true });
-  await fs.mkdir(path.dirname(outputFullPath), { recursive: true });
-  await fs.writeFile(outputFullPath, buffer);
-  offscreen.destroy();
   return outputFullPath;
 });

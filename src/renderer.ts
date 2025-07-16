@@ -29,6 +29,7 @@ import type { WebviewTag } from 'electron'
 import './index.css';
 import { format } from 'date-fns';
 import { parse } from 'papaparse';
+import { OutputResource } from './store';
 
 const urlInput = document.getElementById('url-input') as HTMLInputElement;
 const urlButton = document.getElementById('go') as HTMLButtonElement;
@@ -37,11 +38,9 @@ const printDateTimeCheckbox = document.getElementById('print-date-time') as HTML
 const printURLCheckbox = document.getElementById('print-url') as HTMLInputElement;
 const selectDirectoryInput = document.getElementById('output-dir-input') as HTMLInputElement;
 const selectDirectoryButton = document.getElementById('select-output-dir') as HTMLButtonElement;
+const resourcesSelect = document.getElementById('resources-select') as HTMLSelectElement;
 const printButton = document.getElementById('print') as HTMLButtonElement;
-const showBulkPrintButton = document.getElementById('show-bulk-print') as HTMLButtonElement;
-const bulkPrintPanel = document.getElementById('bulk-print-panel') as HTMLDivElement;
 const bulkPrintButton = document.getElementById('bulk-print') as HTMLButtonElement;
-const bulkPrintInput = document.getElementById('bulk-input') as HTMLInputElement;
 const bulkPrintStatus = document.getElementById('bulk-print-status') as HTMLDivElement;
 const bulkPrintProgress = document.getElementById('bulk-print-progress') as HTMLProgressElement;
 
@@ -69,8 +68,29 @@ urlButton.addEventListener('click', () => {
   window.electronAPI.navigate(urlInput.value);
 });
 
-webView.addEventListener('did-finish-load', () => {
+webView.addEventListener('did-finish-load', async () => {
   urlInput.value = webView.getURL();
+  const result = await webView.executeJavaScript(`
+    Array.from(document.querySelectorAll('script[id^="captosh-"]')).map(el => ({
+      id: el.id,
+      content: el.textContent || '',
+      name: el.getAttribute('data-name') || ''
+    }));
+  `) || [] as OutputResource[];
+
+  window.storeAPI.set('resources', result);
+
+  resourcesSelect.innerHTML = '';
+  const emptyOption = document.createElement('option');
+  emptyOption.textContent = 'リソースを選択してください';
+  resourcesSelect.appendChild(emptyOption);
+
+  result.forEach((resource: OutputResource) => {
+    const option = document.createElement('option');
+    option.value = resource.id;
+    option.textContent = resource.name || resource.id;
+    resourcesSelect.appendChild(option);
+  });
 });
 
 printDateTimeCheckbox.addEventListener('change', (event) => {
@@ -111,12 +131,16 @@ printButton.addEventListener('click', async () => {
   alert('印刷が完了しました。');
 });
 
-showBulkPrintButton.addEventListener('click', async () => {
-  bulkPrintPanel.style.display = bulkPrintPanel.style.display === 'none' ? 'block' : 'none';
-});
-
 bulkPrintButton.addEventListener('click', async () => {
-  const csv = parse<string[]>(bulkPrintInput.value, { header: false, skipEmptyLines: true });
+  const resources = await window.storeAPI.get('resources');
+  const selectedResourceId = resourcesSelect.value;
+  const selectedResource = resources.find(r => r.id === selectedResourceId);
+  if (!selectedResource) {
+    alert('リソースが選択されていません。');
+    return;
+  }
+
+  const csv = parse<string[]>(selectedResource.content, { header: false, skipEmptyLines: true });
   if (!csv.data || csv.data.length === 0 || csv.errors.length > 0) {
     alert(`CSVの内容が正しくありません。${csv.errors.map(e => e.message).join(', ')}`);
     return;
