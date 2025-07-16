@@ -23,20 +23,16 @@
           <input id="print-url" type="checkbox" />
           URLを印字する
         </label>
-        <button id="print">現在のページを印刷</button>
-        <button id="show-bulk-print">複数印刷</button>
-      </div>
-      <div id="bulk-print-panel" style="display:none;">
-        <textarea id="bulk-input" rows="6" style="width:100%; white-space:nowrap; overflow-x:auto;"></textarea>
-        <br>
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <button id="bulk-print">印刷</button>
-          <div id="bulk-print-status" style="display:none;">
-            <label>
-              ダウンロード中:
-              <progress id="bulk-print-progress" value="0" max="100"></progress>
-            </label>
-          </div>
+        <button id="print">現在のページを出力</button>
+        <select id="resources-select">
+          <option value="">リソースを選択してください</option>
+        </select>
+        <button id="bulk-print">出力</button>
+        <div id="bulk-print-status" style="display:none;">
+          <label>
+            ダウンロード中:
+            <progress id="bulk-print-progress" value="0" max="100"></progress>
+          </label>
         </div>
       </div>
     </div>

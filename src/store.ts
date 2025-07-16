@@ -1,7 +1,13 @@
+export interface OutputResource {
+  id: string;
+  name: string;
+  content: string;
+}
 export interface GlobalState {
   isPrintingDateTime: boolean;
   isPrintingURL: boolean;
   outputDirectory: string;
+  resources: OutputResource[];
 }
 
 export type GlobalStateKey = keyof GlobalState;
@@ -14,6 +20,7 @@ class Store {
       isPrintingDateTime: false,
       isPrintingURL: false,
       outputDirectory: '',
+      resources: [],
     };
   }
 
