@@ -50,6 +50,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
    * @returns 保存されたPDFのフルパス。
    */
   printPDF: (webContentsId: number, outputPath: string, url: string) => ipcRenderer.invoke('print-pdf', { webContentsId, outputPath, url }),
+
+  /**
+    * 現在のWebViewの内容をPDFとして印刷（保存）します。
+    * @param webContentsId - 対象のWebコンテンツのID。
+    * @param outputPath - PDFの保存先パス。
+    * @returns 保存されたPDFのフルパス。
+    */
+  printPDFFromCurrentWebview: (webContentsId: number, outputPath: string) => ipcRenderer.invoke('print-pdf-for-current-webview', { webContentsId, outputPath }),
 });
 
 /**

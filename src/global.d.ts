@@ -11,6 +11,7 @@ declare global {
       selectDirectory: () => Promise<string | null>;
       getAppPath: (name: ElectronAppPathName) => Promise<string>;
       printPDF: (webContentsId: number, outputPath: string, url?: string) => Promise<string | null>;
+      printPDFFromCurrentWebview: (webContentsId: number, outputPath: string) => Promise<string | null>;
     },
     storeAPI: {
       get: <K extends GlobalStateKey>(key: K) => Promise<GlobalState[K]>;

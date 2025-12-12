@@ -94,8 +94,8 @@ ipcMain.handle('select-output-directory', async () => {
   return result.filePaths[0];
 });
 
-async function insertElement(window: BrowserWindow, id: string, content: string) {
-  await window.webContents.executeJavaScript(`
+async function insertElement(webContents: Electron.WebContents, id: string, content: string) {
+  await webContents.executeJavaScript(`
     (() => {
       let element = document.createElement('div');
       element.id = '${id}';
@@ -113,6 +113,35 @@ async function insertElement(window: BrowserWindow, id: string, content: string)
       });
     })();
   `);
+}
+
+async function removeElement(webContents: Electron.WebContents, id: string) {
+  await webContents.executeJavaScript(`
+    (() => {
+      let element = document.getElementById('${id}');
+      if (element) {
+        element.remove();
+      }
+    })();
+  `);
+}
+
+async function printPDF(webContents: Electron.WebContents, outputFullPath: string) {
+  if (store.get('isPrintingDateTime')) {
+    const dateTime = new TZDate().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+    await insertElement(webContents, 'captosh-date-time', dateTime);
+  }
+
+  if (store.get('isPrintingURL')) {
+    const url = webContents.getURL();
+    await insertElement(webContents, 'captosh-url', url);
+  }
+
+  const buffer = await webContents.printToPDF({ printBackground: true });
+  await fs.mkdir(path.dirname(outputFullPath), { recursive: true });
+  await fs.writeFile(outputFullPath, buffer);
+  await removeElement(webContents, 'captosh-date-time');
+  await removeElement(webContents, 'captosh-url');
 }
 
 ipcMain.handle('print-pdf', async (e, { webContentsId, url, outputPath }: { webContentsId: number, url: string, outputPath: string }) => {
@@ -133,24 +162,29 @@ ipcMain.handle('print-pdf', async (e, { webContentsId, url, outputPath }: { webC
 
   try {
     await offscreen.loadURL(url);
-
-    if (store.get('isPrintingDateTime')) {
-      const dateTime = new TZDate().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
-      await insertElement(offscreen, 'captosh-date-time', dateTime);
-    }
-
-    if (store.get('isPrintingURL')) {
-      await insertElement(offscreen, 'captosh-url', url);
-    }
-
-    const buffer = await offscreen.webContents.printToPDF({ printBackground: true });
-    await fs.mkdir(path.dirname(outputFullPath), { recursive: true });
-    await fs.writeFile(outputFullPath, buffer);
+    await printPDF(offscreen.webContents, outputFullPath);
   } catch (error) {
     console.error('Failed to print PDF:', error);
     throw error;
   } finally {
     offscreen.destroy();
+  }
+  return outputFullPath;
+});
+
+ipcMain.handle('print-pdf-for-current-webview', async (e, { webContentsId, outputPath }: { webContentsId: number, outputPath: string }) => {
+  const outputFullPath = path.join(store.get('outputDirectory'), 'ptosh_crf_image', outputPath);
+  const webContent = webContents.fromId(webContentsId);
+
+  if (!webContent) {
+    throw new Error(`No webContents for id ${webContentsId}`)
+  }
+
+  try {
+    await printPDF(webContent, outputFullPath);
+  } catch (error) {
+    console.error('Failed to print PDF:', error);
+    throw error;
   }
   return outputFullPath;
 });

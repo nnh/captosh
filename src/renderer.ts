@@ -120,9 +120,9 @@ printButton.addEventListener('click', async () => {
   const sheetName = src.split('/')[8];
   let result: string | null = null;
   if (!trialName || !sheetName) {
-    result = await window.electronAPI.printPDF(webContentsId, `${now}.pdf`, src);
+    result = await window.electronAPI.printPDFFromCurrentWebview(webContentsId, `${now}.pdf`);
   } else {
-    result = await window.electronAPI.printPDF(webContentsId, `${trialName}/${sheetName}/${now}.pdf`, src);
+    result = await window.electronAPI.printPDFFromCurrentWebview(webContentsId, `${trialName}/${sheetName}/${now}.pdf`);
   }
   if (!result) {
     alert('印刷に失敗しました。');
